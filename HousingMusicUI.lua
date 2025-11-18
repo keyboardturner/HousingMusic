@@ -110,6 +110,7 @@ MainframeToggleButton:SetScript("OnLeave", function()
 end)
 MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
 MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
+MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 MainframeToggleButton:SetScript("OnEvent", function()
 	local HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
 	local isInHouse = C_Housing.IsInsideOwnHouse()
