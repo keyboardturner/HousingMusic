@@ -20,8 +20,18 @@ local SearchBoxRight
 local FilterAvailableList
 local FilterSavedList
 
+local function FormatDuration(seconds)
+    if not seconds or seconds <= 0 then
+        return "0:00"
+    end
+    seconds = math.floor(seconds)
+    local minutes = math.floor(seconds / 60)
+    local remainingSeconds = math.fmod(seconds, 60)
+    return string.format("%d:%02d", minutes, remainingSeconds)
+end
+
 local MainFrame = CreateFrame("Frame", "HousingMusicFrame", UIParent)
-MainFrame:SetSize(620, 420)
+MainFrame:SetSize(620, 470)
 MainFrame:SetPoint("CENTER")
 local Border = MainFrame:CreateTexture(nil, "BORDER", nil, 1);
 Border:SetPoint("TOPLEFT", -6, 6);
@@ -36,7 +46,7 @@ Backframe:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 0, 0)
 MainFrame.Backframe = Backframe
 local SectionLeft = CreateFrame("Frame", nil, Backframe)
 SectionLeft:SetPoint("TOPLEFT", Backframe, "TOPLEFT", 0, 0)
-SectionLeft:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOM", 0, 0)
+SectionLeft:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOM", 0, 50)
 SectionLeft.tex = SectionLeft:CreateTexture(nil, "BACKGROUND", nil, 0);
 SectionLeft.tex:SetAtlas("catalog-list-preview-bg")
 SectionLeft.tex:SetVertexColor(1,1,1,1)
@@ -44,7 +54,7 @@ SectionLeft.tex:SetAllPoints(SectionLeft)
 MainFrame.SectionLeft = SectionLeft
 local SectionRight = CreateFrame("Frame", nil, Backframe)
 SectionRight:SetPoint("TOPLEFT", Backframe, "TOP", 0, 0)
-SectionRight:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOMRIGHT", 0, 0)
+SectionRight:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOMRIGHT", 0, 50)
 SectionRight.tex = SectionRight:CreateTexture(nil, "BACKGROUND", nil, 0);
 SectionRight.tex:SetAtlas("catalog-list-preview-bg")
 SectionRight.tex:SetAllPoints(SectionRight)
@@ -64,6 +74,11 @@ Header:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 0, 0);
 Header:SetPoint("BOTTOMRIGHT", Backframe, "TOPRIGHT", 0, 0);
 Header:SetAtlas("housing-basic-container-woodheader");
 MainFrame.Header = Header
+--local Footer = MainFrame:CreateTexture(nil, "BORDER", nil, 2); -- idk if i like this look
+--Footer:SetPoint("TOPLEFT", SectionLeft, "BOTTOMLEFT", 0, 0);
+--Footer:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOMRIGHT", 0, 0);
+--Footer:SetAtlas("housing-basic-container-woodheader");
+--MainFrame.Footer = Footer
 
 local MainframeToggleButton = CreateFrame("Button", nil, UIParent)
 MainframeToggleButton:SetPoint("CENTER")
@@ -94,15 +109,22 @@ MainframeToggleButton:SetScript("OnLeave", function()
 	MainframeToggleButton.tex:SetVertexColor(.81, .76, .66)
 end)
 MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
+MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:SetScript("OnEvent", function()
 	local HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
-	if HousingFrame then
+	local isInHouse = C_Housing.IsInsideOwnHouse()
+	if HousingFrame and isInHouse then
 		MainframeToggleButton:ClearAllPoints()
 		MainframeToggleButton:SetPoint("RIGHT", HousingFrame, "LEFT", 0, 0)
+		MainframeToggleButton:Show()
 		MainFrame:ClearAllPoints()
 		MainFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
+	else
+		MainframeToggleButton:Hide()
+		MainFrame:Hide()
 	end
 end)
+MainframeToggleButton:Hide()
 local closeButton = CreateFrame("Button", nil, MainFrame, "UIPanelCloseButtonNoScripts");
 closeButton:SetPoint("TOPRIGHT", 0, 0);
 closeButton:SetScript("OnClick", function()
@@ -111,8 +133,14 @@ closeButton:SetScript("OnClick", function()
 	end
 end);
 MainFrame.closeButton = closeButton
-
 MainFrame:Hide()
+MainFrame:SetScript("OnShow", function()
+	PlaySound(305110)
+	UpdateSavedMusicList()
+end)
+MainFrame:SetScript("OnHide", function()
+	PlaySound(305110)
+end)
 
 SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
 SearchBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 10, 0)
@@ -238,17 +266,37 @@ local function Initializer(button, musicInfo)
 			HousingMusic_DB.PlayerMusic[musicInfo.file] = true 
 			UpdateSavedMusicList()
 			print("|cff00ff00Added:|r " .. musicInfo.name)
+			PlaySound(316551)
 		else
 			print("|cffffcc00Warning:|r Music already saved.")
 		end
 	end)
 	addButton:Show()
 	
-	button:SetScript("OnEnter", function()
+	button:SetScript("OnEnter", function(self)
 		button.texHL:Show()
+		
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		
+		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
+		
+		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
+		
+		if musicInfo.names and #musicInfo.names > 1 then
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddLine("Alternate Names:", 0.8, 0.8, 0.8)
+			
+			for i = 2, #musicInfo.names do
+				GameTooltip:AddLine(musicInfo.names[i], 0.7, 0.7, 0.7)
+			end
+		end
+		
+		GameTooltip:Show()
 	end)
+	
 	button:SetScript("OnLeave", function()
 		button.texHL:Hide()
+		GameTooltip:Hide()
 	end)
 end
 
@@ -377,14 +425,32 @@ local function SavedInitializer(button, musicInfo)
 	
 	removeButton:SetScript("OnClick", function()
 		RemoveMusicEntry(musicInfo.file, musicInfo.name)
+		PlaySound(316562)
 	end)
 	removeButton:Show()
 	
-	button:SetScript("OnEnter", function()
+	button:SetScript("OnEnter", function(self)
 		button.texHL:Show()
+		
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
+		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
+		
+		if musicInfo.names and #musicInfo.names > 1 then
+			GameTooltip:AddLine(" ")
+			GameTooltip:AddLine("Alternate Names:", 0.8, 0.8, 0.8)
+			
+			for i = 2, #musicInfo.names do
+				GameTooltip:AddLine(musicInfo.names[i], 0.7, 0.7, 0.7)
+			end
+		end
+		
+		GameTooltip:Show()
 	end)
+	
 	button:SetScript("OnLeave", function()
 		button.texHL:Hide()
+		GameTooltip:Hide()
 	end)
 end
 
@@ -405,7 +471,8 @@ function UpdateSavedMusicList()
 			local listItem = { 
 				name = primaryName, 
 				file = musicInfo.file, 
-				duration = musicInfo.duration 
+				duration = musicInfo.duration,
+				names = musicInfo.names,
 			}
 			table.insert(fullSavedList, listItem)
 		end
@@ -422,7 +489,8 @@ for _, musicResult in LRPM:EnumerateMusic() do
 	local musicInfo = { 
 		name = primaryName, 
 		file = musicResult.file, 
-		duration = musicResult.duration 
+		duration = musicResult.duration,
+		names = musicResult.names,
 	}
 	table.insert(flatMusicList, musicInfo)
 end

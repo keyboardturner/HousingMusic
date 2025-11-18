@@ -19,7 +19,7 @@ local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
 local silentMusicPath = "Interface\\AddOns\\HousingMusic\\Assets\\Sound\\silenttrack.mp3"
 local silentMusicActive = false
 
-EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(...) DevTools_Dump({...}) end) -- test function for querying housing
+--EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(...) DevTools_Dump({...}) end) -- test function for querying housing
 -- another similar event - CURRENT_HOUSE_INFO_UPDATED
 -- fired upon entering house, even though it says plot -  HOUSE_PLOT_ENTERED
 -- fired upon exiting house, even though it says plot - HOUSE_PLOT_EXITED
@@ -59,9 +59,11 @@ EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", funct
 -- C_Housing.IsInsideHouse() can be used to see if a player is in the house
 -- C_Housing.IsInsidePlot() can be used to see if a player is in the plot
 
-EventRegistry:RegisterFrameEventAndCallback("HOUSE_PLOT_ENTERED", function(...) print("entered plot"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
-EventRegistry:RegisterFrameEventAndCallback("HOUSE_PLOT_EXITED", function(...) print("exited plot"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
-EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_UPDATED", function(...) DevTools_Dump({...}); print("updated info"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
+--EventRegistry:RegisterFrameEventAndCallback("HOUSE_PLOT_ENTERED", function(...) print("entered plot"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
+--EventRegistry:RegisterFrameEventAndCallback("HOUSE_PLOT_EXITED", function(...) print("exited plot"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
+--EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_UPDATED", function(...) DevTools_Dump({...}); print("updated info"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
+--EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_RELEASED", function(...) DevTools_Dump({...}); print("pinframe released"); end) -- query pin frame released during floorplan editor
+--EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_ADDED", function(...) DevTools_Dump({...}); print("pinframe added"); end) -- query pin frame released during floorplan editor
 
 local DAY_START_HOUR = 6 -- 6:00 AM
 local NIGHT_START_HOUR = 18 -- 6:00 PM
@@ -76,7 +78,7 @@ function IsNight()
 end
 
 local function StartSilentMusic()
-	if silentMusicActive then return end
+	--if silentMusicActive then return end -- there's no need to check this
 	PlayMusic(silentMusicPath)
 	silentMusicActive = true
 end
@@ -669,7 +671,7 @@ local function PlayNextTrack()
 		soundDuration = customTrackInfo.duration
 		trackNameForDebug = customTrackInfo.name
 
-	else-
+	else
 		print("HousingMusic Error: Unknown track type in playlist. Entry must have 'fileID' or 'fileCustom'.")
 		return
 	end
