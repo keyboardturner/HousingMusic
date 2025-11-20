@@ -13,7 +13,7 @@ local UpdateSavedMusicList
 
 local SavedScrollView
 local currentlyPlayingFile = nil
-local flatMusicList = {}
+--local flatMusicList = {} -- trade for FindMusic func in librpmedia
 local fullSavedList = {}
 local SearchBoxLeft
 local SearchBoxRight
@@ -54,26 +54,26 @@ local function escapePattern(text)
 end
 
 local function CheckMatch(musicInfo, query)
-	if tostring(musicInfo.file):find(query, 1, true) then
-		return true
-	end
+    if tostring(musicInfo.file):find(query, 1, true) then
+        return musicInfo.names and musicInfo.names[1] or tostring(musicInfo.file)
+    end
 
-	if musicInfo.name then
-		if CleanString(musicInfo.name):find(query, 1, true) then 
-			return true
-		end
-	end
+    if musicInfo.name and CleanString(musicInfo.name):find(query, 1, true) then
+        return musicInfo.name
+    end
 
-	if musicInfo.names then
-		for _, altName in ipairs(musicInfo.names) do
-			if CleanString(altName):find(query, 1, true) then
-				return true
-			end
-		end
-	end
+    if musicInfo.names then
+        for _, altName in ipairs(musicInfo.names) do
+            if CleanString(altName):find(query, 1, true) then
+                return altName
+            end
+        end
+    end
 
-	return false
+    return nil
 end
+
+
 
 local function SearchBox_OnUpdate(self, elapsed)
 	self.t = self.t + elapsed;
@@ -297,21 +297,44 @@ SearchBoxLeft:SetHeight(20)
 SearchBoxLeft:SetAutoFocus(false)
 
 function FilterAvailableList(editBox)
-	local text = SearchBoxLeft:GetText() or ""
-	local query = CleanString(text)
-	
-	local matches = {}
-	
-	for _, musicInfo in ipairs(flatMusicList) do
-		if query == "" or CheckMatch(musicInfo, query) then
-			table.insert(matches, musicInfo)
-		end
-	end
-	
-	local musicDataProvider = CreateDataProvider(matches) 
-	ScrollView:SetDataProvider(musicDataProvider)
-end
+    local text = SearchBoxLeft:GetText() or ""
+    local query = CleanString(text)
+    
+    local matches = {}
+    local addedIDs = {}
+    
+    local queryID = tonumber(query)
+    if queryID then
+        local info = LRPM:GetMusicInfoByFile(queryID)
+        if info then
+            info.name = info.names and info.names[1] or tostring(info.file)
+            table.insert(matches, info)
+            addedIDs[info.file] = true
+        end
+    end
 
+    if query == "" then
+        for _, musicInfo in LRPM:EnumerateMusic() do
+            musicInfo.name = musicInfo.names and musicInfo.names[1] or tostring(musicInfo.file)
+            table.insert(matches, musicInfo)
+        end
+    else
+        local function predicate(name)
+            return CleanString(name):find(query, 1, true)
+        end
+
+        for musicInfo in LRPM:FindMusic(predicate) do
+            if not addedIDs[musicInfo.file] then
+                musicInfo.name = musicInfo.matchingName or (musicInfo.names and musicInfo.names[1])
+                table.insert(matches, musicInfo)
+                addedIDs[musicInfo.file] = true
+            end
+        end
+    end
+    
+    local musicDataProvider = CreateDataProvider(matches) 
+    ScrollView:SetDataProvider(musicDataProvider)
+end
 
 -- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
@@ -419,19 +442,31 @@ SearchBoxRight:SetHeight(20)
 SearchBoxRight:SetAutoFocus(false)
 
 function FilterSavedList(editBox)
-	local text = SearchBoxRight:GetText() or ""
-	local query = CleanString(text)
-	
-	local matches = {}
-	
-	for _, musicInfo in ipairs(fullSavedList) do
-		if query == "" or CheckMatch(musicInfo, query) then
-			table.insert(matches, musicInfo)
-		end
-	end
-	
-	local musicDataProvider = CreateDataProvider(matches)
-	SavedScrollView:SetDataProvider(musicDataProvider)
+    local text = SearchBoxRight:GetText() or ""
+    local query = CleanString(text)
+    
+    local matches = {}
+    
+    for _, musicInfo in ipairs(fullSavedList) do
+        if query == "" then
+            table.insert(matches, musicInfo)
+        else
+            local matchedName = CheckMatch(musicInfo, query)
+            
+            if matchedName then
+                local displayItem = {
+                    file = musicInfo.file,
+                    duration = musicInfo.duration,
+                    names = musicInfo.names,
+                    name = matchedName
+                }
+                table.insert(matches, displayItem)
+            end
+        end
+    end
+    
+    local musicDataProvider = CreateDataProvider(matches)
+    SavedScrollView:SetDataProvider(musicDataProvider)
 end
 
 -- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
@@ -544,20 +579,6 @@ function UpdateSavedMusicList()
 	end
 
 	FilterSavedList(SearchBoxRight)
-end
-
---local flatMusicList = {}
-for _, musicResult in LRPM:EnumerateMusic() do 
-	local safeFile = musicResult.file or "N/A"
-	local primaryName = musicResult.names and musicResult.names[1] or ("File ID: " .. safeFile)
-	
-	local musicInfo = { 
-		name = primaryName, 
-		file = musicResult.file, 
-		duration = musicResult.duration,
-		names = musicResult.names,
-	}
-	table.insert(flatMusicList, musicInfo)
 end
 
 FilterAvailableList(SearchBoxLeft)
