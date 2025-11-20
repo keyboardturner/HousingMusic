@@ -20,6 +20,7 @@ local SearchBoxRight
 local FilterAvailableList
 local FilterSavedList
 local selectedFileID = nil
+local DecorControlsTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Blank.png"
 
 local function RefreshUILists()
 	if SearchBoxLeft then 
@@ -89,7 +90,7 @@ local function SearchBox_OnTextChanged(self)
 	self:SetScript("OnUpdate", SearchBox_OnUpdate);
 end
 
-local MainFrame = CreateFrame("Frame", "HousingMusicFrame", UIParent)
+local MainFrame = CreateFrame("Frame", "HousingMusic_MainFrame", UIParent)
 MainFrame:SetSize(620, 470)
 MainFrame:SetPoint("CENTER")
 local Border = MainFrame:CreateTexture(nil, "BORDER", nil, 1);
@@ -219,7 +220,7 @@ ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 	end
 end)
 
-local MainframeToggleButton = CreateFrame("Button", nil, UIParent)
+local MainframeToggleButton = CreateFrame("Button", "HousingMusic_MusicControlFrame", UIParent)
 MainframeToggleButton:SetPoint("CENTER")
 MainframeToggleButton:SetSize(36, 36)
 MainframeToggleButton:SetScript("OnClick", function(self, button, down)
@@ -230,22 +231,25 @@ MainframeToggleButton:SetScript("OnClick", function(self, button, down)
 	end
 end)
 MainframeToggleButton:RegisterForClicks("AnyDown", "AnyUp")
-MainframeToggleButton:SetPushedAtlas("keybind-bg_active")
-MainframeToggleButton:SetNormalAtlas("keybind-bg")
+MainframeToggleButton:SetNormalTexture(DecorControlsTexture)
+MainframeToggleButton:SetHighlightTexture(DecorControlsTexture)
+local MTB_zoomValue = .23
+MainframeToggleButton:GetNormalTexture():SetTexCoord(0+MTB_zoomValue,1-MTB_zoomValue,0+MTB_zoomValue,1-MTB_zoomValue)
+MainframeToggleButton:GetHighlightTexture():SetTexCoord(0+MTB_zoomValue,1-MTB_zoomValue,0+MTB_zoomValue,1-MTB_zoomValue)
 --MainframeToggleButton:SetVertexColor(.81, .76, .66)
 MainframeToggleButton.tex = MainframeToggleButton:CreateTexture(nil, "OVERLAY", nil, 2)
 MainframeToggleButton.tex:SetPoint("TOPLEFT",MainframeToggleButton,"TOPLEFT",8,-8)
 MainframeToggleButton.tex:SetPoint("BOTTOMRIGHT",MainframeToggleButton,"BOTTOMRIGHT",-8,8)
 MainframeToggleButton.tex:SetAtlas("common-icon-sound")
 MainframeToggleButton.tex:SetDesaturated(true)
-MainframeToggleButton.tex:SetVertexColor(.81, .76, .66)
+MainframeToggleButton.tex:SetVertexColor(.90, .84, .76)
 MainframeToggleButton:SetScript("OnEnter", function()
 	--MainframeToggleButton:SetVertexColor(.81, .76, .66)
 	MainframeToggleButton.tex:SetVertexColor(1, 1, 1)
 end)
 MainframeToggleButton:SetScript("OnLeave", function()
 	--MainframeToggleButton:SetVertexColor(1, 1, 1)
-	MainframeToggleButton.tex:SetVertexColor(.81, .76, .66)
+	MainframeToggleButton.tex:SetVertexColor(.90, .84, .76)
 end)
 MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
 MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
@@ -264,6 +268,14 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		MainFrame:Hide()
 	end
 end)
+--MainframeToggleButton:SetScript("OnEnter", function(self)
+--	GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+--	GameTooltip:AddLine("Housing Music", 1, 1, 1)
+--end)
+--MainframeToggleButton:SetScript("OnLeave", function()
+--	GameTooltip:Hide()
+--end)
+
 MainframeToggleButton:Hide()
 local closeButton = CreateFrame("Button", nil, MainFrame, "UIPanelCloseButtonNoScripts");
 closeButton:SetPoint("TOPRIGHT", 0, 0);
