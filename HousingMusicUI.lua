@@ -41,21 +41,52 @@ local function FormatDuration(seconds)
 	return string.format("%d:%02d", minutes, remainingSeconds)
 end
 
-local function Debounce(timeout, callback)
-	local calls = 0;
+local function CleanString(str)
+	if not str then return "" end
+	str = str:lower()
+	str = str:gsub("[_%s]+", " ")
+	str = str:match("^%s*(.-)%s*$")
+	return str
+end
 
-	local function Decrement()
-		calls = calls - 1;
+local function escapePattern(text)
+	return text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
+end
 
-		if calls == 0 then
-			callback();
+local function CheckMatch(musicInfo, query)
+	if tostring(musicInfo.file):find(query, 1, true) then
+		return true
+	end
+
+	if musicInfo.name then
+		if CleanString(musicInfo.name):find(query, 1, true) then 
+			return true
 		end
 	end
 
-	return function()
-		C_Timer.After(timeout, Decrement);
-		calls = calls + 1;
+	if musicInfo.names then
+		for _, altName in ipairs(musicInfo.names) do
+			if CleanString(altName):find(query, 1, true) then
+				return true
+			end
+		end
 	end
+
+	return false
+end
+
+local function SearchBox_OnUpdate(self, elapsed)
+	self.t = self.t + elapsed;
+	if self.t >= 0.2 then
+		self.t = 0;
+		self:SetScript("OnUpdate", nil);
+		RefreshUILists();
+	end
+end
+
+local function SearchBox_OnTextChanged(self)
+	self.t = 0;
+	self:SetScript("OnUpdate", SearchBox_OnUpdate);
 end
 
 local MainFrame = CreateFrame("Frame", "HousingMusicFrame", UIParent)
@@ -259,39 +290,15 @@ ScrollBar:SetPoint("BOTTOMLEFT", ScrollBox, "BOTTOMRIGHT", 5, 0)
 local ScrollView = CreateScrollBoxListLinearView() 
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBox, ScrollBar, ScrollView)
 
-local function escapePattern(text)
-	return text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
-end
+SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
+SearchBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 10, 0)
+SearchBoxLeft:SetPoint("TOPRIGHT", SectionLeft, "TOPRIGHT", -20, 0)
+SearchBoxLeft:SetHeight(20)
+SearchBoxLeft:SetAutoFocus(false)
 
-local function CheckMatch(musicInfo, query)
-	if tostring(musicInfo.file):find(query) then
-		return true
-	end
-
-	local function Normalize(str)
-		return str:lower():gsub("_", " ")
-	end
-	
-	if musicInfo.name then
-		if Normalize(musicInfo.name):find(query) then
-			return true
-		end
-	end
-
-	if musicInfo.names then
-		for _, altName in ipairs(musicInfo.names) do
-			if Normalize(altName):find(query) then
-				return true
-			end
-		end
-	end
-
-	return false
-end
-
-local function FilterAvailableList(editBox)
-	local text = editBox and editBox:GetText() or ""
-	local query = escapePattern(text):lower():gsub("_", " ")
+function FilterAvailableList(editBox)
+	local text = SearchBoxLeft:GetText() or ""
+	local query = CleanString(text)
 	
 	local matches = {}
 	
@@ -305,16 +312,10 @@ local function FilterAvailableList(editBox)
 	ScrollView:SetDataProvider(musicDataProvider)
 end
 
-local SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
-SearchBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 10, 0)
-SearchBoxLeft:SetPoint("TOPRIGHT", SectionLeft, "TOPRIGHT", -20, 0)
-SearchBoxLeft:SetHeight(20)
-SearchBoxLeft:SetAutoFocus(false)
-
 
 -- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
-SearchBoxLeft:HookScript("OnTextChanged", FilterAvailableList);
+SearchBoxLeft:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
 local function Initializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
@@ -411,31 +412,31 @@ SavedScrollBar:SetPoint("BOTTOMLEFT", SavedScrollBox, "BOTTOMRIGHT", 5, 0)
 local SavedScrollView = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(SavedScrollBox, SavedScrollBar, SavedScrollView)
 
-local function FilterSavedList(editBox)
-	local text = editBox and editBox:GetText() or ""
-	local query = escapePattern(text):lower():gsub("_", " ")
+SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
+SearchBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 10, 0)
+SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
+SearchBoxRight:SetHeight(20)
+SearchBoxRight:SetAutoFocus(false)
+
+function FilterSavedList(editBox)
+	local text = SearchBoxRight:GetText() or ""
+	local query = CleanString(text)
 	
 	local matches = {}
-
+	
 	for _, musicInfo in ipairs(fullSavedList) do
 		if query == "" or CheckMatch(musicInfo, query) then
 			table.insert(matches, musicInfo)
 		end
 	end
 	
-	SavedDataProvider = CreateDataProvider(matches) 
-	SavedScrollView:SetDataProvider(SavedDataProvider)
+	local musicDataProvider = CreateDataProvider(matches)
+	SavedScrollView:SetDataProvider(musicDataProvider)
 end
-
-local SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
-SearchBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 10, 0)
-SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
-SearchBoxRight:SetHeight(20)
-SearchBoxRight:SetAutoFocus(false)
 
 -- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
-SearchBoxRight:HookScript("OnTextChanged", FilterSavedList);
+SearchBoxRight:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
 local function RemoveMusicEntry(musicFile, musicName)
 	HousingMusic_DB.PlayerMusic[musicFile] = nil
