@@ -371,11 +371,12 @@ local function Initializer(button, musicInfo)
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
 	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
+	button.textFont:SetPoint("RIGHT", button, "RIGHT", -55, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
 	button.textFont:SetTextColor(1, 1, 1, 1)
-	
+
 	local addButton = button.addButton
 	if not addButton then
 		addButton = CreateFrame("Button", nil, button)
@@ -388,6 +389,25 @@ local function Initializer(button, musicInfo)
 		button.addButton = addButton
 	end
 	addButton:Hide()
+
+	local playButton = button.playButton
+	if not playButton then
+		playButton = CreateFrame("Button", nil, button)
+		playButton:SetSize(20, 20)
+		playButton:SetPoint("RIGHT", addButton, "LEFT", -2, 0)
+		playButton:SetNormalAtlas("common-dropdown-icon-play")
+		playButton:SetHighlightAtlas("common-dropdown-icon-play")
+		playButton:GetHighlightTexture():SetAlpha(0.5)
+
+		button.playButton = playButton
+	end
+	playButton:Hide()
+
+	playButton:SetScript("OnClick", function()
+		HM.PlaySpecificMusic(musicInfo.file)
+		selectedFileID = musicInfo.file
+		RefreshUILists()
+	end)
 	
 	addButton:SetScript("OnClick", function()
 		if not HousingMusic_DB.PlayerMusic[musicInfo.file] then
@@ -405,12 +425,14 @@ local function Initializer(button, musicInfo)
 			self.texHL:Hide()
 			GameTooltip:Hide()
 			self.addButton:Hide()
+			self.playButton:Hide()
 		end
 	end
 	
 	button:SetScript("OnEnter", function(self)
 		self.texHL:Show()
 		self.addButton:Show()
+		self.playButton:Show()
 		self.isHovering = true
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -439,13 +461,27 @@ local function Initializer(button, musicInfo)
 	addButton:SetScript("OnEnter", function(self)
 		button.texHL:Show() 
 		button.addButton:Show()
+		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Add song to playlist", 1, 1, 1)
-		
+		GameTooltip:AddLine("Add Song to Playlist", 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	addButton:SetScript("OnLeave", function(self)
+		button.isHovering = nil
+		HideButtonElements(button)
+	end)
+
+	playButton:SetScript("OnEnter", function(self)
+		button.texHL:Show() 
+		button.addButton:Show()
+		button.playButton:Show()
+		button.isHovering = true
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Preview Song", 1, 1, 1)
+		GameTooltip:Show()
+	end)
+	playButton:SetScript("OnLeave", function(self)
 		button.isHovering = nil
 		HideButtonElements(button)
 	end)
@@ -525,7 +561,6 @@ local function SavedInitializer(button, musicInfo)
 	button:SetScript("OnClick", function()
 		selectedFileID = musicInfo.file
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		
 		RefreshUILists()
 	end)
 	
@@ -538,6 +573,7 @@ local function SavedInitializer(button, musicInfo)
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
 	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
+	button.textFont:SetPoint("RIGHT", button, "RIGHT", -55, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
@@ -556,11 +592,31 @@ local function SavedInitializer(button, musicInfo)
 	end
 	removeButton:Hide()
 
+	local playButton = button.playButton
+	if not playButton then
+		playButton = CreateFrame("Button", nil, button)
+		playButton:SetSize(20, 20)
+		playButton:SetPoint("RIGHT", removeButton, "LEFT", -2, 0)
+		playButton:SetNormalAtlas("common-dropdown-icon-play")
+		playButton:SetHighlightAtlas("common-dropdown-icon-play")
+		playButton:GetHighlightTexture():SetAlpha(0.5)
+
+		button.playButton = playButton
+	end
+	playButton:Hide()
+
+	playButton:SetScript("OnClick", function()
+		HM.PlaySpecificMusic(musicInfo.file)
+		selectedFileID = musicInfo.file
+		RefreshUILists()
+	end)
+
 	local function HideButtonElements(self)
 		if not self.isHovering then
 			self.texHL:Hide()
 			GameTooltip:Hide()
 			self.removeButton:Hide()
+			self.playButton:Hide()
 		end
 	end
 	
@@ -572,6 +628,7 @@ local function SavedInitializer(button, musicInfo)
 	button:SetScript("OnEnter", function(self)
 		self.texHL:Show()
 		self.removeButton:Show()
+		self.playButton:Show()
 		self.isHovering = true
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -600,13 +657,27 @@ local function SavedInitializer(button, musicInfo)
 	removeButton:SetScript("OnEnter", function(self)
 		button.texHL:Show() 
 		button.removeButton:Show()
+		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Remove song from playlist", 1, 1, 1)
-		
+		GameTooltip:AddLine("Remove Song From Playlist", 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	removeButton:SetScript("OnLeave", function(self)
+		button.isHovering = nil
+		HideButtonElements(button)
+	end)
+
+	playButton:SetScript("OnEnter", function(self)
+		button.texHL:Show() 
+		button.removeButton:Show()
+		button.playButton:Show()
+		button.isHovering = true
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Preview Song", 1, 1, 1)
+		GameTooltip:Show()
+	end)
+	playButton:SetScript("OnLeave", function(self)
 		button.isHovering = nil
 		HideButtonElements(button)
 	end)
