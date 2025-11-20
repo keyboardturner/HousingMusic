@@ -519,6 +519,10 @@ local lastCheck = 0
 local soundHandle = nil
 local fadeoutTime = 5000
 local lastTrackIndex = nil
+local manualStop = false
+local manualPlayback = false
+local activeZone = nil -- previously removed
+local currentTrackName = nil
 
 local function GetPlayerHouseZone()
 	if not (C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse()) then
@@ -533,7 +537,6 @@ local function GetPlayerHouseZone()
 	for fileID, enabled in pairs(HousingMusic_DB.PlayerMusic) do
 		if enabled then
 			table.insert(dynamicPlaylist, { fileID = fileID })
-		else
 		end
 	end
 
@@ -596,8 +599,7 @@ local function FindActiveZone()
 						break
 					end
 				end
-				if not valid then
-				else
+				if valid then
 					return zone
 				end
 			else
@@ -614,7 +616,8 @@ local function StopCurrentMusic()
 	musicTimer = 0;
 	timerElapsed = 0;
 	currentTrackIndex = 1;
-	activeZone = nil;
+	currentTrackName = nil;
+	-- activeZone = nil;
 	silentMusicActive = false;
 
 	if soundHandle then
@@ -626,12 +629,15 @@ local function StopCurrentMusic()
 end
 
 function HM.PlaySpecificMusic(fileID)
+	manualStop = false
 	StopCurrentMusic()
+	manualPlayback = true
 	StartSilentMusic()
 
 	local musicInfo = LRPM:GetMusicInfoByID(fileID)
 	if not musicInfo or not musicInfo.duration then
 		print("HousingMusic Error: Could not retrieve info for ID:", fileID)
+		manualPlayback = false
 		return
 	end
 
@@ -641,14 +647,20 @@ function HM.PlaySpecificMusic(fileID)
 		musicTimer = musicInfo.duration
 		timerElapsed = 0
 		musicPlaying = true
-		
+		currentTrackName = musicInfo.names and musicInfo.names[1] or ("File ID: " .. fileID)
 		HM.CurrentPlayingID = fileID 
 	else
 		soundHandle = nil
+		manualPlayback = false
 	end
 end
 
+
+
 function HM.StopManualMusic()
+	manualStop = true
+	manualPlayback = false
+	
 	StopCurrentMusic()
 	HM.CurrentPlayingID = nil
 end
@@ -658,7 +670,8 @@ function HM.GetPlaybackState()
 		isPlaying = musicPlaying,
 		elapsed = timerElapsed,
 		duration = musicTimer,
-		fileID = HM.CurrentPlayingID
+		fileID = HM.CurrentPlayingID,
+		name = currentTrackName,
 	}
 end
 
@@ -684,23 +697,20 @@ local function PlayNextTrack()
 	local trackNameForDebug
 
 	if track.fileID then
-		if type(track.fileID) ~= "number" then
-			print("Debug: Track ID is not a number:", track.fileID)
-		end
 		local musicInfo = LRPM:GetMusicInfoByID(track.fileID)
 		if not musicInfo or not musicInfo.duration then
-			print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID))
+			--print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID))
 			return
 		end
 		
 		soundFileToPlay = track.fileID
 		soundDuration = musicInfo.duration
-		trackNameForDebug = "Game Music (ID: " .. track.fileID .. ")"
+		trackNameForDebug = musicInfo.names and musicInfo.names[1] or ("Game Music (ID: " .. track.fileID .. ")")
 
 	elseif track.fileCustom then
-		local customTrackInfo = HM.customMusic[track.fileCustom]
+		local customTrackInfo = HM.customMusic and HM.customMusic[track.fileCustom]
 		if not customTrackInfo then
-			print("HousingMusic Error: No custom music found for key: " .. tostring(track.fileCustom))
+			--print("HousingMusic Error: No custom music found for key: " .. tostring(track.fileCustom))
 			return
 		end
 
@@ -709,21 +719,23 @@ local function PlayNextTrack()
 		trackNameForDebug = customTrackInfo.name
 
 	else
-		print("HousingMusic Error: Unknown track type in playlist. Entry must have 'fileID' or 'fileCustom'.")
+		--print("HousingMusic Error: Unknown track type in playlist. Entry must have 'fileID' or 'fileCustom'.")
 		return
 	end
 
-	local willPlay, handle = PlaySoundFile(soundFileToPlay, "Music")
-	if willPlay then
-		print("HousingMusic: Now playing '".. trackNameForDebug .."'")
-		soundHandle = handle
-		musicTimer = soundDuration
-		timerElapsed = 0
-		musicPlaying = true
-		lastTrackIndex = nextIndex
-	else
-		soundHandle = nil
-		return
+	if soundFileToPlay then
+		local willPlay, handle = PlaySoundFile(soundFileToPlay, "Music")
+		if willPlay then
+			-- print("HousingMusic: Now playing '".. trackNameForDebug .."'")
+			soundHandle = handle
+			musicTimer = soundDuration
+			timerElapsed = 0
+			musicPlaying = true
+			currentTrackName = trackNameForDebug
+			lastTrackIndex = nextIndex
+		else
+			soundHandle = nil
+		end
 	end
 end
 
@@ -735,6 +747,8 @@ local function CheckConditions()
 		return
 	end
 
+	if manualPlayback then return end
+
 	local zone = FindActiveZone()
 
 	if zone then
@@ -742,19 +756,24 @@ local function CheckConditions()
 		local oldZoneName = activeZone and (activeZone.name or activeZone.subzone)
 
 		if newZoneName ~= oldZoneName then
+			manualStop = false
+			
 			StopCurrentMusic()
 			activeZone = zone
 			print("Entered custom zone:", newZoneName)
 		else
 			activeZone = zone 
 		end
-		if not musicPlaying then
+		
+		if not musicPlaying and not manualStop then
 			PlayNextTrack()
 		end
 	else
 		if musicPlaying then
 			StopCurrentMusic()
 		end
+
+		activeZone = nil
 	end
 end
 
@@ -771,7 +790,12 @@ f:SetScript("OnUpdate", function(_, elapsed)
 	if musicPlaying then
 		timerElapsed = timerElapsed + elapsed
 		if timerElapsed >= musicTimer then
-			PlayNextTrack()
+			if manualPlayback then
+				manualPlayback = false
+				StopCurrentMusic()
+			else
+				PlayNextTrack()
+			end
 		end
 	end
 end)
