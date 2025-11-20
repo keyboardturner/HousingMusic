@@ -625,6 +625,43 @@ local function StopCurrentMusic()
 	StopMusic()
 end
 
+function HM.PlaySpecificMusic(fileID)
+	StopCurrentMusic()
+	StartSilentMusic()
+
+	local musicInfo = LRPM:GetMusicInfoByID(fileID)
+	if not musicInfo or not musicInfo.duration then
+		print("HousingMusic Error: Could not retrieve info for ID:", fileID)
+		return
+	end
+
+	local willPlay, handle = PlaySoundFile(fileID, "Music")
+	if willPlay then
+		soundHandle = handle
+		musicTimer = musicInfo.duration
+		timerElapsed = 0
+		musicPlaying = true
+		
+		HM.CurrentPlayingID = fileID 
+	else
+		soundHandle = nil
+	end
+end
+
+function HM.StopManualMusic()
+	StopCurrentMusic()
+	HM.CurrentPlayingID = nil
+end
+
+function HM.GetPlaybackState()
+	return {
+		isPlaying = musicPlaying,
+		elapsed = timerElapsed,
+		duration = musicTimer,
+		fileID = HM.CurrentPlayingID
+	}
+end
+
 local function PlayNextTrack()
 	if not activeZone then return end
 

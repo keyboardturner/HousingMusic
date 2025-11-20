@@ -19,15 +19,43 @@ local SearchBoxLeft
 local SearchBoxRight
 local FilterAvailableList
 local FilterSavedList
+local selectedFileID = nil
+
+local function RefreshUILists()
+	if SearchBoxLeft then 
+		FilterAvailableList(SearchBoxLeft) 
+	end
+
+	if SearchBoxRight then
+		UpdateSavedMusicList(SearchBoxRight)
+	end
+end
 
 local function FormatDuration(seconds)
-    if not seconds or seconds <= 0 then
-        return "0:00"
-    end
-    seconds = math.floor(seconds)
-    local minutes = math.floor(seconds / 60)
-    local remainingSeconds = math.fmod(seconds, 60)
-    return string.format("%d:%02d", minutes, remainingSeconds)
+	if not seconds or seconds <= 0 then
+		return "0:00"
+	end
+	seconds = math.floor(seconds)
+	local minutes = math.floor(seconds / 60)
+	local remainingSeconds = math.fmod(seconds, 60)
+	return string.format("%d:%02d", minutes, remainingSeconds)
+end
+
+local function Debounce(timeout, callback)
+	local calls = 0;
+
+	local function Decrement()
+		calls = calls - 1;
+
+		if calls == 0 then
+			callback();
+		end
+	end
+
+	return function()
+		C_Timer.After(timeout, Decrement);
+		calls = calls + 1;
+	end
 end
 
 local MainFrame = CreateFrame("Frame", "HousingMusicFrame", UIParent)
@@ -60,25 +88,101 @@ SectionRight.tex:SetAtlas("catalog-list-preview-bg")
 SectionRight.tex:SetAllPoints(SectionRight)
 SectionRight.tex:SetVertexColor(1,1,1,1)
 MainFrame.SectionRight = SectionRight
-local Divider = CreateFrame("Frame", nil, Backframe)
-Divider:SetPoint("TOP", Backframe, "TOP", 0, 0);
-Divider:SetPoint("BOTTOM", Backframe, "BOTTOM", 0, 0);
-Divider:SetWidth(16)
-Divider:SetFrameLevel(100)
-Divider.tex = Divider:CreateTexture(nil, "BACKGROUND", nil, 1);
-Divider.tex:SetAtlas("housing-basic-vertical-divider");
-MainFrame.Divider = Divider
+local DividerSections = CreateFrame("Frame", nil, Backframe)
+DividerSections:SetPoint("TOPLEFT", SectionLeft, "TOPRIGHT", -5, 0);
+DividerSections:SetPoint("BOTTOMRIGHT", SectionRight, "BOTTOMLEFT", 5, 0);
+DividerSections.tex = DividerSections:CreateTexture(nil, "BACKGROUND", nil, 1);
+DividerSections.tex:SetAtlas("CovenantSanctum-Divider-Necrolord");
+DividerSections.tex:SetAllPoints(DividerSections)
+MainFrame.DividerSections = DividerSections
+local DividerFooter = CreateFrame("Frame", nil, Backframe)
+DividerFooter:SetPoint("TOPLEFT", SectionLeft, "BOTTOMLEFT", 0, 10);
+DividerFooter:SetPoint("BOTTOMRIGHT", SectionRight, "BOTTOMRIGHT", 0, -10);
+DividerFooter.tex = DividerFooter:CreateTexture(nil, "BACKGROUND", nil, 1);
+DividerFooter.tex:SetAtlas("CovenantSanctum-Renown-Divider-Necrolord");
+DividerFooter.tex:SetAllPoints(DividerFooter)
+MainFrame.DividerFooter = DividerFooter
 
 local Header = MainFrame:CreateTexture(nil, "BORDER", nil, 2);
 Header:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 0, 0);
 Header:SetPoint("BOTTOMRIGHT", Backframe, "TOPRIGHT", 0, 0);
 Header:SetAtlas("housing-basic-container-woodheader");
 MainFrame.Header = Header
---local Footer = MainFrame:CreateTexture(nil, "BORDER", nil, 2); -- idk if i like this look
---Footer:SetPoint("TOPLEFT", SectionLeft, "BOTTOMLEFT", 0, 0);
---Footer:SetPoint("BOTTOMRIGHT", Backframe, "BOTTOMRIGHT", 0, 0);
---Footer:SetAtlas("housing-basic-container-woodheader");
---MainFrame.Footer = Footer
+
+local Footer = CreateFrame("Frame", nil, MainFrame)
+Footer:SetPoint("TOPLEFT", Backframe, "BOTTOMLEFT", 0, 0)
+Footer:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 0, 0)
+MainFrame.Footer = Footer
+
+local ProgressBar = CreateFrame("StatusBar", nil, Footer)
+ProgressBar:SetPoint("TOPLEFT", Footer, "BOTTOMLEFT", 40, 18)
+ProgressBar:SetPoint("BOTTOMRIGHT", Footer, "BOTTOMRIGHT", -20, 15)
+ProgressBar:SetHeight(8)
+ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+ProgressBar:SetStatusBarColor(1, 0.7, 0)
+ProgressBar.bg = ProgressBar:CreateTexture(nil, "BACKGROUND")
+ProgressBar.bg:SetAllPoints()
+ProgressBar.bg:SetColorTexture(0.2, 0.2, 0.2, 0.5)
+
+local PlayerToggleBtn = CreateFrame("Button", nil, ProgressBar)
+PlayerToggleBtn:SetSize(24, 24)
+PlayerToggleBtn:SetPoint("RIGHT", ProgressBar, "LEFT", -5, 1)
+PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play") 
+PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+PlayerToggleBtn:GetHighlightTexture():SetAlpha(0.5)
+
+local PlayerTitle = ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+PlayerTitle:SetPoint("BOTTOMLEFT", ProgressBar, "TOPLEFT", 0, 5)
+PlayerTitle:SetJustifyH("LEFT")
+PlayerTitle:SetText("No Music Playing")
+PlayerTitle:SetTextColor(1, 1, 1)
+
+PlayerToggleBtn:SetScript("OnClick", function()
+	local state = HM.GetPlaybackState()
+	
+	if state.isPlaying then
+		HM.StopManualMusic()
+		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
+		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+		PlayerTitle:SetText("No Music Playing")
+	else
+		if selectedFileID then
+			HM.PlaySpecificMusic(selectedFileID)
+			PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
+			PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
+			
+			local info = LRPM:GetMusicInfoByID(selectedFileID)
+			if info then PlayerTitle:SetText(info.names[1] or "Unknown Track") end
+		end
+	end
+end)
+
+local TimerText = ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+TimerText:SetPoint("BOTTOMRIGHT", ProgressBar, "TOPRIGHT", 0, 5)
+TimerText:SetJustifyH("RIGHT")
+TimerText:SetText("0:00 / 0:00")
+TimerText:SetTextColor(1, 1, 1)
+
+ProgressBar:SetScript("OnUpdate", function(self, elapsed) -- might not need to be an OnUpdate func, possibly change later
+	if not MainFrame:IsVisible() then return end
+
+	local state = HM.GetPlaybackState()
+
+	if state.isPlaying and state.duration > 0 then
+		self:SetMinMaxValues(0, state.duration)
+		self:SetValue(state.elapsed)
+		
+		TimerText:SetText(FormatDuration(state.elapsed) .. " / " .. FormatDuration(state.duration))
+		
+		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
+		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
+	else
+		self:SetValue(0)
+		TimerText:SetText("0:00 / 0:00")
+		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
+		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+	end
+end)
 
 local MainframeToggleButton = CreateFrame("Button", nil, UIParent)
 MainframeToggleButton:SetPoint("CENTER")
@@ -143,13 +247,6 @@ MainFrame:SetScript("OnHide", function()
 	PlaySound(305110)
 end)
 
-SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
-SearchBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 10, 0)
-SearchBoxLeft:SetPoint("TOPRIGHT", SectionLeft, "TOPRIGHT", -20, 0)
-SearchBoxLeft:SetHeight(20)
-SearchBoxLeft:SetAutoFocus(false)
-SearchBoxLeft:SetScript("OnTextChanged", FilterAvailableList)
-
 local ScrollBox = CreateFrame("Frame", nil, MainFrame, "WowScrollBoxList")
 ScrollBox:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 5, -20)
 ScrollBox:SetPoint("BOTTOMRIGHT", SectionLeft, "BOTTOMRIGHT", -20, 0)
@@ -166,14 +263,40 @@ local function escapePattern(text)
 	return text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
 end
 
-function FilterAvailableList(editBox)
-	print(editBox)
-	local query = editBox:GetText()
-	query = escapePattern(query)
+local function CheckMatch(musicInfo, query)
+	if tostring(musicInfo.file):find(query) then
+		return true
+	end
+
+	local function Normalize(str)
+		return str:lower():gsub("_", " ")
+	end
+	
+	if musicInfo.name then
+		if Normalize(musicInfo.name):find(query) then
+			return true
+		end
+	end
+
+	if musicInfo.names then
+		for _, altName in ipairs(musicInfo.names) do
+			if Normalize(altName):find(query) then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function FilterAvailableList(editBox)
+	local text = editBox and editBox:GetText() or ""
+	local query = escapePattern(text):lower():gsub("_", " ")
 	
 	local matches = {}
+	
 	for _, musicInfo in ipairs(flatMusicList) do
-		if musicInfo.name and string.find(musicInfo.name:lower(), query:lower()) then
+		if query == "" or CheckMatch(musicInfo, query) then
 			table.insert(matches, musicInfo)
 		end
 	end
@@ -182,82 +305,56 @@ function FilterAvailableList(editBox)
 	ScrollView:SetDataProvider(musicDataProvider)
 end
 
+local SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
+SearchBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 10, 0)
+SearchBoxLeft:SetPoint("TOPRIGHT", SectionLeft, "TOPRIGHT", -20, 0)
+SearchBoxLeft:SetHeight(20)
+SearchBoxLeft:SetAutoFocus(false)
+
+
+-- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
+-- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
+SearchBoxLeft:HookScript("OnTextChanged", FilterAvailableList);
+
 local function Initializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
-	button.tex:SetAtlas("PetList-ButtonBackground")
+	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.selectedTex:SetAllPoints(button)
+	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
+	button.selectedTex:SetShown(selectedFileID == musicInfo.file)
+
+	button:SetScript("OnClick", function()
+		selectedFileID = musicInfo.file
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		RefreshUILists()
+	end)
 	
 	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
 	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("PetList-ButtonHighlight")
+	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
 	button.texHL:Hide()
 	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
-	button.textFont:SetPoint("LEFT", button, "LEFT", 5, 0)
+	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
 	button.textFont:SetTextColor(1, 1, 1, 1)
 	
-	local playButton = button.playButton
-	if not playButton then
-		playButton = CreateFrame("Button", nil, button)
-		playButton:SetSize(15, 15)
-		playButton:SetPoint("RIGHT", button, "RIGHT", -5, 0)
-		
-		playButton.icon = playButton:CreateTexture(nil, "ARTWORK")
-		playButton.icon:SetAllPoints()
-		
-		playButton.hl = playButton:CreateTexture(nil, "HIGHLIGHT")
-		playButton.hl:SetAtlas("UI-Common-MouseHOver")
-		playButton.hl:SetAllPoints()
-		playButton.hl:SetAlpha(0.7)
-		
-		button.playButton = playButton
-	end
-	
-	if currentlyPlayingFile == musicInfo.file then
-		playButton.icon:SetAtlas("common-dropdown-icon-stop")
-	else
-		playButton.icon:SetAtlas("common-dropdown-icon-play")
-	end
-	
-	playButton:SetScript("OnClick", function()
-		local wasPlayingThis = (currentlyPlayingFile == musicInfo.file)
-		StopMusic()
-		
-		if wasPlayingThis then
-			currentlyPlayingFile = nil
-		else
-			LRPM:PlayMusic(musicInfo.file)
-			currentlyPlayingFile = musicInfo.file
-		end
-	end)
-	playButton:SetScript("OnMouseUp", function(self, mouseButtonName)
-		if mouseButtonName == "RightButton" then 
-			StopMusic()
-			currentlyPlayingFile = nil
-		end
-	end)
-	playButton:Show()
-	
 	local addButton = button.addButton
 	if not addButton then
 		addButton = CreateFrame("Button", nil, button)
 		addButton:SetSize(15, 15)
-		addButton:SetPoint("RIGHT", playButton, "LEFT", -2, 0)
-		
-		addButton.icon = addButton:CreateTexture(nil, "ARTWORK")
-		addButton.icon:SetAllPoints()
-		addButton.icon:SetAtlas("common-icon-plus")
-
-		addButton.hl = addButton:CreateTexture(nil, "HIGHLIGHT")
-		addButton.hl:SetAtlas("UI-Common-MouseHOver")
-		addButton.hl:SetAllPoints()
-		addButton.hl:SetAlpha(0.7)
+		addButton:SetPoint("RIGHT", button, "RIGHT", -5, 0)
+		addButton:SetNormalAtlas("common-icon-plus")
+		addButton:SetHighlightAtlas("common-icon-plus")
+		addButton:GetHighlightTexture():SetAlpha(0.5)
 
 		button.addButton = addButton
 	end
@@ -278,9 +375,7 @@ local function Initializer(button, musicInfo)
 		button.texHL:Show()
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
-		
 		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
 		
 		if musicInfo.names and #musicInfo.names > 1 then
@@ -303,12 +398,6 @@ end
 
 ScrollView:SetElementInitializer("Button", Initializer)
 ScrollView:SetElementExtent(36);
-SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
-SearchBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 10, 0)
-SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
-SearchBoxRight:SetHeight(20)
-SearchBoxRight:SetAutoFocus(false)
-SearchBoxRight:SetScript("OnTextChanged", FilterSavedList)
 
 local SavedScrollBox = CreateFrame("Frame", nil, MainFrame, "WowScrollBoxList")
 SavedScrollBox:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 5, -20)
@@ -322,13 +411,14 @@ SavedScrollBar:SetPoint("BOTTOMLEFT", SavedScrollBox, "BOTTOMRIGHT", 5, 0)
 local SavedScrollView = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(SavedScrollBox, SavedScrollBar, SavedScrollView)
 
-function FilterSavedList(editBox)
-	local query = editBox:GetText()
-	query = escapePattern(query)
+local function FilterSavedList(editBox)
+	local text = editBox and editBox:GetText() or ""
+	local query = escapePattern(text):lower():gsub("_", " ")
 	
 	local matches = {}
+
 	for _, musicInfo in ipairs(fullSavedList) do
-		if musicInfo.name and string.find(musicInfo.name:lower(), query:lower()) then
+		if query == "" or CheckMatch(musicInfo, query) then
 			table.insert(matches, musicInfo)
 		end
 	end
@@ -336,6 +426,16 @@ function FilterSavedList(editBox)
 	SavedDataProvider = CreateDataProvider(matches) 
 	SavedScrollView:SetDataProvider(SavedDataProvider)
 end
+
+local SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
+SearchBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 10, 0)
+SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
+SearchBoxRight:SetHeight(20)
+SearchBoxRight:SetAutoFocus(false)
+
+-- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
+-- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
+SearchBoxRight:HookScript("OnTextChanged", FilterSavedList);
 
 local function RemoveMusicEntry(musicFile, musicName)
 	HousingMusic_DB.PlayerMusic[musicFile] = nil
@@ -348,7 +448,19 @@ local function SavedInitializer(button, musicInfo)
 
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
-	button.tex:SetAtlas("PetList-ButtonBackground")
+	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.selectedTex:SetAllPoints(button)
+	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
+	button.selectedTex:SetShown(selectedFileID == musicInfo.file)
+
+	button:SetScript("OnClick", function()
+		selectedFileID = musicInfo.file
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		
+		RefreshUILists()
+	end)
 	
 	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
 	button.texHL:SetAllPoints(button)
@@ -357,69 +469,20 @@ local function SavedInitializer(button, musicInfo)
 	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
-	button.textFont:SetPoint("LEFT", button, "LEFT", 5, 0)
+	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
 	button.textFont:SetTextColor(1, 1, 1, 1)
-
-	local playButton = button.playButton
-	if not playButton then
-		playButton = CreateFrame("Button", nil, button)
-		playButton:SetSize(15, 15)
-		playButton:SetPoint("RIGHT", button, "RIGHT", -5, 0)
-		
-		playButton.icon = playButton:CreateTexture(nil, "ARTWORK")
-		playButton.icon:SetAllPoints()
-		
-		playButton.hl = playButton:CreateTexture(nil, "HIGHLIGHT")
-		playButton.hl:SetAtlas("UI-Common-MouseHOver")
-		playButton.hl:SetAllPoints()
-		playButton.hl:SetAlpha(0.7)
-		
-		button.playButton = playButton
-	end
-	
-	if currentlyPlayingFile == musicInfo.file then
-		playButton.icon:SetAtlas("common-dropdown-icon-stop")
-	else
-		playButton.icon:SetAtlas("common-dropdown-icon-play")
-	end
-
-	playButton:SetScript("OnClick", function()
-		local wasPlayingThis = (currentlyPlayingFile == musicInfo.file)
-		StopMusic()
-		
-		if wasPlayingThis then
-			currentlyPlayingFile = nil
-		else
-			LRPM:PlayMusic(musicInfo.file)
-			currentlyPlayingFile = musicInfo.file
-		end
-		
-	end)
-	playButton:SetScript("OnMouseUp", function(self, mouseButtonName)
-		if mouseButtonName == "RightButton" then 
-			StopMusic()
-			currentlyPlayingFile = nil
-		end
-	end)
-	playButton:Show()
 	
 	local removeButton = button.removeButton
 	if not removeButton then
 		removeButton = CreateFrame("Button", nil, button)
 		removeButton:SetSize(15, 15)
-		removeButton:SetPoint("RIGHT", playButton, "LEFT", -5, 0)
-		
-		removeButton.icon = removeButton:CreateTexture(nil, "ARTWORK")
-		removeButton.icon:SetAllPoints()
-		removeButton.icon:SetAtlas("common-icon-minus")
-		
-		removeButton.hl = removeButton:CreateTexture(nil, "HIGHLIGHT")
-		removeButton.hl:SetAtlas("UI-Common-MouseHOver")
-		removeButton.hl:SetAllPoints()
-		removeButton.hl:SetAlpha(0.7)
+		removeButton:SetPoint("RIGHT", button, "RIGHT", -5, 0)
+		removeButton:SetNormalAtlas("common-icon-minus")
+		removeButton:SetHighlightAtlas("common-icon-minus")
+		removeButton:GetHighlightTexture():SetAlpha(0.5)
 		
 		button.removeButton = removeButton
 	end
@@ -497,4 +560,4 @@ for _, musicResult in LRPM:EnumerateMusic() do
 end
 
 FilterAvailableList(SearchBoxLeft)
-UpdateSavedMusicList()
+UpdateSavedMusicList(SearchBoxRight)
