@@ -143,6 +143,15 @@ Header:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 0, 0);
 Header:SetPoint("BOTTOMRIGHT", Backframe, "TOPRIGHT", 0, 0);
 Header:SetAtlas("housing-basic-container-woodheader");
 MainFrame.Header = Header
+local HeaderTitle = MainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+HeaderTitle:SetPoint("CENTER", Header, "CENTER", 0, 0)
+--HeaderTitle:SetJustifyH("LEFT")
+HeaderTitle:SetText("")
+HeaderTitle:SetFont(GameFontNormal:GetFont(), 17, "")
+HeaderTitle:SetTextColor(1, 1, 1)
+MainFrame.HeaderTitle = HeaderTitle
+
+EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(arg1, arg2) local bingus = arg2; HeaderTitle:SetText(string.format("%s's House Music",bingus.ownerName)) end)
 
 local Footer = CreateFrame("Frame", nil, MainFrame)
 Footer:SetPoint("TOPLEFT", Backframe, "BOTTOMLEFT", 0, 0)
@@ -251,6 +260,7 @@ MainframeToggleButton:SetScript("OnEvent", function()
 	if HousingFrame and isInHouse then
 		MainframeToggleButton:ClearAllPoints()
 		MainframeToggleButton:SetPoint("RIGHT", HousingFrame, "LEFT", 0, 0)
+		MainframeToggleButton:SetFrameLevel(HousingFrame:GetFrameLevel())
 		MainframeToggleButton:Show()
 		MainFrame:ClearAllPoints()
 		MainFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
@@ -259,13 +269,14 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		MainFrame:Hide()
 	end
 end)
---MainframeToggleButton:SetScript("OnEnter", function(self)
---	GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
---	GameTooltip:AddLine("Housing Music", 1, 1, 1)
---end)
---MainframeToggleButton:SetScript("OnLeave", function()
---	GameTooltip:Hide()
---end)
+MainframeToggleButton:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
+	GameTooltip:AddLine("Housing Music", 1, 1, 1)
+	GameTooltip:Show()
+end)
+MainframeToggleButton:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
 
 MainframeToggleButton:Hide()
 local closeButton = CreateFrame("Button", nil, MainFrame, "UIPanelCloseButtonNoScripts");
@@ -276,6 +287,23 @@ closeButton:SetScript("OnClick", function()
 	end
 end);
 MainFrame.closeButton = closeButton
+local SettingsButton = CreateFrame("Button", nil, MainFrame);
+SettingsButton:SetPoint("RIGHT", closeButton, "LEFT", -5, 0);
+SettingsButton:SetSize(15,16)
+SettingsButton:SetNormalAtlas("QuestLog-icon-setting")
+SettingsButton:SetHighlightAtlas("QuestLog-icon-setting")
+SettingsButton:SetScript("OnClick", function()
+	print("Show Settings Dropdown Here")
+end);
+SettingsButton:SetScript("OnMouseDown", function(self, button)
+	SettingsButton:GetNormalTexture():SetTexCoord(-.075,.925,-.075,.925)
+	SettingsButton:GetHighlightTexture():SetTexCoord(-.075,.925,-.075,.925)
+end);
+SettingsButton:SetScript("OnMouseUp", function(self, button)
+	SettingsButton:GetNormalTexture():SetTexCoord(0,1,0,1)
+	SettingsButton:GetHighlightTexture():SetTexCoord(0,1,0,1)
+end);
+
 MainFrame:Hide()
 MainFrame:SetScript("OnShow", function()
 	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
@@ -351,12 +379,14 @@ SearchBoxLeft:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
 local function Initializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
+
+	local isSaved = HousingMusic_DB.PlayerMusic[musicInfo.file]
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
 	button.tex:SetAtlas("ClickCastList-ButtonBackground")
 
-	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
 	button.selectedTex:SetAllPoints(button)
 	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
 	button.selectedTex:SetShown(selectedFileID == musicInfo.file)
@@ -381,6 +411,20 @@ local function Initializer(button, musicInfo)
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
 	button.textFont:SetTextColor(1, 1, 1, 1)
+
+
+	local savedIndicator = button.savedIndicator
+	if not savedIndicator then
+		savedIndicator = button:CreateTexture(nil, "OVERLAY", nil, 1)
+		savedIndicator:SetSize(20, 20)
+		savedIndicator:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
+		savedIndicator:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0)
+		savedIndicator:SetAtlas("ClickCastList-ButtonHighlight")
+		savedIndicator:SetDesaturated(true)
+		savedIndicator:SetVertexColor(0.83, 0.42, 1.00)
+		button.savedIndicator = savedIndicator
+	end
+	savedIndicator:SetShown(isSaved)
 
 	local addButton = button.addButton
 	if not addButton then
@@ -418,6 +462,7 @@ local function Initializer(button, musicInfo)
 		if not HousingMusic_DB.PlayerMusic[musicInfo.file] then
 			HousingMusic_DB.PlayerMusic[musicInfo.file] = true 
 			UpdateSavedMusicList()
+			RefreshUILists()
 			print("|cff00ff00Added:|r " .. musicInfo.name)
 			PlaySound(316551)
 		else
@@ -436,13 +481,17 @@ local function Initializer(button, musicInfo)
 	
 	button:SetScript("OnEnter", function(self)
 		self.texHL:Show()
-		self.addButton:Show()
+		if not isSaved then self.addButton:Show() end
 		self.playButton:Show()
 		self.isHovering = true
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
 		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
+
+		if isSaved then
+			GameTooltip:AddLine("Song is in Playlist", 0.83, 0.42, 1.00)
+		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
 			GameTooltip:AddLine(" ")
@@ -465,7 +514,7 @@ local function Initializer(button, musicInfo)
 
 	addButton:SetScript("OnEnter", function(self)
 		button.texHL:Show() 
-		button.addButton:Show()
+		if not isSaved then button.addButton:Show() end
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -479,7 +528,7 @@ local function Initializer(button, musicInfo)
 
 	playButton:SetScript("OnEnter", function(self)
 		button.texHL:Show() 
-		button.addButton:Show()
+		if not isSaved then button.addButton:Show() end
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -627,6 +676,7 @@ local function SavedInitializer(button, musicInfo)
 	
 	removeButton:SetScript("OnClick", function()
 		RemoveMusicEntry(musicInfo.file, musicInfo.name)
+		RefreshUILists()
 		PlaySound(316562)
 	end)
 	
