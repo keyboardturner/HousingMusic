@@ -362,7 +362,7 @@ function FilterAvailableList(editBox)
 
 		for musicInfo in LRPM:FindMusic(predicate) do
 			if not addedIDs[musicInfo.file] then
-				musicInfo.name = musicInfo.matchingName or (musicInfo.names and musicInfo.names[1])
+				musicInfo.name = musicInfo.names and musicInfo.names[1] or tostring(musicInfo.file)
 				table.insert(matches, musicInfo)
 				addedIDs[musicInfo.file] = true
 			end
@@ -575,11 +575,13 @@ function FilterSavedList(editBox)
 			local matchedName = CheckMatch(musicInfo, query)
 			
 			if matchedName then
+				local primaryName = musicInfo.names and musicInfo.names[1] or ("File ID: " .. (musicInfo.file or "N/A"))
+
 				local displayItem = {
 					file = musicInfo.file,
 					duration = musicInfo.duration,
 					names = musicInfo.names,
-					name = matchedName
+					name = primaryName
 				}
 				table.insert(matches, displayItem)
 			end
