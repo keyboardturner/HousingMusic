@@ -20,7 +20,10 @@ local SearchBoxRight
 local FilterAvailableList
 local FilterSavedList
 local selectedFileID = nil
-local DecorControlsTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Blank.png"
+local Decor_Controls_Blank = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Blank.png"
+local Decor_Controls_Music_Active = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Active.png"
+local Decor_Controls_Music_Default = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Default.png"
+local Decor_Controls_Music_Pressed = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Pressed.png"
 
 local function RefreshUILists()
 	if SearchBoxLeft then 
@@ -231,26 +234,14 @@ MainframeToggleButton:SetScript("OnClick", function(self, button, down)
 	end
 end)
 MainframeToggleButton:RegisterForClicks("AnyDown", "AnyUp")
-MainframeToggleButton:SetNormalTexture(DecorControlsTexture)
-MainframeToggleButton:SetHighlightTexture(DecorControlsTexture)
+MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Default)
+MainframeToggleButton:SetPushedTexture(Decor_Controls_Music_Pressed)
+MainframeToggleButton:SetHighlightTexture(Decor_Controls_Music_Default)
 local MTB_zoomValue = .23
 MainframeToggleButton:GetNormalTexture():SetTexCoord(0+MTB_zoomValue,1-MTB_zoomValue,0+MTB_zoomValue,1-MTB_zoomValue)
+MainframeToggleButton:GetPushedTexture():SetTexCoord(0+MTB_zoomValue,1-MTB_zoomValue,0+MTB_zoomValue,1-MTB_zoomValue)
 MainframeToggleButton:GetHighlightTexture():SetTexCoord(0+MTB_zoomValue,1-MTB_zoomValue,0+MTB_zoomValue,1-MTB_zoomValue)
 --MainframeToggleButton:SetVertexColor(.81, .76, .66)
-MainframeToggleButton.tex = MainframeToggleButton:CreateTexture(nil, "OVERLAY", nil, 2)
-MainframeToggleButton.tex:SetPoint("TOPLEFT",MainframeToggleButton,"TOPLEFT",8,-8)
-MainframeToggleButton.tex:SetPoint("BOTTOMRIGHT",MainframeToggleButton,"BOTTOMRIGHT",-8,8)
-MainframeToggleButton.tex:SetAtlas("common-icon-sound")
-MainframeToggleButton.tex:SetDesaturated(true)
-MainframeToggleButton.tex:SetVertexColor(.90, .84, .76)
-MainframeToggleButton:SetScript("OnEnter", function()
-	--MainframeToggleButton:SetVertexColor(.81, .76, .66)
-	MainframeToggleButton.tex:SetVertexColor(1, 1, 1)
-end)
-MainframeToggleButton:SetScript("OnLeave", function()
-	--MainframeToggleButton:SetVertexColor(1, 1, 1)
-	MainframeToggleButton.tex:SetVertexColor(.90, .84, .76)
-end)
 MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
 MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -287,10 +278,12 @@ end);
 MainFrame.closeButton = closeButton
 MainFrame:Hide()
 MainFrame:SetScript("OnShow", function()
+	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
 	PlaySound(305110)
 	UpdateSavedMusicList()
 end)
 MainFrame:SetScript("OnHide", function()
+	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Default)
 	PlaySound(305110)
 end)
 
