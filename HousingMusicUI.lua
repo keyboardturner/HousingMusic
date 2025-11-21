@@ -376,6 +376,15 @@ end
 -- Generally safer to use HookScript on EditBoxes inheriting a template as they likely already have OnTextChanged callbacks defined
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
 SearchBoxLeft:HookScript("OnTextChanged", SearchBox_OnTextChanged);
+SearchBoxLeft:HookScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	GameTooltip:AddLine("You can search by name or a Filedata ID", 1, 1, 1)
+	GameTooltip:Show()
+
+end)
+SearchBoxLeft:HookScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
 
 local function Initializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
