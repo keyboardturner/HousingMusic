@@ -624,38 +624,54 @@ local activeZone = nil -- previously removed
 local currentTrackName = nil
 
 local function GetPlayerHouseZone()
-	if not (C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse()) then
-		return nil
-	end
-
-	if not HousingMusic_DB or not HousingMusic_DB.Playlists then
-		return nil
-	end
-
 	local houseKey = GetCurrentHouseKey()
-	
 	if not houseKey then
 		return nil
 	end
 
-	local targetPlaylistName = "Default"
-	
-	if HousingMusic_DB.HouseAssignments[houseKey] then
-		targetPlaylistName = HousingMusic_DB.HouseAssignments[houseKey]
-		
-		if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
-			 HousingMusic_DB.ActivePlaylist = targetPlaylistName
-		end
-	else
-		targetPlaylistName = HM.GetActivePlaylistName()
-	end
-
-	local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {}
-	
 	local dynamicPlaylist = {}
-	for fileID, enabled in pairs(activeList) do
-		if enabled then
-			table.insert(dynamicPlaylist, { fileID = fileID })
+	local displayZoneName = "Housing Plot"
+
+	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+		if not HousingMusic_DB or not HousingMusic_DB.Playlists then
+			return nil
+		end
+
+		local targetPlaylistName = "Default"
+		
+		if HousingMusic_DB.HouseAssignments[houseKey] then
+			targetPlaylistName = HousingMusic_DB.HouseAssignments[houseKey]
+			
+			if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
+				 HousingMusic_DB.ActivePlaylist = targetPlaylistName
+			end
+		else
+			targetPlaylistName = HM.GetActivePlaylistName()
+		end
+
+		local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {}
+		
+		for fileID, enabled in pairs(activeList) do
+			if enabled then
+				table.insert(dynamicPlaylist, { fileID = fileID })
+			end
+		end
+		
+		displayZoneName = "My House (" .. targetPlaylistName .. ")"
+
+	else
+		if CachedMusic_DB and CachedMusic_DB[houseKey] then
+			local ownerName = string.match(houseKey, "^(.-)_") or "Someone"
+			
+			local cachedList = CachedMusic_DB[houseKey]
+			
+			for fileID, enabled in pairs(cachedList) do
+				if enabled then
+					table.insert(dynamicPlaylist, { fileID = fileID })
+				end
+			end
+			
+			displayZoneName = ownerName .. "'s House"
 		end
 	end
 
@@ -664,7 +680,7 @@ local function GetPlayerHouseZone()
 	end
 	
 	return {
-		name = "My Personal House (" .. targetPlaylistName .. ")",
+		name = displayZoneName,
 		playlist = dynamicPlaylist,
 	}
 end

@@ -110,7 +110,20 @@ local function CheckMatch(musicInfo, query)
 	return nil
 end
 
+local function GetCurrentHouseKey()
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
+	local info = C_Housing.GetCurrentHouseInfo()
+	if not info or not info.ownerName or info.ownerName == "" then return nil end
+	-- format: Owner_NeighborhoodGUID_PlotID
+	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID)
+end
 
+local function IsEditingAllowed()
+	if C_Housing and C_Housing.IsInsideOwnHouse then
+		return C_Housing.IsInsideOwnHouse()
+	end
+	return false
+end
 
 local function SearchBox_OnUpdate(self, elapsed)
 	self.t = self.t + elapsed;
@@ -532,7 +545,9 @@ local function Initializer(button, musicInfo)
 	
 	button:SetScript("OnEnter", function(self)
 		self.texHL:Show()
-		if not isSaved then self.addButton:Show() end
+		if not isSaved and IsEditingAllowed() then 
+			self.addButton:Show() 
+		end
 		self.playButton:Show()
 		self.isHovering = true
 		
@@ -777,7 +792,11 @@ local function SavedInitializer(button, musicInfo)
 	
 	button:SetScript("OnEnter", function(self)
 		self.texHL:Show()
-		self.removeButton:Show()
+		
+		if IsEditingAllowed() then
+			self.removeButton:Show()
+		end
+		
 		self.playButton:Show()
 		self.isHovering = true
 		
@@ -837,15 +856,44 @@ SavedScrollView:SetElementInitializer("Button", SavedInitializer)
 SavedScrollView:SetElementExtent(36);
 
 function UpdateSavedMusicList()
-	if not HousingMusic_DB then return end
+	local canEdit = IsEditingAllowed()
+	local currentOwner = "Unknown"
+	
+	if C_Housing and C_Housing.GetCurrentHouseInfo then
+		local info = C_Housing.GetCurrentHouseInfo()
+		if info and info.ownerName then
+			currentOwner = info.ownerName
+		end
+	end
 
-	if PlaylistDropdown.GenerateMenu then
-		PlaylistDropdown:GenerateMenu()
+	if canEdit then
+		PlaylistDropdown:SetEnabled(true)
+		PlaylistDropdown.Text:SetText(HM.GetActivePlaylistName() or "Default")
+		
+		if PlaylistDropdown.GenerateMenu then
+			PlaylistDropdown:GenerateMenu()
+		end
+	else
+		PlaylistDropdown:SetEnabled(false)
+		PlaylistDropdown.Text:SetText(currentOwner .. "'s Playlist")
+	end
+
+	fullSavedList = {}
+	local activeList = {}
+
+	if canEdit then
+		if HousingMusic_DB then
+			activeList = HM.GetActivePlaylistTable()
+		end
+	else
+		local houseKey = GetCurrentHouseKey()
+		if houseKey and CachedMusic_DB and CachedMusic_DB[houseKey] then
+			activeList = CachedMusic_DB[houseKey]
+		else
+			activeList = {}
+		end
 	end
 	
-	fullSavedList = {}
-	
-	local activeList = HM.GetActivePlaylistTable()
 	for fileID, _ in pairs(activeList) do
 		local musicInfo = LRPM:GetMusicInfoByID(fileID)
 		
@@ -865,5 +913,7 @@ function UpdateSavedMusicList()
 
 	FilterSavedList(SearchBoxRight)
 end
+
+HM.UpdateCachedMusicUI = UpdateSavedMusicList
 
 UpdateSavedMusicList()
