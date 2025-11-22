@@ -199,7 +199,7 @@ MainFrame.HeaderTitle = HeaderTitle
 
 EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(arg1, arg2)
 	local bingus = arg2;
-	if not bingus and not bingus.ownerName then return end
+	if not bingus or not bingus.ownerName then return end
 	HeaderTitle:SetText(string.format("%s's House Music",bingus.ownerName))
 end)
 

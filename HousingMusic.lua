@@ -624,6 +624,10 @@ local activeZone = nil -- previously removed
 local currentTrackName = nil
 
 local function GetPlayerHouseZone()
+	if not (C_Housing and C_Housing.IsInsideHouse and C_Housing.IsInsideHouse()) then
+		return nil
+	end
+	
 	local houseKey = GetCurrentHouseKey()
 	if not houseKey then
 		return nil
