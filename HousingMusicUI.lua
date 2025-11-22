@@ -5,8 +5,9 @@ if not LRPM then
 	return
 end
 
-HousingMusic_DB = HousingMusic_DB or {}
-HousingMusic_DB.PlayerMusic = HousingMusic_DB.PlayerMusic or {}
+--HousingMusic_DB = HousingMusic_DB or {}
+--HousingMusic_DB.PlayerMusic = HousingMusic_DB.PlayerMusic or {}
+-- DB Initialization is handled in HousingMusic.lua now
 
 local SavedDataProvider
 local UpdateSavedMusicList
@@ -24,6 +25,42 @@ local Decor_Controls_Blank = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\
 local Decor_Controls_Music_Active = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Active.png"
 local Decor_Controls_Music_Default = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Default.png"
 local Decor_Controls_Music_Pressed = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Pressed.png"
+
+StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
+	text = "Enter new playlist name:",
+	button1 = "Create",
+	button2 = "Cancel",
+	hasEditBox = true,
+	OnAccept = function(self)
+		local text = self.EditBox:GetText()
+		if HM.CreatePlaylist(text) then
+			UpdateSavedMusicList()
+		else
+			print("|cffff0000Error:|r Playlist name invalid or already exists.")
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3, 
+}
+
+StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
+	text = "Delete playlist '%s'?",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = function()
+		local data = HM.GetActivePlaylistName()
+		if not data then return end
+		HM.DeletePlaylist(data)
+		UpdateSavedMusicList()
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+}
+
 
 local function RefreshUILists()
 	if SearchBoxLeft then 
@@ -51,10 +88,6 @@ local function CleanString(str)
 	str = str:gsub("[_%s]+", " ")
 	str = str:match("^%s*(.-)%s*$")
 	return str
-end
-
-local function escapePattern(text)
-	return text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
 end
 
 local function CheckMatch(musicInfo, query)
@@ -151,7 +184,11 @@ HeaderTitle:SetFont(GameFontNormal:GetFont(), 17, "")
 HeaderTitle:SetTextColor(1, 1, 1)
 MainFrame.HeaderTitle = HeaderTitle
 
-EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(arg1, arg2) local bingus = arg2; HeaderTitle:SetText(string.format("%s's House Music",bingus.ownerName)) end)
+EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(arg1, arg2)
+	local bingus = arg2;
+	if not bingus and not bingus.ownerName then return end
+	HeaderTitle:SetText(string.format("%s's House Music",bingus.ownerName))
+end)
 
 local Footer = CreateFrame("Frame", nil, MainFrame)
 Footer:SetPoint("TOPLEFT", Backframe, "BOTTOMLEFT", 0, 0)
@@ -309,6 +346,7 @@ MainFrame:SetScript("OnShow", function()
 	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
 	PlaySound(305110)
 	UpdateSavedMusicList()
+	RefreshUILists()
 end)
 MainFrame:SetScript("OnHide", function()
 	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Default)
@@ -378,7 +416,7 @@ end
 SearchBoxLeft:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 SearchBoxLeft:HookScript("OnEnter", function(self)
 	GameTooltip:SetOwner(self, "ANCHOR_TOP")
-	GameTooltip:AddLine("You can search by name or a Filedata ID", 1, 1, 1)
+	GameTooltip:AddLine("Search by name or Filedata ID", 1, 1, 1)
 	GameTooltip:Show()
 
 end)
@@ -389,10 +427,13 @@ end)
 local function Initializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
 
-	local isSaved = HousingMusic_DB.PlayerMusic[musicInfo.file]
+	local activePlaylist = HM.GetActivePlaylistTable()
+	local isSaved = activePlaylist[musicInfo.file]
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
+	--button.tex:SetPoint("TOPLEFT", button, "TOPLEFT", 1, -1)
+	--button.tex:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
 	button.tex:SetAtlas("ClickCastList-ButtonBackground")
 
 	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
@@ -468,14 +509,15 @@ local function Initializer(button, musicInfo)
 	end)
 	
 	addButton:SetScript("OnClick", function()
-		if not HousingMusic_DB.PlayerMusic[musicInfo.file] then
-			HousingMusic_DB.PlayerMusic[musicInfo.file] = true 
+		local currentList = HM.GetActivePlaylistTable()
+		if not currentList[musicInfo.file] then
+			currentList[musicInfo.file] = true 
 			UpdateSavedMusicList()
 			RefreshUILists()
-			print("|cff00ff00Added:|r " .. musicInfo.name)
+			print("|cff00ff00Added:|r " .. musicInfo.name .. " to " .. HM.GetActivePlaylistName())
 			PlaySound(316551)
-		else
-			print("|cffffcc00Warning:|r Music already saved.")
+		--else
+		--	print("|cffffcc00Warning:|r Music already saved.")
 		end
 	end)
 
@@ -499,7 +541,7 @@ local function Initializer(button, musicInfo)
 		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
 
 		if isSaved then
-			GameTooltip:AddLine("Song is in Playlist", 0.83, 0.42, 1.00)
+			GameTooltip:AddLine("Song is in Playlist: " .. HM.GetActivePlaylistName(), 0.83, 0.42, 1.00)
 		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
@@ -567,7 +609,7 @@ ScrollUtil.InitScrollBoxListWithScrollBar(SavedScrollBox, SavedScrollBar, SavedS
 
 SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
 SearchBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 10, 0)
-SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
+SearchBoxRight:SetPoint("TOPRIGHT", SectionRight, "TOP", -12, 0)
 SearchBoxRight:SetHeight(20)
 SearchBoxRight:SetAutoFocus(false)
 
@@ -605,10 +647,52 @@ end
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
 SearchBoxRight:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
+local PlaylistDropdown = CreateFrame("DropdownButton", "GlobalDropdownNameThingy", SectionRight, "WowStyle1DropdownTemplate")
+PlaylistDropdown:SetPoint("TOPLEFT", SectionRight, "TOP", -10, -2.5)
+PlaylistDropdown:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
+PlaylistDropdown.Text:ClearAllPoints()
+PlaylistDropdown.Text:SetPoint("TOPLEFT",PlaylistDropdown,"TOPLEFT", 3, 6)
+PlaylistDropdown.Text:SetPoint("BOTTOMRIGHT",PlaylistDropdown.Arrow,"BOTTOMLEFT", 0, 0)
+PlaylistDropdown:SetHeight(16)
+
+local function GeneratorFunction(dropdown, rootDescription)
+	rootDescription:SetScrollMode(300)
+
+	local active = HM.GetActivePlaylistName()
+
+	rootDescription:CreateButton("|cff00ff00Create New Playlist|r", function()
+		StaticPopup_Show("HOUSINGMUSIC_NEW_PLAYLIST")
+	end)
+
+	if active ~= "Default" then
+		rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
+			StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
+		end)
+	end
+
+	rootDescription:CreateDivider()
+	rootDescription:CreateTitle("Select Playlist")
+
+	local playlists = HM.GetPlaylistNames()
+	if not playlists then return end
+	for _, name in ipairs(playlists) do
+		rootDescription:CreateRadio(name, function(playlistName)
+			return HM.GetActivePlaylistName() == playlistName
+		end, function(playlistName)
+			HM.SetActivePlaylist(playlistName)
+			UpdateSavedMusicList()
+			RefreshUILists()
+		end, name)
+	end
+end
+
+PlaylistDropdown:SetupMenu(GeneratorFunction)
+
 local function RemoveMusicEntry(musicFile, musicName)
-	HousingMusic_DB.PlayerMusic[musicFile] = nil
+	local currentList = HM.GetActivePlaylistTable()
+	currentList[musicFile] = nil
 	UpdateSavedMusicList()
-	print("|cffff0000Removed:|r " .. musicName)
+	print("|cffff0000Removed:|r " .. musicName .. " from " .. HM.GetActivePlaylistName())
 end
 
 local function SavedInitializer(button, musicInfo)
@@ -753,10 +837,16 @@ SavedScrollView:SetElementInitializer("Button", SavedInitializer)
 SavedScrollView:SetElementExtent(36);
 
 function UpdateSavedMusicList()
+	if not HousingMusic_DB then return end
+
+	if PlaylistDropdown.GenerateMenu then
+		PlaylistDropdown:GenerateMenu()
+	end
 	
 	fullSavedList = {}
 	
-	for fileID, _ in pairs(HousingMusic_DB.PlayerMusic) do
+	local activeList = HM.GetActivePlaylistTable()
+	for fileID, _ in pairs(activeList) do
 		local musicInfo = LRPM:GetMusicInfoByID(fileID)
 		
 		if musicInfo then
@@ -776,5 +866,4 @@ function UpdateSavedMusicList()
 	FilterSavedList(SearchBoxRight)
 end
 
-FilterAvailableList(SearchBoxLeft)
-UpdateSavedMusicList(SearchBoxRight)
+UpdateSavedMusicList()

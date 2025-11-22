@@ -1,15 +1,7 @@
 local _, HM = ...
 
 local f = CreateFrame("Frame")
-f:RegisterEvent("ZONE_CHANGED")
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:RegisterEvent("PLAYER_STARTED_MOVING")
-f:RegisterEvent("NEW_WMO_CHUNK")
-f:RegisterEvent("PLAYER_LEAVING_WORLD")
-f:RegisterEvent("ZONE_CHANGED_INDOORS")
-f:RegisterEvent("AREA_POIS_UPDATED")
-f:RegisterEvent("FOG_OF_WAR_UPDATED")
-f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("HOUSE_PLOT_ENTERED")
 f:RegisterEvent("HOUSE_PLOT_EXITED")
 f:RegisterEvent("CURRENT_HOUSE_INFO_UPDATED")
@@ -64,6 +56,113 @@ local silentMusicActive = false
 --EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_UPDATED", function(...) DevTools_Dump({...}); print("updated info"); C_Housing.RequestCurrentHouseInfo() end) -- test function for querying housing
 --EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_RELEASED", function(...) DevTools_Dump({...}); print("pinframe released"); end) -- query pin frame released during floorplan editor
 --EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_ADDED", function(...) DevTools_Dump({...}); print("pinframe added"); end) -- query pin frame released during floorplan editor
+
+
+----------------------------------------------------------
+-- profiles
+----------------------------------------------------------
+
+function HM.InitializeDB()
+	HousingMusic_DB = HousingMusic_DB or {}
+	
+	if HousingMusic_DB.PlayerMusic then
+		HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
+		HousingMusic_DB.Playlists["Default"] = CopyTable(HousingMusic_DB.PlayerMusic)
+		HousingMusic_DB.PlayerMusic = nil
+		HousingMusic_DB.ActivePlaylist = "Default"
+		print("|cff00ff00HousingMusic:|r Old playlist migrated to profile 'Default'.")
+	end
+
+	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
+	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or "Default"
+	HousingMusic_DB.HouseAssignments = HousingMusic_DB.HouseAssignments or {}
+	
+	if not HousingMusic_DB.Playlists["Default"] then
+		HousingMusic_DB.Playlists["Default"] = {}
+	end
+end
+
+local function GetCurrentHouseKey()
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
+	
+	local info = C_Housing.GetCurrentHouseInfo()
+	
+	if not info or not info.ownerName or info.ownerName == "" then return nil end
+	if not info.neighborhoodGUID or not info.plotID then return nil end
+
+	-- ownerName_NeighborhoodGUID_plotID
+	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID)
+end
+
+function HM.GetActivePlaylistName()
+	if not HousingMusic_DB then return end
+	return HousingMusic_DB.ActivePlaylist or "Default"
+end
+
+function HM.GetActivePlaylistTable()
+	local name = HM.GetActivePlaylistName()
+	if not HousingMusic_DB.Playlists[name] then
+		HousingMusic_DB.Playlists[name] = {}
+	end
+	return HousingMusic_DB.Playlists[name]
+end
+
+function HM.SetActivePlaylist(playlistName)
+	if HousingMusic_DB.Playlists[playlistName] then
+		HousingMusic_DB.ActivePlaylist = playlistName
+		
+		if C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+			local houseKey = GetCurrentHouseKey()
+			if houseKey then
+				HousingMusic_DB.HouseAssignments[houseKey] = playlistName
+			end
+		end
+		return true
+	end
+	return false
+end
+
+function HM.CreatePlaylist(playlistName)
+	if not playlistName or playlistName == "" then return false end
+	if HousingMusic_DB.Playlists[playlistName] then return false end
+	
+	HousingMusic_DB.Playlists[playlistName] = {}
+	HousingMusic_DB.ActivePlaylist = playlistName
+	return true
+end
+
+function HM.DeletePlaylist(playlistName)
+	print(playlistName)
+	if playlistName == "Default" then 
+		print("Cannot delete Default playlist.")
+		return false 
+	end
+	
+	HousingMusic_DB.Playlists[playlistName] = nil
+	
+	if HousingMusic_DB.ActivePlaylist == playlistName then
+		HousingMusic_DB.ActivePlaylist = "Default"
+		if not HousingMusic_DB.Playlists["Default"] then
+			HousingMusic_DB.Playlists["Default"] = {}
+		end
+	end
+	return true
+end
+
+function HM.GetPlaylistNames()
+	local names = {}
+	if not HousingMusic_DB then return end
+	for k, v in pairs(HousingMusic_DB.Playlists) do
+		table.insert(names, k)
+	end
+	table.sort(names)
+	return names
+end
+
+----------------------------------------------------------
+-- playback
+----------------------------------------------------------
+
 
 local DAY_START_HOUR = 6 -- 6:00 AM
 local NIGHT_START_HOUR = 18 -- 6:00 PM
@@ -529,12 +628,32 @@ local function GetPlayerHouseZone()
 		return nil
 	end
 
-	if not HousingMusic_DB or not HousingMusic_DB.PlayerMusic then
+	if not HousingMusic_DB or not HousingMusic_DB.Playlists then
 		return nil
 	end
 
+	local houseKey = GetCurrentHouseKey()
+	
+	if not houseKey then
+		return nil
+	end
+
+	local targetPlaylistName = "Default"
+	
+	if HousingMusic_DB.HouseAssignments[houseKey] then
+		targetPlaylistName = HousingMusic_DB.HouseAssignments[houseKey]
+		
+		if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
+			 HousingMusic_DB.ActivePlaylist = targetPlaylistName
+		end
+	else
+		targetPlaylistName = HM.GetActivePlaylistName()
+	end
+
+	local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {}
+	
 	local dynamicPlaylist = {}
-	for fileID, enabled in pairs(HousingMusic_DB.PlayerMusic) do
+	for fileID, enabled in pairs(activeList) do
 		if enabled then
 			table.insert(dynamicPlaylist, { fileID = fileID })
 		end
@@ -543,14 +662,16 @@ local function GetPlayerHouseZone()
 	if #dynamicPlaylist == 0 then
 		return nil
 	end
+	
 	return {
-		name = "My Personal House",
+		name = "My Personal House (" .. targetPlaylistName .. ")",
 		playlist = dynamicPlaylist,
 	}
 end
 
 local function IsInZone(zone)
 	local mapID = C_Map.GetBestMapForUnit("player")
+	if not mapID then return false end
 	if mapID ~= zone.mapID then return false end
 
 	if not zone.subzone and not zone.minX then
@@ -589,21 +710,23 @@ local function FindActiveZone()
 	local mapID = C_Map.GetBestMapForUnit("player")
 	if not mapID then return nil end
 
-	for _, zone in ipairs(zones) do
-		if zone.mapID == mapID and IsInZone(zone) then
-			if zone.conditions then
-				local valid = true
-				for _, cond in ipairs(zone.conditions) do
-					if not cond() then
-						valid = false
-						break
+	if zones then
+		for _, zone in ipairs(zones) do
+			if zone.mapID == mapID and IsInZone(zone) then
+				if zone.conditions then
+					local valid = true
+					for _, cond in ipairs(zone.conditions) do
+						if not cond() then
+							valid = false
+							break
+						end
 					end
-				end
-				if valid then
+					if valid then
+						return zone
+					end
+				else
 					return zone
 				end
-			else
-				return zone
 			end
 		end
 	end
@@ -800,8 +923,19 @@ f:SetScript("OnUpdate", function(_, elapsed)
 	end
 end)
 
-f:SetScript("OnEvent", function(_, event)
-	if event == "PLAYER_LEAVING_WORLD" then
+f:SetScript("OnEvent", function(_, event, arg1)
+	if event == "ADDON_LOADED" and arg1 == "HousingMusic" then
+		f:RegisterEvent("ZONE_CHANGED")
+		f:RegisterEvent("PLAYER_ENTERING_WORLD")
+		f:RegisterEvent("PLAYER_STARTED_MOVING")
+		f:RegisterEvent("NEW_WMO_CHUNK")
+		f:RegisterEvent("PLAYER_LEAVING_WORLD")
+		f:RegisterEvent("ZONE_CHANGED_INDOORS")
+		f:RegisterEvent("AREA_POIS_UPDATED")
+		f:RegisterEvent("FOG_OF_WAR_UPDATED")
+		f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+		HM.InitializeDB()
+	elseif event == "PLAYER_LEAVING_WORLD" then
 		StopCurrentMusic()
 	else
 		CheckConditions()
