@@ -370,7 +370,12 @@ MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
 MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 MainframeToggleButton:SetScript("OnEvent", function()
-	local HousingFrame = HousingControlsFrame and (HousingControlsFrame.OwnerControlFrame or HousingControlsFrame.VisitorControlFrame) and (HousingControlsFrame.OwnerControlFrame.InspectorButton or HousingControlsFrame.VisitorControlFrame.InspectorButton)
+	local HousingFrame
+    if C_Housing.IsInsideOwnHouse() then
+        HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
+    elseif C_Housing.IsInsideHouse() then
+        HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.VisitorInspectorButton
+    end
 	local isInHouse = C_Housing.IsInsideHouse()
 	if HousingFrame and isInHouse then
 		MainframeToggleButton:ClearAllPoints()
