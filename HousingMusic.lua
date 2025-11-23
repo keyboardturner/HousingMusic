@@ -883,7 +883,7 @@ local function PlayNextTrack()
 end
 
 local function CheckConditions()
-	if C_CVar.GetCVar("Sound_EnableMusic") ~= "1" then
+	if C_CVar.GetCVar("Sound_EnableMusic") ~= "1" or C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG") ~= "1" then
 		if musicPlaying then
 			StopCurrentMusic()
 		end

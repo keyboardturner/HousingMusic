@@ -26,42 +26,6 @@ local Decor_Controls_Music_Active = "Interface\\AddOns\\HousingMusic\\Assets\\Te
 local Decor_Controls_Music_Default = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Default.png"
 local Decor_Controls_Music_Pressed = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Pressed.png"
 
-StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
-	text = "Enter new playlist name:",
-	button1 = "Create",
-	button2 = "Cancel",
-	hasEditBox = true,
-	OnAccept = function(self)
-		local text = self.EditBox:GetText()
-		if HM.CreatePlaylist(text) then
-			UpdateSavedMusicList()
-		else
-			print("|cffff0000Error:|r Playlist name invalid or already exists.")
-		end
-	end,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	preferredIndex = 3, 
-}
-
-StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
-	text = "Delete playlist '%s'?",
-	button1 = "Yes",
-	button2 = "No",
-	OnAccept = function()
-		local data = HM.GetActivePlaylistName()
-		if not data then return end
-		HM.DeletePlaylist(data)
-		UpdateSavedMusicList()
-	end,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	preferredIndex = 3,
-}
-
-
 local function RefreshUILists()
 	if SearchBoxLeft then 
 		FilterAvailableList(SearchBoxLeft) 
@@ -139,6 +103,43 @@ local function SearchBox_OnTextChanged(self)
 	self:SetScript("OnUpdate", SearchBox_OnUpdate);
 end
 
+StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
+	text = "Enter new playlist name:",
+	button1 = "Create",
+	button2 = "Cancel",
+	hasEditBox = true,
+	OnAccept = function(self)
+		local text = self.EditBox:GetText()
+		if HM.CreatePlaylist(text) then
+			HM.SetActivePlaylist(text) 
+			UpdateSavedMusicList()
+			RefreshUILists()
+		else
+			print("|cffff0000Error:|r Playlist name invalid or already exists.")
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3, 
+};
+
+StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
+	text = "Delete playlist '%s'?",
+	button1 = "Yes",
+	button2 = "No",
+	OnAccept = function()
+		local data = HM.GetActivePlaylistName()
+		if not data then return end
+		HM.DeletePlaylist(data)
+		UpdateSavedMusicList()
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+};
+
 local MainFrame = CreateFrame("Frame", "HousingMusic_MainFrame", UIParent)
 MainFrame:SetSize(620, 470)
 MainFrame:SetPoint("CENTER")
@@ -207,6 +208,70 @@ local Footer = CreateFrame("Frame", nil, MainFrame)
 Footer:SetPoint("TOPLEFT", Backframe, "BOTTOMLEFT", 0, 0)
 Footer:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 0, 0)
 MainFrame.Footer = Footer
+
+-- Because if the setting is turned off, the addon breaks
+local BlockerFrame = CreateFrame("Frame", nil, MainFrame)
+BlockerFrame:SetAllPoints(MainFrame)
+BlockerFrame:SetFrameLevel(500)
+BlockerFrame:EnableMouse(true)
+BlockerFrame:SetScript("OnMouseWheel", function() end)
+BlockerFrame:Hide()
+
+BlockerFrame.bg = BlockerFrame:CreateTexture(nil, "BACKGROUND")
+BlockerFrame.bg:SetAllPoints()
+BlockerFrame.bg:SetColorTexture(0, 0, 0, 0.85)
+
+BlockerFrame.icon = BlockerFrame:CreateTexture(nil, "ARTWORK")
+BlockerFrame.icon:SetSize(40, 40)
+BlockerFrame.icon:SetPoint("CENTER", BlockerFrame, "CENTER", 0, 40)
+BlockerFrame.icon:SetAtlas("icons_64x64_important")
+
+BlockerFrame.text = BlockerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+BlockerFrame.text:SetPoint("TOP", BlockerFrame.icon, "BOTTOM", 0, -10)
+BlockerFrame.text:SetWidth(450)
+BlockerFrame.text:SetText("Housing Music requires 'Sound in Background' to function correctly.")
+BlockerFrame.text:SetTextColor(1, 0.2, 0.2)
+
+BlockerFrame.subtext = BlockerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+BlockerFrame.subtext:SetPoint("TOP", BlockerFrame.text, "BOTTOM", 0, -10)
+BlockerFrame.subtext:SetWidth(300)
+BlockerFrame.subtext:SetText("Without this setting, music will stop when you tab out, breaking the playlist logic.")
+BlockerFrame.subtext:SetJustifyH("CENTER")
+
+local FixButton = CreateFrame("Button", nil, BlockerFrame, "UIPanelButtonTemplate")
+FixButton:SetSize(200, 30)
+FixButton:SetPoint("TOP", BlockerFrame.subtext, "BOTTOM", 0, -20)
+FixButton:SetText("Enable Sound in Background")
+FixButton:SetScript("OnClick", function()
+	C_CVar.SetCVar("Sound_EnableSoundWhenGameIsInBG", "1")
+end)
+
+FixButton:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	GameTooltip:AddLine(ENABLE_BGSOUND, 1, 1, 1)
+	GameTooltip:AddLine(OPTION_TOOLTIP_ENABLE_BGSOUND, 1, 1, 1, true)
+	GameTooltip:Show()
+end)
+FixButton:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+local function UpdateCVarBlocker()
+	local setting = C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG")
+	if setting == "0" then
+		BlockerFrame:Show()
+	else
+		BlockerFrame:Hide()
+	end
+end
+
+local CVarListener = CreateFrame("Frame")
+CVarListener:RegisterEvent("CVAR_UPDATE")
+CVarListener:SetScript("OnEvent", function(self, event, arg1)
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG" then
+		UpdateCVarBlocker()
+	end
+end)
 
 local ProgressBar = CreateFrame("StatusBar", nil, Footer)
 ProgressBar:SetPoint("TOPLEFT", Footer, "BOTTOMLEFT", 40, 18)
@@ -360,6 +425,7 @@ MainFrame:SetScript("OnShow", function()
 	PlaySound(305110)
 	UpdateSavedMusicList()
 	RefreshUILists()
+	UpdateCVarBlocker()
 end)
 MainFrame:SetScript("OnHide", function()
 	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Default)
