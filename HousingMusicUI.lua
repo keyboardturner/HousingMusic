@@ -371,7 +371,7 @@ MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 MainframeToggleButton:SetScript("OnEvent", function()
 	local HousingFrame = HousingControlsFrame and (HousingControlsFrame.OwnerControlFrame or HousingControlsFrame.VisitorControlFrame) and (HousingControlsFrame.OwnerControlFrame.InspectorButton or HousingControlsFrame.VisitorControlFrame.InspectorButton)
-	local isInHouse = C_Housing.IsInsideOwnHouse()
+	local isInHouse = C_Housing.IsInsideHouse()
 	if HousingFrame and isInHouse then
 		MainframeToggleButton:ClearAllPoints()
 		MainframeToggleButton:SetPoint("RIGHT", HousingFrame, "LEFT", 0, 0)
