@@ -64,6 +64,8 @@ local silentMusicActive = false
 
 function HM.InitializeDB()
 	HousingMusic_DB = HousingMusic_DB or {}
+	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
+	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
 	
 	if HousingMusic_DB.PlayerMusic then
 		HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
@@ -77,12 +79,14 @@ function HM.InitializeDB()
 	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or "Default"
 	HousingMusic_DB.HouseAssignments = HousingMusic_DB.HouseAssignments or {}
 	
+	HousingMusic_DB.VisitorPreferences = HousingMusic_DB.VisitorPreferences or {}
+
 	if not HousingMusic_DB.Playlists["Default"] then
 		HousingMusic_DB.Playlists["Default"] = {}
 	end
 end
 
-local function GetCurrentHouseKey()
+local function GetOwnerHouseKey()
 	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
 	
 	local info = C_Housing.GetCurrentHouseInfo()
@@ -92,6 +96,13 @@ local function GetCurrentHouseKey()
 
 	-- ownerName_NeighborhoodGUID_plotID
 	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID)
+end
+
+local function GetLocationKey()
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
+	local info = C_Housing.GetCurrentHouseInfo()
+	if not info or not info.neighborhoodGUID or not info.plotID then return nil end
+	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
 end
 
 function HM.GetActivePlaylistName()
@@ -107,12 +118,28 @@ function HM.GetActivePlaylistTable()
 	return HousingMusic_DB.Playlists[name]
 end
 
+function HM.IsSongIgnored(fileID)
+	if not fileID then return false end
+	return HousingMusic_DB and HousingMusic_DB.IgnoredSongs and HousingMusic_DB.IgnoredSongs[fileID]
+end
+
+function HM.SetSongIgnored(fileID, ignored)
+	if not fileID then return end
+	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
+	
+	if ignored then
+		HousingMusic_DB.IgnoredSongs[fileID] = true
+	else
+		HousingMusic_DB.IgnoredSongs[fileID] = nil
+	end
+end
+
 function HM.SetActivePlaylist(playlistName)
 	if HousingMusic_DB.Playlists[playlistName] then
 		HousingMusic_DB.ActivePlaylist = playlistName
 		
 		if C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
-			local houseKey = GetCurrentHouseKey()
+			local houseKey = GetOwnerHouseKey()
 			if houseKey then
 				HousingMusic_DB.HouseAssignments[houseKey] = playlistName
 			end
@@ -628,23 +655,17 @@ local function GetPlayerHouseZone()
 		return nil
 	end
 	
-	local houseKey = GetCurrentHouseKey()
-	if not houseKey then
-		return nil
-	end
-
 	local dynamicPlaylist = {}
 	local displayZoneName = "Housing Plot"
 
 	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
-		if not HousingMusic_DB or not HousingMusic_DB.Playlists then
-			return nil
-		end
+		if not HousingMusic_DB or not HousingMusic_DB.Playlists then return nil end
 
+		local ownerKey = GetOwnerHouseKey()
 		local targetPlaylistName = "Default"
 		
-		if HousingMusic_DB.HouseAssignments[houseKey] then
-			targetPlaylistName = HousingMusic_DB.HouseAssignments[houseKey]
+		if ownerKey and HousingMusic_DB.HouseAssignments[ownerKey] then
+			targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey]
 			
 			if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
 				 HousingMusic_DB.ActivePlaylist = targetPlaylistName
@@ -656,26 +677,48 @@ local function GetPlayerHouseZone()
 		local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {}
 		
 		for fileID, enabled in pairs(activeList) do
-			if enabled then
-				table.insert(dynamicPlaylist, { fileID = fileID })
-			end
+			if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
 		end
 		
 		displayZoneName = "My House (" .. targetPlaylistName .. ")"
 
 	else
-		if CachedMusic_DB and CachedMusic_DB[houseKey] then
-			local ownerName = string.match(houseKey, "^(.-)_") or "Someone"
+		local locationKey = GetLocationKey()
+		if not locationKey then return nil end
+
+		if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] then
 			
-			local cachedList = CachedMusic_DB[houseKey]
+			local houseInfo = C_Housing.GetCurrentHouseInfo()
+			local ownerName = houseInfo and houseInfo.ownerName or "Unknown"
 			
-			for fileID, enabled in pairs(cachedList) do
-				if enabled then
-					table.insert(dynamicPlaylist, { fileID = fileID })
+			local preferredSender = HousingMusic_DB.VisitorPreferences[locationKey]
+			local selectedSender = nil
+			local senders = HM_CachedMusic_DB[locationKey]
+
+			if preferredSender and senders[preferredSender] then
+				selectedSender = preferredSender
+			else
+				-- Try matching owner
+				for senderName, _ in pairs(senders) do
+					if string.find(senderName, ownerName) then
+						selectedSender = senderName
+						break
+					end
+				end
+				if not selectedSender then
+					selectedSender = next(senders)
 				end
 			end
-			
-			displayZoneName = ownerName .. "'s House"
+
+			if selectedSender then
+				local cachedList = senders[selectedSender]
+				for fileID, enabled in pairs(cachedList) do
+					if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
+				end
+				displayZoneName = ownerName .. "'s House (" .. selectedSender .. ")"
+				
+				HousingMusic_DB.VisitorPreferences[locationKey] = selectedSender
+			end
 		end
 	end
 
@@ -840,6 +883,13 @@ local function PlayNextTrack()
 	local trackNameForDebug
 
 	if track.fileID then
+		if HM.IsSongIgnored(track.fileID) then
+			if lastTrackIndex then
+				nextIndex = lastTrackIndex;
+				track = playlist[nextIndex]
+			end
+			return
+		end
 		local musicInfo = LRPM:GetMusicInfoByID(track.fileID)
 		if not musicInfo or not musicInfo.duration then
 			--print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID))

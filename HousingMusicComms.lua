@@ -5,26 +5,25 @@ local LRPM = LibStub("LibRPMedia-1.2")
 HMGlobal = HM
 HM.CommPrefix = "HousingMusic"
 
--- "HEADER:HouseKey:FileID,FileID,FileID..."
+-- "HEADER:LocationKey:FileID,FileID,FileID..."
 -- "H"- House Data
 local MSG_TYPE_HOUSE = "H"
 
 local MAX_MSG_BYTES = 250
 
-local AUTO_SEND_COOLDOWN = 30 
+local AUTO_SEND_COOLDOWN = 30
 
 HM.SentTracker = {} 
 
-local function GetCurrentHouseKey()
+local function GetCurrentLocationKey()
 	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
 	
 	local info = C_Housing.GetCurrentHouseInfo()
 	
-	if not info or not info.ownerName or info.ownerName == "" then return nil end
-	if not info.neighborhoodGUID or not info.plotID then return nil end
+	if not info or not info.neighborhoodGUID or not info.plotID then return nil end
 
 	-- format: Owner_NeighborhoodGUID_PlotID
-	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID)
+	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
 end
 
 local CommsFrame = CreateFrame("Frame")
@@ -35,7 +34,7 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 	if event == "ADDON_LOADED" then
 		local addonName = ...
 		if addonName == "HousingMusic" then
-			CachedMusic_DB = CachedMusic_DB or {}
+			HM_CachedMusic_DB = HM_CachedMusic_DB or {}
 			
 			C_ChatInfo.RegisterAddonMessagePrefix(HM.CommPrefix)
 		end
@@ -44,15 +43,14 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
-local function ProcessReceivedPlaylist(receivedHouseKey, dataString)
-	if not receivedHouseKey or not dataString then return end
+local function ProcessReceivedPlaylist(sender, receivedLocationKey, dataString)
+	if not sender or not receivedLocationKey or not dataString then return end
 	
-	local myCurrentKey = GetCurrentHouseKey()
+	local myCurrentKey = GetCurrentLocationKey()
 
 	if not myCurrentKey then return end
 
-	if myCurrentKey ~= receivedHouseKey then
-		-- print("HousingMusic Debug: Ignored data for mismatching plot.")
+	if myCurrentKey ~= receivedLocationKey then
 		return
 	end
 
@@ -72,16 +70,25 @@ local function ProcessReceivedPlaylist(receivedHouseKey, dataString)
 	end
 	
 	if count > 0 then
-		CachedMusic_DB[receivedHouseKey] = validSongs
-		print(string.format("|cff00ff00HousingMusic:|r Received %d songs for this house.", count))
+		if not HM_CachedMusic_DB[receivedLocationKey] then
+			HM_CachedMusic_DB[receivedLocationKey] = {}
+		end
+
+		HM_CachedMusic_DB[receivedLocationKey][sender] = validSongs
+		
+		print(string.format("|cff00ff00HousingMusic:|r Received playlist from %s (%d songs).", sender, count))
 		
 		if HM.UpdateCachedMusicUI then
 			HM.UpdateCachedMusicUI()
 		end
+
+		if HMGlobal and HMGlobal.CheckConditions then
+			 HMGlobal.CheckConditions()
+		end
 	end
 end
 
-local function SendData(channel, target, houseKey, playlistTable)
+local function SendData(channel, target, locationKey, playlistTable)
 	if not ChatThrottleLib then
 		print("|cffff0000HousingMusic:|r ChatThrottleLib not found.")
 		return
@@ -97,7 +104,7 @@ local function SendData(channel, target, houseKey, playlistTable)
 	if #ids == 0 then return end
 	
 	local headerFmt = MSG_TYPE_HOUSE .. ":%s:"
-	local baseOverhead = string.format(headerFmt, houseKey)
+	local baseOverhead = string.format(headerFmt, locationKey)
 	local availableBytes = MAX_MSG_BYTES - #baseOverhead
 	
 	local currentChunk = ""
@@ -106,7 +113,7 @@ local function SendData(channel, target, houseKey, playlistTable)
 		local nextLen = #currentChunk + #idStr + 1 -- +1 for comma
 		
 		if nextLen > availableBytes then
-			local payload = string.format(headerFmt .. "%s", houseKey, currentChunk)
+			local payload = string.format(headerFmt .. "%s", locationKey, currentChunk)
 			ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
 
 			currentChunk = idStr
@@ -120,7 +127,7 @@ local function SendData(channel, target, houseKey, playlistTable)
 	end
 	
 	if currentChunk ~= "" then
-		local payload = string.format(headerFmt .. "%s", houseKey, currentChunk)
+		local payload = string.format(headerFmt .. "%s", locationKey, currentChunk)
 		ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
 	end
 end
@@ -129,8 +136,8 @@ function HM.SharePlaylist(context)
 	local playlistTable = HM.GetActivePlaylistTable()
 	if not playlistTable then return end
 
-	local houseKey = GetCurrentHouseKey()
-	if not houseKey then
+	local locationKey = GetCurrentLocationKey()
+	if not locationKey then
 		print("|cffff0000HousingMusic:|r You must be inside a housing plot to share its music.")
 		return
 	end
@@ -173,7 +180,7 @@ function HM.SharePlaylist(context)
 		print("|cff00ff00HousingMusic:|r Broadcasting house music data via "..channel.."...")
 	end
 
-	SendData(channel, target, houseKey, playlistTable)
+	SendData(channel, target, locationKey, playlistTable)
 end
 
 local TriggerFrame = CreateFrame("Frame")
@@ -184,6 +191,7 @@ TriggerFrame:RegisterEvent("HOUSE_PLOT_EXITED")
 
 local function TryAutoShare(unitID)
 	if not C_Housing.IsInsideHouse() then return end
+	if not C_Housing.IsInsideOwnHouse() then return end
 
 	if not UnitExists(unitID) or not UnitIsPlayer(unitID) then return end
 	if UnitIsUnit(unitID, "player") then return end
@@ -192,13 +200,19 @@ local function TryAutoShare(unitID)
 	local targetName = GetUnitName(unitID, true)
 	if not targetName then return end
 
+	print(targetName)
+	if HM.IsPlayerIgnored(targetName) then
+		print("preventing sending data to "..targetName)
+		return 
+	end
+
 	local now = GetTime()
 	local lastSent = HM.SentTracker[targetName] or 0
 
 	if (now - lastSent) > AUTO_SEND_COOLDOWN then
 
 		HM.SentTracker[targetName] = now
-
+		
 		HM.SharePlaylist(targetName)
 	end
 end
@@ -216,12 +230,19 @@ end)
 function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
 	if prefix ~= HM.CommPrefix then return end
 
-	if sender == UnitName("player") or sender == GetUnitName("player", true) then return end
+	if not target or target == "" then return end
 
-	-- example: H:Keyboarddh_Housing-4-1-69-19C6B_39:123,456,789
-	local msgType, houseKey, data = strsplit(":", text, 3)
+	if HM.IsPlayerIgnored(target) then
+		print("preventing receiving data from "..target)
+		return 
+	end
 	
-	if msgType == MSG_TYPE_HOUSE and houseKey and data then
-		ProcessReceivedPlaylist(houseKey, data)
+	if sender == UnitName("player") then return end
+
+	-- example: H:Housing-4-1-69-19C6B_39:123,456,789
+	local msgType, locationKey, data = strsplit(":", text, 3)
+	
+	if msgType == MSG_TYPE_HOUSE and locationKey and data then
+		ProcessReceivedPlaylist(sender, locationKey, data)
 	end
 end

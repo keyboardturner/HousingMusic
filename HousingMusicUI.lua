@@ -103,6 +103,31 @@ local function SearchBox_OnTextChanged(self)
 	self:SetScript("OnUpdate", SearchBox_OnUpdate);
 end
 
+local function GetCurrentLocationKey()
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
+	local info = C_Housing.GetCurrentHouseInfo()
+	if not info or not info.neighborhoodGUID or not info.plotID then return nil end
+	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
+end
+
+local function OpenSongContextMenu(owner, musicInfo)
+	MenuUtil.CreateContextMenu(owner, function(owner, rootDescription)
+		rootDescription:CreateTitle(musicInfo.name or "Unknown Song")
+		
+		local fileID = musicInfo.file
+		if not fileID then return end
+
+		local isIgnored = HM.IsSongIgnored(fileID)
+		local ignoreText = isIgnored and "Unignore Song" or "Ignore Song"
+
+		rootDescription:CreateButton(ignoreText, function()
+			HM.SetSongIgnored(fileID, not isIgnored)
+			if HM.UpdateCachedMusicUI then HM.UpdateCachedMusicUI() end
+			RefreshUILists()
+		end)
+	end)
+end
+
 StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 	text = "Enter new playlist name:",
 	button1 = "Create",
@@ -371,11 +396,11 @@ MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 MainframeToggleButton:SetScript("OnEvent", function()
 	local HousingFrame
-    if C_Housing.IsInsideOwnHouse() then
-        HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
-    elseif C_Housing.IsInsideHouse() then
-        HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.VisitorInspectorButton
-    end
+	if C_Housing.IsInsideOwnHouse() then
+		HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
+	elseif C_Housing.IsInsideHouse() then
+		HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.VisitorInspectorButton
+	end
 	local isInHouse = C_Housing.IsInsideHouse()
 	if HousingFrame and isInHouse then
 		MainframeToggleButton:ClearAllPoints()
@@ -407,14 +432,172 @@ closeButton:SetScript("OnClick", function()
 	end
 end);
 MainFrame.closeButton = closeButton
+
+function HM.IsPlayerIgnored(name)
+	if not name or not HousingMusic_DB or not HousingMusic_DB.IgnoredPlayers then return false end
+	return HousingMusic_DB.IgnoredPlayers[name]
+end
+
+function HM.IgnorePlayer(name)
+	if not name then return end
+	HousingMusic_DB.IgnoredPlayers[name] = true
+	print("|cff00ff00HousingMusic:|r Player '"..name.."' added to ignore list.")
+end
+
+function HM.UnignorePlayer(name)
+	if not name then return end
+	HousingMusic_DB.IgnoredPlayers[name] = nil
+	print("|cff00ff00HousingMusic:|r Player '"..name.."' removed from ignore list.")
+end
+
+function HM.GetIgnoreList()
+	local list = {}
+	if HousingMusic_DB and HousingMusic_DB.IgnoredPlayers then
+		for name, _ in pairs(HousingMusic_DB.IgnoredPlayers) do
+			table.insert(list, name)
+		end
+	end
+	table.sort(list)
+	return list
+end
+
 local SettingsButton = CreateFrame("Button", nil, MainFrame);
 SettingsButton:SetPoint("RIGHT", closeButton, "LEFT", -5, 0);
 SettingsButton:SetSize(15,16)
 SettingsButton:SetNormalAtlas("QuestLog-icon-setting")
 SettingsButton:SetHighlightAtlas("QuestLog-icon-setting")
+
+local SettingsFrame = CreateFrame("Frame", "HousingMusic_SettingsFrame", MainFrame)
+SettingsFrame:SetSize(250, 300)
+SettingsFrame:SetPoint("TOPLEFT", MainFrame, "TOPRIGHT", 5, 0)
+SettingsFrame:SetFrameLevel(600)
+
+local SettingsFrameTexture = SettingsFrame:CreateTexture(nil, "BACKGROUND", nil, 1);
+SettingsFrameTexture:SetPoint("TOPLEFT", 0, 0);
+SettingsFrameTexture:SetPoint("BOTTOMRIGHT", 0, 0);
+SettingsFrameTexture:SetAtlas("housing-basic-container");
+SettingsFrameTexture:SetTextureSliceMargins(64, 64, 64, 112);
+SettingsFrameTexture:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
+SettingsFrame:Hide()
+
+local SettingsTitle = SettingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+SettingsTitle:SetPoint("TOP", 0, -15)
+SettingsTitle:SetText("Ignored Players")
+
+local IgnoreInput = CreateFrame("EditBox", nil, SettingsFrame, "InputBoxTemplate")
+IgnoreInput:SetSize(140, 30)
+IgnoreInput:SetPoint("TOPLEFT", 20, -40)
+IgnoreInput:SetAutoFocus(false)
+IgnoreInput:SetTextInsets(5, 5, 0, 0)
+IgnoreInput:SetText("Name-Realm")
+
+local AddIgnoreBtn = CreateFrame("Button", nil, SettingsFrame, "UIPanelButtonTemplate")
+AddIgnoreBtn:SetSize(60, 22)
+AddIgnoreBtn:SetPoint("LEFT", IgnoreInput, "RIGHT", 5, 0)
+AddIgnoreBtn:SetText("Block")
+
+local IgnoreScrollBox = CreateFrame("Frame", nil, SettingsFrame, "WowScrollBoxList")
+IgnoreScrollBox:SetPoint("TOPLEFT", IgnoreInput, "BOTTOMLEFT", 0, -10)
+IgnoreScrollBox:SetPoint("BOTTOMRIGHT", SettingsFrame, "BOTTOMRIGHT", -25, 15)
+
+local IgnoreScrollBar = CreateFrame("EventFrame", nil, SettingsFrame, "MinimalScrollBar")
+IgnoreScrollBar:SetPoint("TOPLEFT", IgnoreScrollBox, "TOPRIGHT", 5, 0)
+IgnoreScrollBar:SetPoint("BOTTOMLEFT", IgnoreScrollBox, "BOTTOMRIGHT", 5, 0)
+
+local IgnoreScrollView = CreateScrollBoxListLinearView()
+ScrollUtil.InitScrollBoxListWithScrollBar(IgnoreScrollBox, IgnoreScrollBar, IgnoreScrollView)
+
+local ExampleNameRealm = "Name-Realm"
+
+local function RefreshIgnoreUI()
+	local list = HM.GetIgnoreList()
+	local dataProvider = CreateDataProvider(list)
+	IgnoreScrollBox:SetDataProvider(dataProvider)
+end
+function AddIgnoreBtn.OnClick()
+	local name = IgnoreInput:GetText()
+	if name and name ~= "" and name ~= ExampleNameRealm then
+		HM.IgnorePlayer(name)
+		IgnoreInput:SetText(ExampleNameRealm)
+		IgnoreInput:ClearFocus()
+		RefreshIgnoreUI()
+	end
+	if HM_CachedMusic_DB then
+		for k, v in pairs(HM_CachedMusic_DB) do
+			if v[name] then
+				print("NUKE PLAYLIST MADE BY "..name)
+			end
+		end
+	end
+end
+
+-- Button Logic
+AddIgnoreBtn:SetScript("OnClick", function()
+	AddIgnoreBtn.OnClick()
+end)
+IgnoreInput:SetScript("OnEnterPressed", function()
+	AddIgnoreBtn.OnClick()
+end)
+IgnoreInput:SetScript("OnEditFocusLost", function()
+	local text = IgnoreInput:GetText()
+	if not text or text == "" then
+		IgnoreInput:SetText(ExampleNameRealm)
+	end
+end)
+IgnoreInput:SetScript("OnEditFocusGained", function()
+	IgnoreInput:SetText("")
+end)
+
+IgnoreInput:RegisterEvent("UNIT_TARGET", function()
+
+end)
+
+
+-- Row Initializer for the Scroll List
+local function IgnoreRowInitializer(button, name)
+	if not button.text then
+		button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		button.text:SetPoint("LEFT", 5, 0)
+		button.text:SetPoint("RIGHT", -25, 0)
+		button.text:SetJustifyH("LEFT")
+	end
+	button.text:SetText(name)
+
+	if not button.deleteBtn then
+		button.deleteBtn = CreateFrame("Button", nil, button)
+		button.deleteBtn:SetSize(10, 10)
+		button.deleteBtn:SetPoint("RIGHT", -5, 0)
+		button.deleteBtn:SetNormalAtlas("common-search-clearbutton")
+		button.deleteBtn:SetHighlightAtlas("common-search-clearbutton")
+		button.deleteBtn:GetHighlightTexture():SetAlpha(0.5)
+		
+		button.deleteBtn:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText("Unignore Player")
+			GameTooltip:Show()
+		end)
+		button.deleteBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	end
+
+	button.deleteBtn:SetScript("OnClick", function()
+		HM.UnignorePlayer(name)
+		RefreshIgnoreUI()
+	end)
+end
+
+IgnoreScrollView:SetElementInitializer("Button", IgnoreRowInitializer)
+IgnoreScrollView:SetElementExtent(24) -- Row height
+IgnoreScrollView:SetPadding(5, 5, 5, 5, 2)
+
 SettingsButton:SetScript("OnClick", function()
-	print("Show Settings Dropdown Here")
+	if SettingsFrame:IsShown() then
+		SettingsFrame:Hide()
+	else
+		SettingsFrame:Show()
+		RefreshIgnoreUI()
+	end
 end);
+
 SettingsButton:SetScript("OnMouseDown", function(self, button)
 	SettingsButton:GetNormalTexture():SetTexCoord(-.075,.925,-.075,.925)
 	SettingsButton:GetHighlightTexture():SetTexCoord(-.075,.925,-.075,.925)
@@ -513,6 +696,7 @@ local function Initializer(button, musicInfo)
 
 	local activePlaylist = HM.GetActivePlaylistTable()
 	local isSaved = activePlaylist[musicInfo.file]
+	local isIgnored = HM.IsSongIgnored(musicInfo.file)
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
@@ -520,15 +704,26 @@ local function Initializer(button, musicInfo)
 	--button.tex:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1, 1)
 	button.tex:SetAtlas("ClickCastList-ButtonBackground")
 
+	button.ignoredTex = button.ignoredTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.ignoredTex:SetAllPoints(button)
+	button.ignoredTex:SetAtlas("ClickCastList-ButtonHighlight")
+	button.ignoredTex:SetVertexColor(1, 0, 0, 1.00)
+	button.ignoredTex:SetShown(isIgnored)
+
 	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
 	button.selectedTex:SetAllPoints(button)
 	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
 	button.selectedTex:SetShown(selectedFileID == musicInfo.file)
 
-	button:SetScript("OnClick", function()
-		selectedFileID = musicInfo.file
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		RefreshUILists()
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "RightButton" then
+			OpenSongContextMenu(self, musicInfo)
+		else
+			selectedFileID = musicInfo.file
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+			RefreshUILists()
+		end
 	end)
 	
 	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
@@ -628,6 +823,10 @@ local function Initializer(button, musicInfo)
 
 		if isSaved then
 			GameTooltip:AddLine("Song is in Playlist: " .. HM.GetActivePlaylistName(), 0.83, 0.42, 1.00)
+		end
+
+		if isIgnored then
+			GameTooltip:AddLine("Song is ignored", 0.83, 0.00, 0.00)
 		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
@@ -744,31 +943,57 @@ PlaylistDropdown:SetHeight(16)
 local function GeneratorFunction(dropdown, rootDescription)
 	rootDescription:SetScrollMode(300)
 
-	local active = HM.GetActivePlaylistName()
+	local isOwner = C_Housing.IsInsideOwnHouse()
+	
+	if isOwner then
+		local active = HM.GetActivePlaylistName()
 
-	rootDescription:CreateButton("|cff00ff00Create New Playlist|r", function()
-		StaticPopup_Show("HOUSINGMUSIC_NEW_PLAYLIST")
-	end)
-
-	if active ~= "Default" then
-		rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
-			StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
+		rootDescription:CreateButton("|cff00ff00Create New Playlist|r", function()
+			StaticPopup_Show("HOUSINGMUSIC_NEW_PLAYLIST")
 		end)
-	end
 
-	rootDescription:CreateDivider()
-	rootDescription:CreateTitle("Select Playlist")
+		if active ~= "Default" then
+			rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
+				StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
+			end)
+		end
 
-	local playlists = HM.GetPlaylistNames()
-	if not playlists then return end
-	for _, name in ipairs(playlists) do
-		rootDescription:CreateRadio(name, function(playlistName)
-			return HM.GetActivePlaylistName() == playlistName
-		end, function(playlistName)
-			HM.SetActivePlaylist(playlistName)
-			UpdateSavedMusicList()
-			RefreshUILists()
-		end, name)
+		rootDescription:CreateDivider()
+		rootDescription:CreateTitle("Select Playlist")
+
+		local playlists = HM.GetPlaylistNames()
+		if not playlists then return end
+		for _, name in ipairs(playlists) do
+			rootDescription:CreateRadio(name, function(playlistName)
+				return HM.GetActivePlaylistName() == playlistName
+			end, function(playlistName)
+				HM.SetActivePlaylist(playlistName)
+				UpdateSavedMusicList()
+				RefreshUILists()
+			end, name)
+		end
+	else
+		local locationKey = GetCurrentLocationKey()
+		if not locationKey or not HM_CachedMusic_DB or not HM_CachedMusic_DB[locationKey] then
+			rootDescription:CreateTitle("No Playlists Received")
+			return 
+		end
+
+		rootDescription:CreateTitle("Select Source")
+		
+		local currentPref = HousingMusic_DB.VisitorPreferences[locationKey]
+
+		for senderName, _ in pairs(HM_CachedMusic_DB[locationKey]) do
+			rootDescription:CreateRadio(senderName, function(sName)
+				return currentPref == sName
+			end, function(sName)
+				HousingMusic_DB.VisitorPreferences[locationKey] = sName
+				
+				UpdateSavedMusicList()
+				RefreshUILists()
+				if HMGlobal and HMGlobal.CheckConditions then HMGlobal.CheckConditions() end
+			end, senderName)
+		end
 	end
 end
 
@@ -783,20 +1008,32 @@ end
 
 local function SavedInitializer(button, musicInfo)
 	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
+	local isIgnored = HM.IsSongIgnored(musicInfo.file)
 
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
 	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+
+	button.ignoredTex = button.ignoredTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.ignoredTex:SetAllPoints(button)
+	button.ignoredTex:SetAtlas("ClickCastList-ButtonHighlight")
+	button.ignoredTex:SetVertexColor(1.00, 0.00, 0.00, 1.00)
+	button.ignoredTex:SetShown(isIgnored)
 
 	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
 	button.selectedTex:SetAllPoints(button)
 	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
 	button.selectedTex:SetShown(selectedFileID == musicInfo.file)
 
-	button:SetScript("OnClick", function()
-		selectedFileID = musicInfo.file
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		RefreshUILists()
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "RightButton" then
+			OpenSongContextMenu(self, musicInfo)
+		else
+			selectedFileID = musicInfo.file
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+			RefreshUILists()
+		end
 	end)
 	
 	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
@@ -874,6 +1111,10 @@ local function SavedInitializer(button, musicInfo)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
 		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
+
+		if isIgnored then
+			GameTooltip:AddLine("Song is ignored", 0.83, 0.00, 0.00)
+		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
 			GameTooltip:AddLine(" ")
@@ -937,32 +1178,41 @@ function UpdateSavedMusicList()
 		end
 	end
 
-	if canEdit then
-		PlaylistDropdown:SetEnabled(true)
-		PlaylistDropdown.Text:SetText(HM.GetActivePlaylistName() or "Default")
-		
-		if PlaylistDropdown.GenerateMenu then
-			PlaylistDropdown:GenerateMenu()
-		end
-	else
-		PlaylistDropdown:SetEnabled(false)
-		PlaylistDropdown.Text:SetText(currentOwner .. "'s Playlist")
-	end
-
 	fullSavedList = {}
 	local activeList = {}
 
 	if canEdit then
+		PlaylistDropdown:SetEnabled(true)
+		PlaylistDropdown.Text:SetText(HM.GetActivePlaylistName() or "Default")
+		
 		if HousingMusic_DB then
 			activeList = HM.GetActivePlaylistTable()
 		end
 	else
-		local houseKey = GetCurrentHouseKey()
-		if houseKey and CachedMusic_DB and CachedMusic_DB[houseKey] then
-			activeList = CachedMusic_DB[houseKey]
-		else
-			activeList = {}
+		PlaylistDropdown:SetEnabled(true)
+		
+		local locationKey = GetCurrentLocationKey()
+		local selectedSender = nil
+		
+		if locationKey and HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] then
+			selectedSender = HousingMusic_DB.VisitorPreferences[locationKey]
+			
+			if not selectedSender or not HM_CachedMusic_DB[locationKey][selectedSender] then
+				selectedSender = next(HM_CachedMusic_DB[locationKey])
+			end
 		end
+
+		if selectedSender then
+			 PlaylistDropdown.Text:SetText("Source: " .. selectedSender)
+			 activeList = HM_CachedMusic_DB[locationKey][selectedSender] or {}
+		else
+			 PlaylistDropdown.Text:SetText("No Data")
+			 activeList = {}
+		end
+	end
+
+	if PlaylistDropdown.GenerateMenu then
+		PlaylistDropdown:GenerateMenu()
 	end
 	
 	for fileID, _ in pairs(activeList) do
