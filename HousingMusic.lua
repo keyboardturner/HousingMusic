@@ -10,6 +10,7 @@ local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
 
 local silentMusicPath = "Interface\\AddOns\\HousingMusic\\Assets\\Sound\\silenttrack.mp3"
 local silentMusicActive = false
+HM.MAX_PLAYLIST_SIZE = 50
 
 --EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(...) DevTools_Dump({...}) end) -- test function for querying housing
 -- another similar event - CURRENT_HOUSE_INFO_UPDATED

@@ -13,7 +13,9 @@ local MAX_MSG_BYTES = 250
 
 local AUTO_SEND_COOLDOWN = 30
 
-HM.SentTracker = {} 
+HM.SentTracker = {}
+
+local ChunkBuffer = {}
 
 local function GetCurrentLocationKey()
 	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
@@ -48,40 +50,73 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 	
 	local myCurrentKey = GetCurrentLocationKey()
 
-	if not myCurrentKey then return end
-
-	if myCurrentKey ~= receivedLocationKey then
+	if not myCurrentKey or myCurrentKey ~= receivedLocationKey then
 		return
 	end
 
-	if not HM_CachedMusic_DB[receivedLocationKey] then
-		HM_CachedMusic_DB[receivedLocationKey] = {}
-	end
-
-	if chunkIndex == 1 then
-		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
-	end
-
-	if not HM_CachedMusic_DB[receivedLocationKey][sender] then
-		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
-	end
-
-	local validSongs = HM_CachedMusic_DB[receivedLocationKey][sender]
-	local count = 0
+	local bufferKey = string.format("%s:%s", receivedLocationKey, sender)
 	
-	for idStr in string.gmatch(dataString, "([^,]+)") do
-		local fileID = tonumber(idStr)
+	if not ChunkBuffer[bufferKey] then
+		ChunkBuffer[bufferKey] = {
+			chunks = {},
+			totalChunks = totalChunks,
+			receivedCount = 0
+		}
+	end
+	
+	local buffer = ChunkBuffer[bufferKey]
+	
+	if chunkIndex == 1 then
+		buffer.chunks = {}
+		buffer.totalChunks = totalChunks
+		buffer.receivedCount = 0
+	end
+	
+	if not buffer.chunks[chunkIndex] then
+		buffer.chunks[chunkIndex] = dataString
+		buffer.receivedCount = buffer.receivedCount + 1
+	end
+	
+	if buffer.receivedCount >= buffer.totalChunks then
+		if not HM_CachedMusic_DB[receivedLocationKey] then
+			HM_CachedMusic_DB[receivedLocationKey] = {}
+		end
 		
-		if fileID then
-			local info = LRPM:GetMusicInfoByID(fileID)
-			if info then
-				validSongs[fileID] = true
-				count = count + 1
+		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
+		local validSongs = HM_CachedMusic_DB[receivedLocationKey][sender]
+		
+		local currentCount = 0
+		local limit = HM.MAX_PLAYLIST_SIZE or 50
+		
+		for i = 1, buffer.totalChunks do
+			local chunkData = buffer.chunks[i]
+			if chunkData then
+				for idStr in string.gmatch(chunkData, "([^,]+)") do
+					if currentCount >= limit then
+						break
+					end
+					
+					local fileID = tonumber(idStr)
+					
+					if fileID then
+						local info = LRPM:GetMusicInfoByID(fileID)
+						if info then
+							if not validSongs[fileID] then
+								validSongs[fileID] = true
+								currentCount = currentCount + 1
+							end
+						end
+					end
+				end
+			end
+			
+			if currentCount >= limit then
+				break
 			end
 		end
-	end
-	
-	if chunkIndex == totalChunks then
+		
+		ChunkBuffer[bufferKey] = nil
+		
 		local totalCount = 0
 		for _ in pairs(validSongs) do totalCount = totalCount + 1 end
 
@@ -214,7 +249,6 @@ local function TryAutoShare(unitID)
 	local targetName = GetUnitName(unitID, true)
 	if not targetName then return end
 
-	print(targetName)
 	if HM.IsPlayerIgnored(targetName) then
 		print("preventing sending data to "..targetName)
 		return 
@@ -238,6 +272,7 @@ TriggerFrame:SetScript("OnEvent", function(self, event, ...)
 		TryAutoShare("mouseover")
 	elseif event == "HOUSE_PLOT_ENTERED" or event == "HOUSE_PLOT_EXITED" then
 		HM.SentTracker = {}
+		ChunkBuffer = {}
 	end
 end)
 

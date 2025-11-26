@@ -789,6 +789,15 @@ local function Initializer(button, musicInfo)
 	
 	addButton:SetScript("OnClick", function()
 		local currentList = HM.GetActivePlaylistTable()
+		
+		local count = 0
+		for _ in pairs(currentList) do count = count + 1 end
+
+		if count >= (HM.MAX_PLAYLIST_SIZE or 50) then
+			print(string.format("|cffff0000HousingMusic:|r Playlist is full (Max %d songs).", (HM.MAX_PLAYLIST_SIZE or 50)))
+			return
+		end
+
 		if not currentList[musicInfo.file] then
 			currentList[musicInfo.file] = true 
 			UpdateSavedMusicList()
