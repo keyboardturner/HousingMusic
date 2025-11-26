@@ -43,7 +43,7 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
-local function ProcessReceivedPlaylist(sender, receivedLocationKey, dataString)
+local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, totalChunks, dataString)
 	if not sender or not receivedLocationKey or not dataString then return end
 	
 	local myCurrentKey = GetCurrentLocationKey()
@@ -54,7 +54,19 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, dataString)
 		return
 	end
 
-	local validSongs = {}
+	if not HM_CachedMusic_DB[receivedLocationKey] then
+		HM_CachedMusic_DB[receivedLocationKey] = {}
+	end
+
+	if chunkIndex == 1 then
+		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
+	end
+
+	if not HM_CachedMusic_DB[receivedLocationKey][sender] then
+		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
+	end
+
+	local validSongs = HM_CachedMusic_DB[receivedLocationKey][sender]
 	local count = 0
 	
 	for idStr in string.gmatch(dataString, "([^,]+)") do
@@ -69,14 +81,11 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, dataString)
 		end
 	end
 	
-	if count > 0 then
-		if not HM_CachedMusic_DB[receivedLocationKey] then
-			HM_CachedMusic_DB[receivedLocationKey] = {}
-		end
+	if chunkIndex == totalChunks then
+		local totalCount = 0
+		for _ in pairs(validSongs) do totalCount = totalCount + 1 end
 
-		HM_CachedMusic_DB[receivedLocationKey][sender] = validSongs
-		
-		print(string.format("|cff00ff00HousingMusic:|r Received playlist from %s (%d songs).", sender, count))
+		print(string.format("|cff00ff00HousingMusic:|r Received playlist from %s (%d songs).", sender, totalCount))
 		
 		if HM.UpdateCachedMusicUI then
 			HM.UpdateCachedMusicUI()
@@ -103,19 +112,19 @@ local function SendData(channel, target, locationKey, playlistTable)
 	
 	if #ids == 0 then return end
 	
-	local headerFmt = MSG_TYPE_HOUSE .. ":%s:"
-	local baseOverhead = string.format(headerFmt, locationKey)
-	local availableBytes = MAX_MSG_BYTES - #baseOverhead
+	local SAFE_BYTES = MAX_MSG_BYTES - 20 
 	
+	local headerBase = string.format("%s:%s", MSG_TYPE_HOUSE, locationKey)
+	local availableBytes = SAFE_BYTES - #headerBase
+	
+	local chunks = {}
 	local currentChunk = ""
 	
 	for _, idStr in ipairs(ids) do
 		local nextLen = #currentChunk + #idStr + 1 -- +1 for comma
 		
 		if nextLen > availableBytes then
-			local payload = string.format(headerFmt .. "%s", locationKey, currentChunk)
-			ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
-
+			table.insert(chunks, currentChunk)
 			currentChunk = idStr
 		else
 			if currentChunk == "" then
@@ -127,7 +136,12 @@ local function SendData(channel, target, locationKey, playlistTable)
 	end
 	
 	if currentChunk ~= "" then
-		local payload = string.format(headerFmt .. "%s", locationKey, currentChunk)
+		table.insert(chunks, currentChunk)
+	end
+	
+	local totalChunks = #chunks
+	for i, chunkData in ipairs(chunks) do
+		local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
 		ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
 	end
 end
@@ -233,16 +247,15 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 	if not target or target == "" then return end
 
 	if HM.IsPlayerIgnored(target) then
-		print("preventing receiving data from "..target)
 		return 
 	end
 	
 	if sender == UnitName("player") then return end
 
-	-- example: H:Housing-4-1-69-19C6B_39:123,456,789
-	local msgType, locationKey, data = strsplit(":", text, 3)
+	-- example: H:LocationKey:Index:Total:Data
+	local msgType, locationKey, idx, total, data = strsplit(":", text, 5)
 	
-	if msgType == MSG_TYPE_HOUSE and locationKey and data then
-		ProcessReceivedPlaylist(sender, locationKey, data)
+	if msgType == MSG_TYPE_HOUSE and locationKey and idx and total and data then
+		ProcessReceivedPlaylist(sender, locationKey, tonumber(idx), tonumber(total), data)
 	end
 end
