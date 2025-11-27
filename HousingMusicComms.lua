@@ -1,8 +1,8 @@
 local _, HM = ...
 
-local LRPM = LibStub("LibRPMedia-1.2")
+local L = HM.L;
 
-HMGlobal = HM
+local LRPM = LibStub("LibRPMedia-1.2")
 HM.CommPrefix = "HousingMusic"
 
 -- "HEADER:LocationKey:FileID,FileID,FileID..."
@@ -120,21 +120,21 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		local totalCount = 0
 		for _ in pairs(validSongs) do totalCount = totalCount + 1 end
 
-		print(string.format("|cff00ff00HousingMusic:|r Received playlist from %s (%d songs).", sender, totalCount))
+		print(string.format("|cffd7ad32HousingMusic:|r Received playlist from %s (%d songs).", sender, totalCount))
 		
 		if HM.UpdateCachedMusicUI then
 			HM.UpdateCachedMusicUI()
 		end
 
-		if HMGlobal and HMGlobal.CheckConditions then
-			 HMGlobal.CheckConditions()
+		if HM and HM.CheckConditions then
+			 HM.CheckConditions()
 		end
 	end
 end
 
 local function SendData(channel, target, locationKey, playlistTable)
 	if not ChatThrottleLib then
-		print("|cffff0000HousingMusic:|r ChatThrottleLib not found.")
+		print("|cffd7ad32HousingMusic:|r ChatThrottleLib not found.")
 		return
 	end
 
@@ -187,7 +187,7 @@ function HM.SharePlaylist(context)
 
 	local locationKey = GetCurrentLocationKey()
 	if not locationKey then
-		print("|cffff0000HousingMusic:|r You must be inside a housing plot to share its music.")
+		print("|cffd7ad32HousingMusic:|r You must be inside a housing plot to share its music.")
 		return
 	end
 
@@ -198,7 +198,7 @@ function HM.SharePlaylist(context)
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"
 		else
-			print("|cffff0000HousingMusic:|r You are not in a group.")
+			print("|cffd7ad32HousingMusic:|r You are not in a group.")
 			return
 		end
 	elseif context == "say" then
@@ -216,7 +216,7 @@ function HM.SharePlaylist(context)
 		if UnitExists("target") and UnitIsPlayer("target") then
 			target = GetUnitName("target", true)
 		else
-			print("|cffff0000HousingMusic:|r Invalid target.")
+			print("|cffd7ad32HousingMusic:|r Invalid target.")
 			return
 		end
 	else
@@ -224,9 +224,9 @@ function HM.SharePlaylist(context)
 	end
 	
 	if target then
-		print("|cff00ff00HousingMusic:|r Sending house music data to "..target.."...")
+		print("|cffd7ad32HousingMusic:|r Sending house music data to "..target.."...")
 	else
-		print("|cff00ff00HousingMusic:|r Broadcasting house music data via "..channel.."...")
+		print("|cffd7ad32HousingMusic:|r Broadcasting house music data via "..channel.."...")
 	end
 
 	SendData(channel, target, locationKey, playlistTable)

@@ -9,6 +9,7 @@ Libs/LibStub/LibStub.lua
 Libs/LibRPMedia/lib.xml
 Libs/ChatThrottleLib/ChatThrottleLib.xml
 
+Localization.lua
 CustomAssets.lua
 HousingMusic.lua
 HousingMusicUI.lua

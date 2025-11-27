@@ -1,4 +1,7 @@
 local _, HM = ...
+
+local L = HM.L;
+
 local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
 
 if not LRPM then
@@ -142,7 +145,7 @@ StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 			UpdateSavedMusicList()
 			RefreshUILists()
 		else
-			print("|cffff0000Error:|r Playlist name invalid or already exists.")
+			print("|cffd7ad32Error:|r Playlist name invalid or already exists.")
 		end
 	end,
 	timeout = 0,
@@ -163,7 +166,7 @@ StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 			UpdateSavedMusicList()
 			RefreshUILists()
 		else
-			print("|cffff0000Error:|r Playlist name invalid or already exists.")
+			print("|cffd7ad32Error:|r Playlist name invalid or already exists.")
 		end
 	end,
 	timeout = 0,
@@ -464,13 +467,13 @@ end
 function HM.IgnorePlayer(name)
 	if not name then return end
 	HousingMusic_DB.IgnoredPlayers[name] = true
-	print("|cff00ff00HousingMusic:|r Player '"..name.."' added to ignore list.")
+	print("|cffd7ad32HousingMusic:|r Player '"..name.."' added to ignore list.")
 end
 
 function HM.UnignorePlayer(name)
 	if not name then return end
 	HousingMusic_DB.IgnoredPlayers[name] = nil
-	print("|cff00ff00HousingMusic:|r Player '"..name.."' removed from ignore list.")
+	print("|cffd7ad32HousingMusic:|r Player '"..name.."' removed from ignore list.")
 end
 
 function HM.GetIgnoreList()
@@ -827,7 +830,7 @@ local function Initializer(button, musicInfo)
 	
 	addButton:SetScript("OnClick", function()
 		if isPlaylistFull and not isSaved then
-			print(string.format("|cffff0000HousingMusic:|r Playlist is full (Max %d songs).", (HM.MAX_PLAYLIST_SIZE or 50)))
+			print(string.format("|cffd7ad32HousingMusic:|r Playlist is full (Max %d songs).", (HM.MAX_PLAYLIST_SIZE or 50)))
 			return
 		end
 
@@ -837,7 +840,7 @@ local function Initializer(button, musicInfo)
 			currentList[musicInfo.file] = true 
 			UpdateSavedMusicList()
 			RefreshUILists()
-			print("|cff00ff00Added:|r " .. musicInfo.name .. " to " .. HM.GetActivePlaylistName())
+			print("|cffd7ad32Added:|r " .. musicInfo.name .. " to " .. HM.GetActivePlaylistName())
 			PlaySound(316551)
 		--else
 		--	print("|cffffcc00Warning:|r Music already saved.")
@@ -980,7 +983,7 @@ end
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
 SearchBoxRight:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
-local PlaylistDropdown = CreateFrame("DropdownButton", "GlobalDropdownNameThingy", SectionRight, "WowStyle1DropdownTemplate")
+local PlaylistDropdown = CreateFrame("DropdownButton", "HM_PlaylistDropdown", SectionRight, "WowStyle1DropdownTemplate")
 PlaylistDropdown:SetPoint("TOPLEFT", SectionRight, "TOP", -10, -2.5)
 PlaylistDropdown:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
 PlaylistDropdown.Text:ClearAllPoints()
@@ -1061,7 +1064,7 @@ local function GeneratorFunction(dropdown, rootDescription)
 				
 				UpdateSavedMusicList()
 				RefreshUILists()
-				if HMGlobal and HMGlobal.CheckConditions then HMGlobal.CheckConditions() end
+				if HM and HM.CheckConditions then HM.CheckConditions() end
 			end, senderName)
 		end
 	end
@@ -1073,7 +1076,7 @@ local function RemoveMusicEntry(musicFile, musicName)
 	local currentList = HM.GetActivePlaylistTable()
 	currentList[musicFile] = nil
 	UpdateSavedMusicList()
-	print("|cffff0000Removed:|r " .. musicName .. " from " .. HM.GetActivePlaylistName())
+	print("|cffd7ad32Removed:|r " .. musicName .. " from " .. HM.GetActivePlaylistName())
 end
 
 local function SavedInitializer(button, musicInfo)

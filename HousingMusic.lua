@@ -1,5 +1,7 @@
 local _, HM = ...
 
+local L = HM.L;
+
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("HOUSE_PLOT_ENTERED")
@@ -73,7 +75,7 @@ function HM.InitializeDB()
 		HousingMusic_DB.Playlists["Default"] = CopyTable(HousingMusic_DB.PlayerMusic)
 		HousingMusic_DB.PlayerMusic = nil
 		HousingMusic_DB.ActivePlaylist = "Default"
-		print("|cff00ff00HousingMusic:|r Old playlist migrated to profile 'Default'.")
+		print("|cffd7ad32HousingMusic:|r Old playlist migrated to profile 'Default'.")
 	end
 
 	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
@@ -193,7 +195,7 @@ function HM.RenamePlaylist(oldName, newName)
 	if not oldName or not newName or newName == "" then return false end
 	if oldName == newName then return true end
 	if HousingMusic_DB.Playlists[newName] then 
-		print("|cffff0000Error:|r A playlist with that name already exists.")
+		print("|cffd7ad32Error:|r A playlist with that name already exists.")
 		return false 
 	end
 	if not HousingMusic_DB.Playlists[oldName] then return false end
@@ -211,7 +213,7 @@ function HM.RenamePlaylist(oldName, newName)
 		end
 	end
 	
-	print("|cff00ff00HousingMusic:|r Playlist renamed to '" .. newName .. "'")
+	print("|cffd7ad32HousingMusic:|r Playlist renamed to '" .. newName .. "'")
 	return true
 end
 
