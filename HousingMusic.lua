@@ -113,7 +113,9 @@ end
 
 function HM.GetActivePlaylistTable()
 	local name = HM.GetActivePlaylistName()
-	if not HousingMusic_DB.Playlists[name] then
+	local DB = HousingMusic_DB and HousingMusic_DB.Playlists
+	if not DB then return end
+	if DB and not HousingMusic_DB.Playlists[name] then
 		HousingMusic_DB.Playlists[name] = {}
 	end
 	return HousingMusic_DB.Playlists[name]
@@ -185,6 +187,32 @@ function HM.GetPlaylistNames()
 	end
 	table.sort(names)
 	return names
+end
+
+function HM.RenamePlaylist(oldName, newName)
+	if not oldName or not newName or newName == "" then return false end
+	if oldName == newName then return true end
+	if HousingMusic_DB.Playlists[newName] then 
+		print("|cffff0000Error:|r A playlist with that name already exists.")
+		return false 
+	end
+	if not HousingMusic_DB.Playlists[oldName] then return false end
+	
+	HousingMusic_DB.Playlists[newName] = HousingMusic_DB.Playlists[oldName]
+	HousingMusic_DB.Playlists[oldName] = nil
+	
+	if HousingMusic_DB.ActivePlaylist == oldName then
+		HousingMusic_DB.ActivePlaylist = newName
+	end
+	
+	for houseKey, assignedPlaylist in pairs(HousingMusic_DB.HouseAssignments) do
+		if assignedPlaylist == oldName then
+			HousingMusic_DB.HouseAssignments[houseKey] = newName
+		end
+	end
+	
+	print("|cff00ff00HousingMusic:|r Playlist renamed to '" .. newName .. "'")
+	return true
 end
 
 ----------------------------------------------------------
@@ -865,32 +893,47 @@ end
 local function PlayNextTrack()
 	if not activeZone then return end
 
-	StartSilentMusic()
-
 	local playlist = activeZone.playlist
 	local numTracks = #playlist
 	if numTracks == 0 then return end
 
+	local availableTracks = {}
+	for i, track in ipairs(playlist) do
+		if track.fileID then
+			if not HM.IsSongIgnored(track.fileID) then
+				table.insert(availableTracks, i)
+			end
+		elseif track.fileCustom then
+			table.insert(availableTracks, i)
+		end
+	end
+
+	if #availableTracks == 0 then
+		StopCurrentMusic()
+		return
+	end
+
+
 	local nextIndex
-	repeat
-		nextIndex = math.random(1, numTracks)
-	until numTracks == 1 or nextIndex ~= lastTrackIndex
+	if #availableTracks == 1 then
+		nextIndex = availableTracks[1]
+	else
+		repeat
+			local randomPick = math.random(1, #availableTracks)
+			nextIndex = availableTracks[randomPick]
+		until nextIndex ~= lastTrackIndex or #availableTracks == 1
+	end
 
 	local track = playlist[nextIndex]
 	if not track then return end
+
+	StartSilentMusic()
 
 	local soundFileToPlay
 	local soundDuration
 	local trackNameForDebug
 
 	if track.fileID then
-		if HM.IsSongIgnored(track.fileID) then
-			if lastTrackIndex then
-				nextIndex = lastTrackIndex;
-				track = playlist[nextIndex]
-			end
-			return
-		end
 		local musicInfo = LRPM:GetMusicInfoByID(track.fileID)
 		if not musicInfo or not musicInfo.duration then
 			--print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID))

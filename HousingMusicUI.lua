@@ -128,6 +128,29 @@ local function OpenSongContextMenu(owner, musicInfo)
 	end)
 end
 
+StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
+	text = "Rename playlist '%s' to:",
+	button1 = "Rename",
+	button2 = "Cancel",
+	hasEditBox = true,
+	OnShow = function(self, data)
+		self.EditBox:SetText(data)
+	end,
+	OnAccept = function(self, oldName)
+		local newName = self.EditBox:GetText()
+		if HM.RenamePlaylist(oldName, newName) then
+			UpdateSavedMusicList()
+			RefreshUILists()
+		else
+			print("|cffff0000Error:|r Playlist name invalid or already exists.")
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+};
+
 StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 	text = "Enter new playlist name:",
 	button1 = "Create",
@@ -697,6 +720,10 @@ local function Initializer(button, musicInfo)
 	local activePlaylist = HM.GetActivePlaylistTable()
 	local isSaved = activePlaylist[musicInfo.file]
 	local isIgnored = HM.IsSongIgnored(musicInfo.file)
+
+	local playlistCount = 0
+	for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
+	local isPlaylistFull = playlistCount >= (HM.MAX_PLAYLIST_SIZE or 50)
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
@@ -766,6 +793,17 @@ local function Initializer(button, musicInfo)
 
 		button.addButton = addButton
 	end
+
+	if isPlaylistFull and not isSaved then
+		addButton:GetNormalTexture():SetDesaturated(true)
+		addButton:GetHighlightTexture():SetDesaturated(true)
+		addButton:SetAlpha(0.5)
+	else
+		addButton:GetNormalTexture():SetDesaturated(false)
+		addButton:GetHighlightTexture():SetDesaturated(false)
+		addButton:SetAlpha(1.0)
+	end
+
 	addButton:Hide()
 
 	local playButton = button.playButton
@@ -788,15 +826,12 @@ local function Initializer(button, musicInfo)
 	end)
 	
 	addButton:SetScript("OnClick", function()
-		local currentList = HM.GetActivePlaylistTable()
-		
-		local count = 0
-		for _ in pairs(currentList) do count = count + 1 end
-
-		if count >= (HM.MAX_PLAYLIST_SIZE or 50) then
+		if isPlaylistFull and not isSaved then
 			print(string.format("|cffff0000HousingMusic:|r Playlist is full (Max %d songs).", (HM.MAX_PLAYLIST_SIZE or 50)))
 			return
 		end
+
+		local currentList = HM.GetActivePlaylistTable()
 
 		if not currentList[musicInfo.file] then
 			currentList[musicInfo.file] = true 
@@ -863,7 +898,11 @@ local function Initializer(button, musicInfo)
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Add Song to Playlist", 1, 1, 1)
+		if isPlaylistFull and not isSaved then
+			GameTooltip:AddLine(string.format("Playlist is Full (%d/%d)", playlistCount, HM.MAX_PLAYLIST_SIZE or 50), 1, 0.2, 0.2)
+		else
+			GameTooltip:AddLine("Add Song to Playlist", 1, 1, 1)
+		end
 		GameTooltip:Show()
 	end)
 	addButton:SetScript("OnLeave", function(self)
@@ -962,6 +1001,12 @@ local function GeneratorFunction(dropdown, rootDescription)
 		end)
 
 		if active ~= "Default" then
+			rootDescription:CreateButton("|cff00ff00Rename Current Playlist|r", function()
+				StaticPopup_Show("HOUSINGMUSIC_RENAME_PLAYLIST", active, nil, active)
+			end)
+		end
+
+		if active ~= "Default" then
 			rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
 				StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
 			end)
@@ -973,7 +1018,15 @@ local function GeneratorFunction(dropdown, rootDescription)
 		local playlists = HM.GetPlaylistNames()
 		if not playlists then return end
 		for _, name in ipairs(playlists) do
-			rootDescription:CreateRadio(name, function(playlistName)
+			local playlistTable = HousingMusic_DB.Playlists[name] or {}
+			local songCount = 0
+			for _ in pairs(playlistTable) do
+				songCount = songCount + 1
+			end
+			
+			local displayName = string.format("(%d/%d) %s", songCount, HM.MAX_PLAYLIST_SIZE or 50, name)
+			
+			rootDescription:CreateRadio(displayName, function(playlistName)
 				return HM.GetActivePlaylistName() == playlistName
 			end, function(playlistName)
 				HM.SetActivePlaylist(playlistName)
@@ -993,7 +1046,15 @@ local function GeneratorFunction(dropdown, rootDescription)
 		local currentPref = HousingMusic_DB.VisitorPreferences[locationKey]
 
 		for senderName, _ in pairs(HM_CachedMusic_DB[locationKey]) do
-			rootDescription:CreateRadio(senderName, function(sName)
+			local cachedPlaylist = HM_CachedMusic_DB[locationKey][senderName] or {}
+			local songCount = 0
+			for _ in pairs(cachedPlaylist) do
+				songCount = songCount + 1
+			end
+			
+			local displayName = string.format("%s (%d songs)", senderName, songCount)
+			
+			rootDescription:CreateRadio(displayName, function(sName)
 				return currentPref == sName
 			end, function(sName)
 				HousingMusic_DB.VisitorPreferences[locationKey] = sName
@@ -1192,7 +1253,16 @@ function UpdateSavedMusicList()
 
 	if canEdit then
 		PlaylistDropdown:SetEnabled(true)
-		PlaylistDropdown.Text:SetText(HM.GetActivePlaylistName() or "Default")
+		
+		activeList = HM.GetActivePlaylistTable()
+		local songCount = 0
+		if not activeList then return end
+		for _ in pairs(activeList) do
+			songCount = songCount + 1
+		end
+		
+		local playlistName = HM.GetActivePlaylistName() or "Default"
+		PlaylistDropdown.Text:SetText(string.format("(%d/%d) %s", songCount, HM.MAX_PLAYLIST_SIZE or 50, playlistName))
 		
 		if HousingMusic_DB then
 			activeList = HM.GetActivePlaylistTable()
@@ -1212,11 +1282,17 @@ function UpdateSavedMusicList()
 		end
 
 		if selectedSender then
-			 PlaylistDropdown.Text:SetText("Source: " .. selectedSender)
-			 activeList = HM_CachedMusic_DB[locationKey][selectedSender] or {}
+			activeList = HM_CachedMusic_DB[locationKey][selectedSender] or {}
+			
+			local songCount = 0
+			for _ in pairs(activeList) do
+				songCount = songCount + 1
+			end
+			
+			PlaylistDropdown.Text:SetText(string.format("Source: %s (%d songs)", selectedSender, songCount))
 		else
-			 PlaylistDropdown.Text:SetText("No Data")
-			 activeList = {}
+			PlaylistDropdown.Text:SetText("No Data")
+			activeList = {}
 		end
 	end
 
