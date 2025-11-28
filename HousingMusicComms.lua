@@ -1,6 +1,8 @@
 local _, HM = ...
 
 local L = HM.L;
+local DefaultsTable = HM.DefaultsTable;
+local Print = HM.Print
 
 local LRPM = LibStub("LibRPMedia-1.2")
 HM.CommPrefix = "HousingMusic"
@@ -120,7 +122,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		local totalCount = 0
 		for _ in pairs(validSongs) do totalCount = totalCount + 1 end
 
-		print(string.format("|cffd7ad32HousingMusic:|r Received playlist from %s (%d songs).", sender, totalCount))
+		Print(string.format(L["ReceivedPlaylistFromSenderSongCount"], sender, totalCount))
 		
 		if HM.UpdateCachedMusicUI then
 			HM.UpdateCachedMusicUI()
@@ -134,7 +136,7 @@ end
 
 local function SendData(channel, target, locationKey, playlistTable)
 	if not ChatThrottleLib then
-		print("|cffd7ad32HousingMusic:|r ChatThrottleLib not found.")
+		Print(L["ChatThrottleLibNotFound"])
 		return
 	end
 
@@ -187,7 +189,7 @@ function HM.SharePlaylist(context)
 
 	local locationKey = GetCurrentLocationKey()
 	if not locationKey then
-		print("|cffd7ad32HousingMusic:|r You must be inside a housing plot to share its music.")
+		Print(L["InsideHouseToShare"])
 		return
 	end
 
@@ -198,7 +200,7 @@ function HM.SharePlaylist(context)
 		if IsInGroup() then
 			channel = IsInRaid() and "RAID" or "PARTY"
 		else
-			print("|cffd7ad32HousingMusic:|r You are not in a group.")
+			--print("|cffd7ad32HousingMusic:|r You are not in a group.")
 			return
 		end
 	elseif context == "say" then
@@ -216,7 +218,7 @@ function HM.SharePlaylist(context)
 		if UnitExists("target") and UnitIsPlayer("target") then
 			target = GetUnitName("target", true)
 		else
-			print("|cffd7ad32HousingMusic:|r Invalid target.")
+			--print("|cffd7ad32HousingMusic:|r Invalid target.")
 			return
 		end
 	else
@@ -224,9 +226,9 @@ function HM.SharePlaylist(context)
 	end
 	
 	if target then
-		print("|cffd7ad32HousingMusic:|r Sending house music data to "..target.."...")
+		Print(string.format(L["SendingHouseMusicToTarget"], target))
 	else
-		print("|cffd7ad32HousingMusic:|r Broadcasting house music data via "..channel.."...")
+		Print(string.format(L["BroadcastingHouseMusicDataViaChannel"], channel))
 	end
 
 	SendData(channel, target, locationKey, playlistTable)
@@ -250,7 +252,7 @@ local function TryAutoShare(unitID)
 	if not targetName then return end
 
 	if HM.IsPlayerIgnored(targetName) then
-		print("preventing sending data to "..targetName)
+		Print(string.format(L["PreventingSendingDataToTarget"], targetName))
 		return 
 	end
 

@@ -2,6 +2,63 @@ local _, HM = ...
 
 local L = HM.L;
 
+local function Print(...)
+	local prefix = L["HousingMusic_Colored"] .. ": "
+	DEFAULT_CHAT_FRAME:AddMessage(string.join(" ", prefix, ...));
+end
+
+HM.Print = Print
+
+local DefaultsTable = {
+	autoplayMusic = true,
+	showMusicOnIcon = true,
+	showMinimapIcon = true,
+	showControlFrameIcon = true,
+	toastPopup = false,
+	keepMinimized = false,
+	autosharePlaylist = 1, -- 1 = everyone, 2 = friends and guild, 3 = friends,  4 = none
+	autoImportPlaylist = 1,
+	customImportPlaylist = 2,
+	normalizeNames = false,
+	chatboxMessages = false,
+	addonCompatibilities = { -- controls if addon should stop its own music during addon events
+		Musician_StopMusic = true,
+		Soundtrack_StopMusic = true,
+		EpicMusicPlayer_StopMusic = true,
+		TotalRP3_StopMusic = true,
+		TotalRP3_ShowPlaylistOnProfile = true,
+	},
+	volumeControls = { -- first inherit the current user's CVar Values to restore them afterward
+		Sound_MasterVolume = 1.0,
+		Sound_MusicVolume = 0.4,
+		Sound_SFXVolume = 1.0,
+		Sound_AmbienceVolume = 0.6,
+		FootstepSounds = 1,
+		softTargettingInteractKeySound = 0, -- this might change with the interact key
+	},
+
+	--layout = {
+	--	skin = {
+	--		skinAtlas = "housing-basic-container",
+	--		skinAtlasSliceMargins = {64, 64, 64, 112},
+	--		skinAtlasSliceMode = Enum.UITextureSliceMode.Stretched,
+	--		color = {1, 1, 1, 1},
+	--	},
+	--	fontSize_List = 12,
+	--	fontSize_Player = 12,
+	--	fontSize_Title = 12,
+	--	fontSize_Time = 12,
+	--	
+	--	fontStyle_List = "",
+	--	fontStyle_Player = "",
+	--	fontStyle_Title = "",
+	--	fontStyle_Time = "",
+	--},
+
+};
+
+HM.DefaultsTable = DefaultsTable;
+
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("HOUSE_PLOT_ENTERED")
@@ -69,23 +126,15 @@ function HM.InitializeDB()
 	HousingMusic_DB = HousingMusic_DB or {}
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
 	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
-	
-	if HousingMusic_DB.PlayerMusic then
-		HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
-		HousingMusic_DB.Playlists["Default"] = CopyTable(HousingMusic_DB.PlayerMusic)
-		HousingMusic_DB.PlayerMusic = nil
-		HousingMusic_DB.ActivePlaylist = "Default"
-		print("|cffd7ad32HousingMusic:|r Old playlist migrated to profile 'Default'.")
-	end
 
 	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
-	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or "Default"
+	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or L["Default"]
 	HousingMusic_DB.HouseAssignments = HousingMusic_DB.HouseAssignments or {}
 	
 	HousingMusic_DB.VisitorPreferences = HousingMusic_DB.VisitorPreferences or {}
 
-	if not HousingMusic_DB.Playlists["Default"] then
-		HousingMusic_DB.Playlists["Default"] = {}
+	if not HousingMusic_DB.Playlists[L["Default"]] then
+		HousingMusic_DB.Playlists[L["Default"]] = {}
 	end
 end
 
@@ -110,7 +159,7 @@ end
 
 function HM.GetActivePlaylistName()
 	if not HousingMusic_DB then return end
-	return HousingMusic_DB.ActivePlaylist or "Default"
+	return HousingMusic_DB.ActivePlaylist or L["Default"]
 end
 
 function HM.GetActivePlaylistTable()
@@ -164,18 +213,17 @@ function HM.CreatePlaylist(playlistName)
 end
 
 function HM.DeletePlaylist(playlistName)
-	print(playlistName)
-	if playlistName == "Default" then 
-		print("Cannot delete Default playlist.")
+	if playlistName == L["Default"] then 
+		Print(L["CantDeleteDefault"])
 		return false 
 	end
 	
 	HousingMusic_DB.Playlists[playlistName] = nil
 	
 	if HousingMusic_DB.ActivePlaylist == playlistName then
-		HousingMusic_DB.ActivePlaylist = "Default"
-		if not HousingMusic_DB.Playlists["Default"] then
-			HousingMusic_DB.Playlists["Default"] = {}
+		HousingMusic_DB.ActivePlaylist = L["Default"]
+		if not HousingMusic_DB.Playlists[L["Default"]] then
+			HousingMusic_DB.Playlists[L["Default"]] = {}
 		end
 	end
 	return true
@@ -195,7 +243,7 @@ function HM.RenamePlaylist(oldName, newName)
 	if not oldName or not newName or newName == "" then return false end
 	if oldName == newName then return true end
 	if HousingMusic_DB.Playlists[newName] then 
-		print("|cffd7ad32Error:|r A playlist with that name already exists.")
+		Print(L["PlaylistExists"])
 		return false 
 	end
 	if not HousingMusic_DB.Playlists[oldName] then return false end
@@ -212,8 +260,7 @@ function HM.RenamePlaylist(oldName, newName)
 			HousingMusic_DB.HouseAssignments[houseKey] = newName
 		end
 	end
-	
-	print("|cffd7ad32HousingMusic:|r Playlist renamed to '" .. newName .. "'")
+	Print(string.format(L["PlaylistRenamed"], WrapTextInColorCode(newName, "ff91cbfa")))
 	return true
 end
 
@@ -687,13 +734,13 @@ local function GetPlayerHouseZone()
 	end
 	
 	local dynamicPlaylist = {}
-	local displayZoneName = "Housing Plot"
+	local displayZoneName = L["HousingPlot"]
 
 	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
 		if not HousingMusic_DB or not HousingMusic_DB.Playlists then return nil end
 
 		local ownerKey = GetOwnerHouseKey()
-		local targetPlaylistName = "Default"
+		local targetPlaylistName = L["Default"]
 		
 		if ownerKey and HousingMusic_DB.HouseAssignments[ownerKey] then
 			targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey]
@@ -710,8 +757,8 @@ local function GetPlayerHouseZone()
 		for fileID, enabled in pairs(activeList) do
 			if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
 		end
-		
-		displayZoneName = "My House (" .. targetPlaylistName .. ")"
+
+		displayZoneName = string.format(L["MyHouse"], targetPlaylistName)
 
 	else
 		local locationKey = GetLocationKey()
@@ -720,7 +767,7 @@ local function GetPlayerHouseZone()
 		if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] then
 			
 			local houseInfo = C_Housing.GetCurrentHouseInfo()
-			local ownerName = houseInfo and houseInfo.ownerName or "Unknown"
+			local ownerName = houseInfo and houseInfo.ownerName or L["Unknown"]
 			
 			local preferredSender = HousingMusic_DB.VisitorPreferences[locationKey]
 			local selectedSender = nil
@@ -746,7 +793,8 @@ local function GetPlayerHouseZone()
 				for fileID, enabled in pairs(cachedList) do
 					if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
 				end
-				displayZoneName = ownerName .. "'s House (" .. selectedSender .. ")"
+
+				displayZoneName = string.format(L["OwnersHouse"], ownerName, selectedSender)
 				
 				HousingMusic_DB.VisitorPreferences[locationKey] = selectedSender
 			end
@@ -853,7 +901,7 @@ function HM.PlaySpecificMusic(fileID)
 
 	local musicInfo = LRPM:GetMusicInfoByID(fileID)
 	if not musicInfo or not musicInfo.duration then
-		print("HousingMusic Error: Could not retrieve info for ID:", fileID)
+		Print(string.format(L["CannotRetrieveInfo"], fileID))
 		manualPlayback = false
 		return
 	end
@@ -864,7 +912,7 @@ function HM.PlaySpecificMusic(fileID)
 		musicTimer = musicInfo.duration
 		timerElapsed = 0
 		musicPlaying = true
-		currentTrackName = musicInfo.names and musicInfo.names[1] or ("File ID: " .. fileID)
+		currentTrackName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], fileID))
 		HM.CurrentPlayingID = fileID 
 	else
 		soundHandle = nil
@@ -944,7 +992,7 @@ local function PlayNextTrack()
 		
 		soundFileToPlay = track.fileID
 		soundDuration = musicInfo.duration
-		trackNameForDebug = musicInfo.names and musicInfo.names[1] or ("Game Music (ID: " .. track.fileID .. ")")
+		trackNameForDebug = musicInfo.names and musicInfo.names[1] or (string.format(L["GameMusic"], track.fileID))
 
 	elseif track.fileCustom then
 		local customTrackInfo = HM.customMusic and HM.customMusic[track.fileCustom]
@@ -999,7 +1047,7 @@ local function CheckConditions()
 			
 			StopCurrentMusic()
 			activeZone = zone
-			print("Entered custom zone:", newZoneName)
+			Print(string.format(L["EnteredCustomZone"], newZoneName))
 		else
 			activeZone = zone 
 		end

@@ -1,6 +1,8 @@
 local _, HM = ...
 
 local L = HM.L;
+local DefaultsTable = HM.DefaultsTable;
+local Print = HM.Print
 
 local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
 
@@ -9,7 +11,7 @@ if not LRPM then
 end
 
 --HousingMusic_DB = HousingMusic_DB or {}
---HousingMusic_DB.PlayerMusic = HousingMusic_DB.PlayerMusic or {}
+--HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
 -- DB Initialization is handled in HousingMusic.lua now
 
 local SavedDataProvider
@@ -115,13 +117,13 @@ end
 
 local function OpenSongContextMenu(owner, musicInfo)
 	MenuUtil.CreateContextMenu(owner, function(owner, rootDescription)
-		rootDescription:CreateTitle(musicInfo.name or "Unknown Song")
+		rootDescription:CreateTitle(musicInfo.name or L["UnknownSong"])
 		
 		local fileID = musicInfo.file
 		if not fileID then return end
 
 		local isIgnored = HM.IsSongIgnored(fileID)
-		local ignoreText = isIgnored and "Unignore Song" or "Ignore Song"
+		local ignoreText = isIgnored and L["UnmuteSong"] or L["MuteSong"]
 
 		rootDescription:CreateButton(ignoreText, function()
 			HM.SetSongIgnored(fileID, not isIgnored)
@@ -132,9 +134,9 @@ local function OpenSongContextMenu(owner, musicInfo)
 end
 
 StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
-	text = "Rename playlist '%s' to:",
-	button1 = "Rename",
-	button2 = "Cancel",
+	text = L["RenamePlaylistTo"],
+	button1 = L["Rename"],
+	button2 = L["Cancel"],
 	hasEditBox = true,
 	OnShow = function(self, data)
 		self.EditBox:SetText(data)
@@ -145,7 +147,7 @@ StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 			UpdateSavedMusicList()
 			RefreshUILists()
 		else
-			print("|cffd7ad32Error:|r Playlist name invalid or already exists.")
+			Print(L["PlaylistInvalidOrExists"])
 		end
 	end,
 	timeout = 0,
@@ -155,9 +157,9 @@ StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 };
 
 StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
-	text = "Enter new playlist name:",
-	button1 = "Create",
-	button2 = "Cancel",
+	text = L["NewPlaylistName"],
+	button1 = L["Create"],
+	button2 = L["Cancel"],
 	hasEditBox = true,
 	OnAccept = function(self)
 		local text = self.EditBox:GetText()
@@ -166,7 +168,7 @@ StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 			UpdateSavedMusicList()
 			RefreshUILists()
 		else
-			print("|cffd7ad32Error:|r Playlist name invalid or already exists.")
+			Print(L["PlaylistInvalidOrExists"])
 		end
 	end,
 	timeout = 0,
@@ -176,9 +178,9 @@ StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 };
 
 StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
-	text = "Delete playlist '%s'?",
-	button1 = "Yes",
-	button2 = "No",
+	text = L["DeletePlaylist"],
+	button1 = L["Yes"],
+	button2 = L["No"],
 	OnAccept = function()
 		local data = HM.GetActivePlaylistName()
 		if not data then return end
@@ -194,6 +196,8 @@ StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
 local MainFrame = CreateFrame("Frame", "HousingMusic_MainFrame", UIParent)
 MainFrame:SetSize(620, 470)
 MainFrame:SetPoint("CENTER")
+MainFrame:EnableMouse(true)
+tinsert(UISpecialFrames, MainFrame:GetName())
 local Border = MainFrame:CreateTexture(nil, "BORDER", nil, 1);
 Border:SetPoint("TOPLEFT", -6, 6);
 Border:SetPoint("BOTTOMRIGHT", 6, -6);
@@ -252,7 +256,7 @@ MainFrame.HeaderTitle = HeaderTitle
 EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(arg1, arg2)
 	local bingus = arg2;
 	if not bingus or not bingus.ownerName then return end
-	HeaderTitle:SetText(string.format("%s's House Music",bingus.ownerName))
+	HeaderTitle:SetText(string.format(L["OwnerssHouseMusic"], bingus.ownerName))
 end)
 
 local Footer = CreateFrame("Frame", nil, MainFrame)
@@ -280,13 +284,13 @@ BlockerFrame.icon:SetAtlas("icons_64x64_important")
 BlockerFrame.text = BlockerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 BlockerFrame.text:SetPoint("TOP", BlockerFrame.icon, "BOTTOM", 0, -10)
 BlockerFrame.text:SetWidth(450)
-BlockerFrame.text:SetText("Housing Music requires 'Sound in Background' to function correctly.")
+BlockerFrame.text:SetText(L["BlockerFrameText"])
 BlockerFrame.text:SetTextColor(1, 0.2, 0.2)
 
 BlockerFrame.subtext = BlockerFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 BlockerFrame.subtext:SetPoint("TOP", BlockerFrame.text, "BOTTOM", 0, -10)
 BlockerFrame.subtext:SetWidth(300)
-BlockerFrame.subtext:SetText("Without this setting, music will stop when you tab out, breaking the playlist logic.")
+BlockerFrame.subtext:SetText(L["BlockerFrameSubtext"])
 BlockerFrame.subtext:SetJustifyH("CENTER")
 
 local FixButton = CreateFrame("Button", nil, BlockerFrame, "UIPanelButtonTemplate")
@@ -344,7 +348,7 @@ PlayerToggleBtn:GetHighlightTexture():SetAlpha(0.5)
 local PlayerTitle = ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 PlayerTitle:SetPoint("BOTTOMLEFT", ProgressBar, "TOPLEFT", 0, 5)
 PlayerTitle:SetJustifyH("LEFT")
-PlayerTitle:SetText("No Music Playing")
+PlayerTitle:SetText(L["NoMusicPlaying"])
 PlayerTitle:SetTextColor(1, 1, 1)
 
 PlayerToggleBtn:SetScript("OnClick", function()
@@ -354,7 +358,7 @@ PlayerToggleBtn:SetScript("OnClick", function()
 		HM.StopManualMusic()
 		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
 		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
-		PlayerTitle:SetText("No Music Playing")
+		PlayerTitle:SetText(L["NoMusicPlaying"])
 	else
 		if selectedFileID then
 			HM.PlaySpecificMusic(selectedFileID)
@@ -362,7 +366,7 @@ PlayerToggleBtn:SetScript("OnClick", function()
 			PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
 			
 			local info = LRPM:GetMusicInfoByID(selectedFileID)
-			if info then PlayerTitle:SetText(info.names[1] or "Unknown Track") end
+			if info then PlayerTitle:SetText(info.names[1] or L["UnknownSong"]) end
 		end
 	end
 end)
@@ -391,7 +395,7 @@ ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 	else
 		self:SetValue(0)
 		TimerText:SetText("0:00 / 0:00")
-		PlayerTitle:SetText("No Music Playing")
+		PlayerTitle:SetText(L["NoMusicPlaying"])
 		
 		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
 		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
@@ -442,7 +446,7 @@ MainframeToggleButton:SetScript("OnEvent", function()
 end)
 MainframeToggleButton:SetScript("OnEnter", function(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-	GameTooltip:AddLine("Housing Music", 1, 1, 1)
+	GameTooltip:AddLine(L["TOC_Title"], 1, 1, 1)
 	GameTooltip:Show()
 end)
 MainframeToggleButton:SetScript("OnLeave", function()
@@ -467,13 +471,14 @@ end
 function HM.IgnorePlayer(name)
 	if not name then return end
 	HousingMusic_DB.IgnoredPlayers[name] = true
-	print("|cffd7ad32HousingMusic:|r Player '"..name.."' added to ignore list.")
+	Print(string.format(L["PlayerAddedToMute"], name))
 end
 
 function HM.UnignorePlayer(name)
 	if not name then return end
 	HousingMusic_DB.IgnoredPlayers[name] = nil
-	print("|cffd7ad32HousingMusic:|r Player '"..name.."' removed from ignore list.")
+	string.format(L["PlayerRemovedFromMute"], name)
+	Print(string.format(L["PlayerRemovedFromMute"], name))
 end
 
 function HM.GetIgnoreList()
@@ -494,9 +499,244 @@ SettingsButton:SetNormalAtlas("QuestLog-icon-setting")
 SettingsButton:SetHighlightAtlas("QuestLog-icon-setting")
 
 local SettingsFrame = CreateFrame("Frame", "HousingMusic_SettingsFrame", MainFrame)
-SettingsFrame:SetSize(250, 300)
-SettingsFrame:SetPoint("TOPLEFT", MainFrame, "TOPRIGHT", 5, 0)
+SettingsFrame:SetSize(500, 420)
+SettingsFrame:SetPoint("TOP", MainFrame, "TOP", 0, -15)
 SettingsFrame:SetFrameLevel(600)
+SettingsFrame:EnableMouse(true)
+
+local SettingsSearchBox = CreateFrame("EditBox", nil, SettingsFrame, "SearchBoxTemplate")
+SettingsSearchBox:SetPoint("TOPLEFT", SettingsFrame, "TOPLEFT", 20, -40)
+SettingsSearchBox:SetPoint("BOTTOMRIGHT", SettingsFrame, "TOPRIGHT", -25, -60)
+SettingsSearchBox:SetHeight(20)
+SettingsSearchBox:SetAutoFocus(false)
+
+local SettingsScrollBox = CreateFrame("Frame", nil, SettingsFrame, "WowScrollBoxList")
+SettingsScrollBox:SetPoint("TOPLEFT", SettingsFrame, "TOPLEFT", 0, -60)
+SettingsScrollBox:SetPoint("BOTTOMRIGHT", SettingsFrame, "BOTTOMRIGHT", -25, 30)
+
+local SettingsScrollBar = CreateFrame("EventFrame", nil, SettingsFrame, "MinimalScrollBar")
+SettingsScrollBar:SetPoint("TOPLEFT", SettingsScrollBox, "TOPRIGHT", 5, 0)
+SettingsScrollBar:SetPoint("BOTTOMLEFT", SettingsScrollBox, "BOTTOMRIGHT", 5, 0)
+
+local SettingsScrollView = CreateScrollBoxListLinearView()
+ScrollUtil.InitScrollBoxListWithScrollBar(SettingsScrollBox, SettingsScrollBar, SettingsScrollView)
+
+local allSettingsData = {}
+
+local function CreateSettingData_CheckButton(settingKey, label, tooltip)
+	return {
+		type = "checkbox",
+		key = settingKey,
+		label = label,
+		tooltip = tooltip,
+		searchText = (label .. " " .. tooltip):lower()
+	}
+end
+
+local function CreateSettingData_Dropdown(settingKey, label, options, tooltip)
+	local searchText = (label .. " " .. tooltip):lower()
+	for _, opt in ipairs(options) do
+		if opt.text and opt.tooltip then
+			searchText = searchText .. " " .. opt.text:lower() .. " " .. opt.tooltip:lower()
+		end
+	end
+	
+	return {
+		type = "dropdown",
+		key = settingKey,
+		label = label,
+		tooltip = tooltip,
+		options = options,
+		searchText = searchText
+	}
+end
+
+local function InitializeCheckboxSetting(button, data)
+	button:SetHeight(30)
+	
+	if not button.checkbox then
+		button.checkbox = CreateFrame("CheckButton", nil, button, "ChatConfigCheckButtonTemplate")
+		button.checkbox:SetPoint("LEFT", 10, 0)
+		button.checkbox:SetSize(24, 24)
+		
+		button.label = button.checkbox.Text
+		button.label:ClearAllPoints()
+		button.label:SetPoint("LEFT", button.checkbox, "RIGHT", 5, 0)
+		button.label:SetPoint("RIGHT", button, "RIGHT", -5, 0)
+		button.label:SetJustifyH("LEFT")
+	end
+	
+	button.checkbox:Show()
+	button.label:Show()
+	
+	button.label:SetText(data.label)
+	button.checkbox.tooltip = WrapTextInColorCode(data.label, "ffffffff") .. "\n" .. data.tooltip
+	
+	if HousingMusic_DB[data.key] == nil then
+		button.checkbox:SetChecked(DefaultsTable[data.key])
+	else
+		button.checkbox:SetChecked(HousingMusic_DB[data.key])
+	end
+	
+	button.checkbox:SetScript("OnClick", function(self)
+		HousingMusic_DB[data.key] = self:GetChecked()
+	end)
+end
+
+local function InitializeDropdownSetting(button, data)
+	button:SetHeight(30)
+	
+	if not button.dropdown then
+		button.dropdown = CreateFrame("DropdownButton", nil, button, "WowStyle1DropdownTemplate")
+		button.dropdown:SetPoint("LEFT", 10, 0)
+		button.dropdown:SetWidth(170)
+		
+		button.dropdownLabel = button:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+		button.dropdownLabel:SetPoint("LEFT", button.dropdown, "RIGHT", 5, 0)
+		button.dropdownLabel:SetPoint("RIGHT", button, "RIGHT", -5, 0)
+		button.dropdownLabel:SetJustifyH("LEFT")
+	end
+	
+	button.dropdown:Show()
+	button.dropdownLabel:Show()
+	
+	button.dropdownLabel:SetText(data.label)
+	
+	button.dropdown:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP")
+		GameTooltip:AddLine(data.label, 1, 1, 1, true)
+		GameTooltip:AddLine(data.tooltip, 1, 1, 0, true)
+		for _, tt in ipairs(data.options) do
+			if tt.text and tt.tooltip then
+				GameTooltip:AddLine(" ")
+				GameTooltip:AddLine(string.format("%s: %s", tt.text, WrapTextInColorCode(tt.tooltip, "ffffff00")), 1, 1, 1, true)
+			end
+		end
+		GameTooltip:Show()
+	end)
+	button.dropdown:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
+	
+	local function GetCurrentValue()
+		if HousingMusic_DB[data.key] == nil then
+			return DefaultsTable[data.key]
+		else
+			return HousingMusic_DB[data.key]
+		end
+	end
+	
+	local function UpdateDropdownText()
+		local currentValue = GetCurrentValue()
+		for _, option in ipairs(data.options) do
+			if option.value == currentValue then
+				button.dropdown.Text:SetText(option.text)
+				break
+			end
+		end
+	end
+	
+	local function GeneratorFunction(dropdown, rootDescription)
+		rootDescription:SetScrollMode(300)
+		
+		for _, option in ipairs(data.options) do
+			rootDescription:CreateRadio(
+				option.text,
+				function()
+					return GetCurrentValue() == option.value
+				end,
+				function()
+					HousingMusic_DB[data.key] = option.value
+					UpdateDropdownText()
+				end,
+				option.value
+			)
+		end
+	end
+	
+	button.dropdown:SetupMenu(GeneratorFunction)
+	UpdateDropdownText()
+end
+
+local function SettingsRowInitializer(button, data)
+	if data.type == "checkbox" then
+		if button.checkbox then 
+			button.checkbox:Show()
+			if button.checkboxLabel then button.checkboxLabel:Show() end
+		end
+		if button.dropdown then 
+			button.dropdown:Hide()
+			if button.dropdownLabel then button.dropdownLabel:Hide() end
+		end
+		
+		InitializeCheckboxSetting(button, data)
+	elseif data.type == "dropdown" then
+		if button.dropdown then 
+			button.dropdown:Show()
+			if button.dropdownLabel then button.dropdownLabel:Show() end
+		end
+		if button.checkbox then 
+			button.checkbox:Hide()
+			if button.checkboxLabel then button.checkboxLabel:Hide() end
+		end
+		
+		InitializeDropdownSetting(button, data)
+	end
+end
+
+SettingsScrollView:SetElementInitializer("Button", SettingsRowInitializer)
+SettingsScrollView:SetElementExtent(30)
+SettingsScrollView:SetPadding(5, 5, 5, 5, 2)
+
+local function FilterSettings()
+	local query = SettingsSearchBox:GetText():lower()
+	local filtered = {}
+	
+	for _, data in ipairs(allSettingsData) do
+		if query == "" or data.searchText:find(query, 1, true) then
+			table.insert(filtered, data)
+		end
+	end
+	
+	local dataProvider = CreateDataProvider(filtered)
+	SettingsScrollView:SetDataProvider(dataProvider)
+end
+
+SettingsSearchBox:HookScript("OnTextChanged", function(self)
+	self.t = 0
+	self:SetScript("OnUpdate", function(self, elapsed)
+		self.t = self.t + elapsed
+		if self.t >= 0.2 then
+			self.t = 0
+			self:SetScript("OnUpdate", nil)
+			FilterSettings()
+		end
+	end)
+end)
+
+
+local SettingsFrameTitle = SettingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+SettingsFrameTitle:SetPoint("TOP", 0, -15)
+SettingsFrameTitle:SetFont(GameFontNormal:GetFont(), 17, "")
+SettingsFrameTitle:SetTextColor(1, 1, 1)
+SettingsFrameTitle:SetText(L["HousingMusicSettings"])
+
+
+local closeButtonSettings = CreateFrame("Button", nil, SettingsFrame, "UIPanelCloseButtonNoScripts");
+closeButtonSettings:SetPoint("TOPRIGHT", -5, -5);
+closeButtonSettings:SetFrameLevel(SettingsFrame:GetFrameLevel()+1)
+closeButtonSettings:SetScript("OnClick", function()
+	if SettingsFrame then
+		SettingsFrame:Hide();
+	end
+end);
+SettingsFrame.closeButton = closeButtonSettings
+
+local SettingsFrameBGTex = SettingsFrame:CreateTexture(nil, "BACKGROUND", nil, 0);
+SettingsFrameBGTex:SetPoint("TOPLEFT", SettingsFrame, "TOPLEFT", 5, -5)
+SettingsFrameBGTex:SetPoint("BOTTOMRIGHT", SettingsFrame, "BOTTOMRIGHT", -5, 5)
+SettingsFrameBGTex:SetAtlas("Tooltip-Glues-NineSlice-Center");
+
 
 local SettingsFrameTexture = SettingsFrame:CreateTexture(nil, "BACKGROUND", nil, 1);
 SettingsFrameTexture:SetPoint("TOPLEFT", 0, 0);
@@ -506,34 +746,178 @@ SettingsFrameTexture:SetTextureSliceMargins(64, 64, 64, 112);
 SettingsFrameTexture:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
 SettingsFrame:Hide()
 
-local SettingsTitle = SettingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-SettingsTitle:SetPoint("TOP", 0, -15)
-SettingsTitle:SetText("Ignored Players")
+local IgnorePanelBtn = CreateFrame("Button", nil, SettingsFrame, "UIPanelButtonTemplate")
+IgnorePanelBtn:SetSize(120, 22)
+IgnorePanelBtn:SetPoint("BOTTOM", SettingsFrame, "BOTTOM", 0, 15)
+IgnorePanelBtn:SetText(L["MuteList"])
+IgnorePanelBtn:HookScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+	GameTooltip:AddLine(L["MuteList"], 1, 1, 0)
+	GameTooltip:AddLine(L["MutePlayerExplanation"], 1, 1, 1, 1, true)
+	GameTooltip:Show()
 
-local IgnoreInput = CreateFrame("EditBox", nil, SettingsFrame, "InputBoxTemplate")
+end)
+IgnorePanelBtn:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+SettingsButton:RegisterEvent("ADDON_LOADED")
+function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
+	if addOnName == "HousingMusic" then
+		allSettingsData = {}
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"autoplayMusic",
+		--	L["Setting_AutoplayMusic"],
+		--	L["Setting_AutoplayMusicTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"showMusicOnIcon",
+		--	L["Setting_ShowMusicOnIcon"],
+		--	L["Setting_ShowMusicOnIconTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"showMinimapIcon",
+		--	L["Setting_ShowMinimapIcon"],
+		--	L["Setting_ShowMinimapIconTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"showControlFrameIcon",
+		--	L["Setting_ShowControlFrameIcon"],
+		--	L["Setting_ShowControlFrameIconTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"toastPopup",
+		--	L["Setting_ToastPopup"],
+		--	L["Setting_ToastPopupTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"keepMinimized",
+		--	L["Setting_KeepMinimized"],
+		--	L["Setting_KeepMinimizedTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"normalizeNames",
+		--	L["Setting_NormalizeNames"],
+		--	L["Setting_NormalizeNamesTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
+		--	"chatboxMessages",
+		--	L["Setting_ChatboxMessages"],
+		--	L["Setting_ChatboxMessagesTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+		--	"autosharePlaylist",
+		--	L["Setting_AutosharePlaylist"],
+		--	{
+		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AS_EveryoneTT"] },
+		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AS_FriendsandGuildTT"] },
+		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AS_FriendsTT"] },
+		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AS_None"] }
+		--	},
+		--	L["Setting_AutosharePlaylistTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+		--	"autoImportPlaylist",
+		--	L["Setting_AutoImportPlaylist"],
+		--	{
+		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AI_EveryoneTT"] },
+		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AI_FriendsandGuildTT"] },
+		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AI_FriendsTT"] },
+		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AI_None"] }
+		--	},
+		--	L["Setting_AutoImportPlaylistTT"]
+		--))
+		
+		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+		--	"customImportPlaylist",
+		--	L["Setting_CustomImportPlaylist"],
+		--	{
+		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AI_EveryoneTT"] },
+		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AI_FriendsandGuildTT"] },
+		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AI_FriendsTT"] },
+		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AI_None"] }
+		--	},
+		--	L["Setting_CustomImportPlaylistTT"]
+		--))
+		
+		FilterSettings()
+	end
+end
+SettingsButton:SetScript("OnEvent", SettingsButton.LoadSettings)
+
+
+local IgnoreFrame = CreateFrame("Frame", "HousingMusic_IgnoreFrame", MainFrame)
+IgnoreFrame:SetSize(250, 300)
+IgnoreFrame:SetPoint("TOPLEFT", MainFrame, "TOPRIGHT", 5, 0)
+IgnoreFrame:SetFrameLevel(600)
+IgnoreFrame:EnableMouse(true)
+
+local closeButtonIgnore = CreateFrame("Button", nil, IgnoreFrame, "UIPanelCloseButtonNoScripts");
+closeButtonIgnore:SetPoint("TOPRIGHT", -5, -5);
+closeButtonIgnore:SetFrameLevel(IgnoreFrame:GetFrameLevel()+1)
+closeButtonIgnore:SetScript("OnClick", function()
+	if IgnoreFrame then
+		IgnoreFrame:Hide();
+	end
+end);
+IgnoreFrame.closeButton = closeButtonIgnore
+
+local IgnoreFrameTexture = IgnoreFrame:CreateTexture(nil, "BACKGROUND", nil, 1);
+IgnoreFrameTexture:SetPoint("TOPLEFT", 0, 0);
+IgnoreFrameTexture:SetPoint("BOTTOMRIGHT", 0, 0);
+IgnoreFrameTexture:SetAtlas("housing-basic-container");
+IgnoreFrameTexture:SetTextureSliceMargins(64, 64, 64, 112);
+IgnoreFrameTexture:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
+IgnoreFrame:Hide()
+
+local IgnoreFrameTitle = IgnoreFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+IgnoreFrameTitle:SetPoint("TOP", 0, -15)
+IgnoreFrameTitle:SetText(L["MuteList"])
+
+local IgnoreInput = CreateFrame("EditBox", nil, IgnoreFrame, "InputBoxTemplate")
 IgnoreInput:SetSize(140, 30)
 IgnoreInput:SetPoint("TOPLEFT", 20, -40)
 IgnoreInput:SetAutoFocus(false)
 IgnoreInput:SetTextInsets(5, 5, 0, 0)
-IgnoreInput:SetText("Name-Realm")
+IgnoreInput:SetText(L["Setting_NameRealm"])
+IgnoreInput:HookScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+	GameTooltip:AddLine(L["Setting_MutePlayer"], 1, 1, 0, true)
+	GameTooltip:AddLine(L["Setting_MutePlayerRealmAdded"], 1, 1, 1, 1, true)
+	GameTooltip:Show()
 
-local AddIgnoreBtn = CreateFrame("Button", nil, SettingsFrame, "UIPanelButtonTemplate")
+end)
+IgnoreInput:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+local AddIgnoreBtn = CreateFrame("Button", nil, IgnoreFrame, "UIPanelButtonTemplate")
 AddIgnoreBtn:SetSize(60, 22)
 AddIgnoreBtn:SetPoint("LEFT", IgnoreInput, "RIGHT", 5, 0)
-AddIgnoreBtn:SetText("Block")
+AddIgnoreBtn:SetText(L["Mute"])
 
-local IgnoreScrollBox = CreateFrame("Frame", nil, SettingsFrame, "WowScrollBoxList")
+local IgnoreScrollBox = CreateFrame("Frame", nil, IgnoreFrame, "WowScrollBoxList")
 IgnoreScrollBox:SetPoint("TOPLEFT", IgnoreInput, "BOTTOMLEFT", 0, -10)
-IgnoreScrollBox:SetPoint("BOTTOMRIGHT", SettingsFrame, "BOTTOMRIGHT", -25, 15)
+IgnoreScrollBox:SetPoint("BOTTOMRIGHT", IgnoreFrame, "BOTTOMRIGHT", -25, 15)
 
-local IgnoreScrollBar = CreateFrame("EventFrame", nil, SettingsFrame, "MinimalScrollBar")
+local IgnoreScrollBar = CreateFrame("EventFrame", nil, IgnoreFrame, "MinimalScrollBar")
 IgnoreScrollBar:SetPoint("TOPLEFT", IgnoreScrollBox, "TOPRIGHT", 5, 0)
 IgnoreScrollBar:SetPoint("BOTTOMLEFT", IgnoreScrollBox, "BOTTOMRIGHT", 5, 0)
 
 local IgnoreScrollView = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(IgnoreScrollBox, IgnoreScrollBar, IgnoreScrollView)
 
-local ExampleNameRealm = "Name-Realm"
+local ExampleNameRealm = L["Setting_NameRealm"]
 
 local function RefreshIgnoreUI()
 	local list = HM.GetIgnoreList()
@@ -541,23 +925,54 @@ local function RefreshIgnoreUI()
 	IgnoreScrollBox:SetDataProvider(dataProvider)
 end
 function AddIgnoreBtn.OnClick()
-	local name = IgnoreInput:GetText()
-	if name and name ~= "" and name ~= ExampleNameRealm then
-		HM.IgnorePlayer(name)
+	local nameToBlock = nil
+
+	if UnitExists("target") and UnitIsPlayer("target") and not UnitIsUnit("target", "player") then
+		local name, realm = UnitName("target")
+		
+		if not realm or realm == "" then
+			realm = GetNormalizedRealmName()
+		end
+		
+		nameToBlock = name .. "-" .. realm
+
+	else
+		local text = IgnoreInput:GetText()
+		
+		if text and text ~= "" and text ~= ExampleNameRealm then
+			text = text:gsub("%s+", "")
+			
+			local namePart, realmPart = strsplit("-", text, 2)
+			
+			if namePart and namePart ~= "" then
+				namePart = namePart:sub(1,1):upper() .. namePart:sub(2):lower()
+				
+				if not realmPart or realmPart == "" then
+					realmPart = GetNormalizedRealmName()
+				end
+				
+				nameToBlock = namePart .. "-" .. realmPart
+			end
+		end
+	end
+
+	if nameToBlock then
+		HM.IgnorePlayer(nameToBlock)
+		
+		if HM_CachedMusic_DB then
+			for k, v in pairs(HM_CachedMusic_DB) do
+				if v[nameToBlock] then
+					v[nameToBlock] = nil
+				end
+			end
+		end
+
 		IgnoreInput:SetText(ExampleNameRealm)
 		IgnoreInput:ClearFocus()
 		RefreshIgnoreUI()
 	end
-	if HM_CachedMusic_DB then
-		for k, v in pairs(HM_CachedMusic_DB) do
-			if v[name] then
-				print("NUKE PLAYLIST MADE BY "..name)
-			end
-		end
-	end
 end
 
--- Button Logic
 AddIgnoreBtn:SetScript("OnClick", function()
 	AddIgnoreBtn.OnClick()
 end)
@@ -579,8 +994,28 @@ IgnoreInput:RegisterEvent("UNIT_TARGET", function()
 end)
 
 
--- Row Initializer for the Scroll List
 local function IgnoreRowInitializer(button, name)
+	if not button.tex then
+		button.tex = button:CreateTexture(nil, "BACKGROUND", nil, 0)
+		button.tex:SetAllPoints(button)
+		button.tex:SetAtlas("Options_List_Hover")
+		--button.tex:SetAlpha(0.3)
+	end
+
+
+	if not button.onEnter then
+		button.onEnter = button:CreateTexture(nil, "BACKGROUND", nil, 1)
+		button.onEnter:SetAllPoints(button)
+		button.onEnter:SetAtlas("Options_List_Active")
+		button.onEnter:Hide()
+		button:SetScript("OnEnter", function()
+			button.onEnter:Show()
+		end)
+		button:SetScript("OnLeave", function()
+			button.onEnter:Hide()
+		end)
+	end
+
 	if not button.text then
 		button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 		button.text:SetPoint("LEFT", 5, 0)
@@ -591,7 +1026,7 @@ local function IgnoreRowInitializer(button, name)
 
 	if not button.deleteBtn then
 		button.deleteBtn = CreateFrame("Button", nil, button)
-		button.deleteBtn:SetSize(10, 10)
+		button.deleteBtn:SetSize(13, 13)
 		button.deleteBtn:SetPoint("RIGHT", -5, 0)
 		button.deleteBtn:SetNormalAtlas("common-search-clearbutton")
 		button.deleteBtn:SetHighlightAtlas("common-search-clearbutton")
@@ -599,7 +1034,7 @@ local function IgnoreRowInitializer(button, name)
 		
 		button.deleteBtn:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-			GameTooltip:SetText("Unignore Player")
+			GameTooltip:SetText(L["UnmutePlayer"])
 			GameTooltip:Show()
 		end)
 		button.deleteBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -620,6 +1055,15 @@ SettingsButton:SetScript("OnClick", function()
 		SettingsFrame:Hide()
 	else
 		SettingsFrame:Show()
+		RefreshIgnoreUI()
+	end
+end);
+
+IgnorePanelBtn:SetScript("OnClick", function()
+	if IgnoreFrame:IsShown() then
+		IgnoreFrame:Hide()
+	else
+		IgnoreFrame:Show()
 		RefreshIgnoreUI()
 	end
 end);
@@ -709,16 +1153,16 @@ end
 SearchBoxLeft:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 SearchBoxLeft:HookScript("OnEnter", function(self)
 	GameTooltip:SetOwner(self, "ANCHOR_TOP")
-	GameTooltip:AddLine("Search by name or Filedata ID", 1, 1, 1)
+	GameTooltip:AddLine(L["SearchByNameFileID"], 1, 1, 1)
 	GameTooltip:Show()
-
 end)
 SearchBoxLeft:HookScript("OnLeave", function()
 	GameTooltip:Hide()
 end)
 
 local function Initializer(button, musicInfo)
-	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
+
+	local text = musicInfo.name or (string.format(L["FileID"], (musicInfo.file or L["Unknown"])))
 
 	local activePlaylist = HM.GetActivePlaylistTable()
 	local isSaved = activePlaylist[musicInfo.file]
@@ -830,7 +1274,10 @@ local function Initializer(button, musicInfo)
 	
 	addButton:SetScript("OnClick", function()
 		if isPlaylistFull and not isSaved then
-			print(string.format("|cffd7ad32HousingMusic:|r Playlist is full (Max %d songs).", (HM.MAX_PLAYLIST_SIZE or 50)))
+
+			local playlistCount = 0
+			for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
+			Print(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50))
 			return
 		end
 
@@ -840,7 +1287,7 @@ local function Initializer(button, musicInfo)
 			currentList[musicInfo.file] = true 
 			UpdateSavedMusicList()
 			RefreshUILists()
-			print("|cffd7ad32Added:|r " .. musicInfo.name .. " to " .. HM.GetActivePlaylistName())
+			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
 		--else
 		--	print("|cffffcc00Warning:|r Music already saved.")
@@ -866,19 +1313,19 @@ local function Initializer(button, musicInfo)
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
-		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
+		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(musicInfo.duration)), 0.8, 0.8, 0.8)
 
 		if isSaved then
-			GameTooltip:AddLine("Song is in Playlist: " .. HM.GetActivePlaylistName(), 0.83, 0.42, 1.00)
+			GameTooltip:AddLine(string.format(L["SongIsInPlaylist"], HM.GetActivePlaylistName()), 0.83, 0.42, 1.00)
 		end
 
 		if isIgnored then
-			GameTooltip:AddLine("Song is ignored", 0.83, 0.00, 0.00)
+			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00)
 		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
 			GameTooltip:AddLine(" ")
-			GameTooltip:AddLine("Alternate Names:", 0.8, 0.8, 0.8)
+			GameTooltip:AddLine(L["AlternateNames"], 0.8, 0.8, 0.8)
 			
 			for i = 2, #musicInfo.names do
 				GameTooltip:AddLine(musicInfo.names[i], 0.7, 0.7, 0.7)
@@ -901,10 +1348,13 @@ local function Initializer(button, musicInfo)
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+
+		local playlistCount = 0
+		for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
 		if isPlaylistFull and not isSaved then
-			GameTooltip:AddLine(string.format("Playlist is Full (%d/%d)", playlistCount, HM.MAX_PLAYLIST_SIZE or 50), 1, 0.2, 0.2)
+			GameTooltip:AddLine(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50), 1, 0.2, 0.2)
 		else
-			GameTooltip:AddLine("Add Song to Playlist", 1, 1, 1)
+			GameTooltip:AddLine(L["AddSongToPlaylist"], 1, 1, 1)
 		end
 		GameTooltip:Show()
 	end)
@@ -919,7 +1369,7 @@ local function Initializer(button, musicInfo)
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Preview Song", 1, 1, 1)
+		GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	playButton:SetScript("OnLeave", function(self)
@@ -961,8 +1411,8 @@ function FilterSavedList(editBox)
 		else
 			local matchedName = CheckMatch(musicInfo, query)
 			
-			if matchedName then
-				local primaryName = musicInfo.names and musicInfo.names[1] or ("File ID: " .. (musicInfo.file or "N/A"))
+			if matchedName then 
+				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], (musicInfo.file or L["Unknown"])))
 
 				local displayItem = {
 					file = musicInfo.file,
@@ -1003,20 +1453,20 @@ local function GeneratorFunction(dropdown, rootDescription)
 			StaticPopup_Show("HOUSINGMUSIC_NEW_PLAYLIST")
 		end)
 
-		if active ~= "Default" then
+		if active ~= L["Default"] then
 			rootDescription:CreateButton("|cff00ff00Rename Current Playlist|r", function()
 				StaticPopup_Show("HOUSINGMUSIC_RENAME_PLAYLIST", active, nil, active)
 			end)
 		end
 
-		if active ~= "Default" then
+		if active ~= L["Default"] then
 			rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
 				StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
 			end)
 		end
 
 		rootDescription:CreateDivider()
-		rootDescription:CreateTitle("Select Playlist")
+		rootDescription:CreateTitle(L["SelectPlaylist"])
 
 		local playlists = HM.GetPlaylistNames()
 		if not playlists then return end
@@ -1040,11 +1490,11 @@ local function GeneratorFunction(dropdown, rootDescription)
 	else
 		local locationKey = GetCurrentLocationKey()
 		if not locationKey or not HM_CachedMusic_DB or not HM_CachedMusic_DB[locationKey] then
-			rootDescription:CreateTitle("No Playlists Received")
+			rootDescription:CreateTitle(L["NoPlaylistsReceived"])
 			return 
 		end
 
-		rootDescription:CreateTitle("Select Source")
+		rootDescription:CreateTitle(L["SelectSource"])
 		
 		local currentPref = HousingMusic_DB.VisitorPreferences[locationKey]
 
@@ -1076,11 +1526,12 @@ local function RemoveMusicEntry(musicFile, musicName)
 	local currentList = HM.GetActivePlaylistTable()
 	currentList[musicFile] = nil
 	UpdateSavedMusicList()
-	print("|cffd7ad32Removed:|r " .. musicName .. " from " .. HM.GetActivePlaylistName())
+
+	Print(string.format(L["RemovedSongFromPlaylist"], musicName, HM.GetActivePlaylistName()))
 end
 
 local function SavedInitializer(button, musicInfo)
-	local text = musicInfo.name or ("File ID: " .. (musicInfo.file or "N/A"))
+	local text = musicInfo.name or (string.format(L["FileID"], (musicInfo.file or L["Unknown"])))
 	local isIgnored = HM.IsSongIgnored(musicInfo.file)
 
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
@@ -1186,12 +1637,12 @@ local function SavedInitializer(button, musicInfo)
 		GameTooltip:AddLine("Duration: " .. FormatDuration(musicInfo.duration), 0.8, 0.8, 0.8)
 
 		if isIgnored then
-			GameTooltip:AddLine("Song is ignored", 0.83, 0.00, 0.00)
+			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00)
 		end
 		
 		if musicInfo.names and #musicInfo.names > 1 then
 			GameTooltip:AddLine(" ")
-			GameTooltip:AddLine("Alternate Names:", 0.8, 0.8, 0.8)
+			GameTooltip:AddLine(L["AlternateNames"], 0.8, 0.8, 0.8)
 			
 			for i = 2, #musicInfo.names do
 				GameTooltip:AddLine(musicInfo.names[i], 0.7, 0.7, 0.7)
@@ -1214,7 +1665,7 @@ local function SavedInitializer(button, musicInfo)
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Remove Song From Playlist", 1, 1, 1)
+		GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	removeButton:SetScript("OnLeave", function(self)
@@ -1228,7 +1679,7 @@ local function SavedInitializer(button, musicInfo)
 		button.playButton:Show()
 		button.isHovering = true
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Preview Song", 1, 1, 1)
+		GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	playButton:SetScript("OnLeave", function(self)
@@ -1242,7 +1693,7 @@ SavedScrollView:SetElementExtent(36);
 
 function UpdateSavedMusicList()
 	local canEdit = IsEditingAllowed()
-	local currentOwner = "Unknown"
+	local currentOwner = L["Unknown"]
 	
 	if C_Housing and C_Housing.GetCurrentHouseInfo then
 		local info = C_Housing.GetCurrentHouseInfo()
@@ -1264,7 +1715,7 @@ function UpdateSavedMusicList()
 			songCount = songCount + 1
 		end
 		
-		local playlistName = HM.GetActivePlaylistName() or "Default"
+		local playlistName = HM.GetActivePlaylistName() or L["Default"]
 		PlaylistDropdown.Text:SetText(string.format("(%d/%d) %s", songCount, HM.MAX_PLAYLIST_SIZE or 50, playlistName))
 		
 		if HousingMusic_DB then
@@ -1292,9 +1743,9 @@ function UpdateSavedMusicList()
 				songCount = songCount + 1
 			end
 			
-			PlaylistDropdown.Text:SetText(string.format("Source: %s (%d songs)", selectedSender, songCount))
+			PlaylistDropdown.Text:SetText(string.format(L["SourceSenderSongCount"], selectedSender, songCount))
 		else
-			PlaylistDropdown.Text:SetText("No Data")
+			PlaylistDropdown.Text:SetText(L["NoData"])
 			activeList = {}
 		end
 	end
@@ -1307,8 +1758,9 @@ function UpdateSavedMusicList()
 		local musicInfo = LRPM:GetMusicInfoByID(fileID)
 		
 		if musicInfo then
-			local safeFile = musicInfo.file or "N/A"
-			local primaryName = musicInfo.names and musicInfo.names[1] or ("File ID: " .. safeFile)
+			local safeFile = musicInfo.file or L["Unknown"]
+
+			local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], safeFile))
 			
 			local listItem = { 
 				name = primaryName, 

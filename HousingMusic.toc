@@ -2,7 +2,7 @@
 ## Author: Keyboardturner
 ## Version: 0.0.1
 ## Title: Housing Music
-## Notes: Music playlists for Player Housing.
+## Notes: Shareable music playlists for Player Housing.
 ## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB
 
 Libs/LibStub/LibStub.lua
