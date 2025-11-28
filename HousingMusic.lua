@@ -21,6 +21,7 @@ local DefaultsTable = {
 	customImportPlaylist = 2,
 	normalizeNames = false,
 	chatboxMessages = false,
+	clearCache = 2, -- 1 = 7 days, 2 = 14 days, 3 = 30 days, 4 = 60 days
 	addonCompatibilities = { -- controls if addon should stop its own music during addon events
 		Musician_StopMusic = true,
 		Soundtrack_StopMusic = true,
@@ -122,6 +123,71 @@ HM.MAX_PLAYLIST_SIZE = 50
 -- profiles
 ----------------------------------------------------------
 
+function HM.PurgeOldPlaylists()
+	if not HM_CachedMusic_DB then return end
+	
+	HM_CachedMusic_Metadata = HM_CachedMusic_Metadata or {}
+
+	local setting = (HousingMusic_DB and HousingMusic_DB.clearCache) or 2
+	local days = 14
+
+	if setting == 1 then days = 7
+	elseif setting == 2 then days = 14
+	elseif setting == 3 then days = 30
+	elseif setting == 4 then days = 60
+	end
+
+	local secondsLimit = days * 24 * 60 * 60
+	local now = GetServerTime()
+
+	local cleanedCount = 0
+
+	for locationKey, senders in pairs(HM_CachedMusic_DB) do
+		
+		HM_CachedMusic_Metadata[locationKey] = HM_CachedMusic_Metadata[locationKey] or {}
+
+		for senderName, _ in pairs(senders) do
+			
+			if not HM_CachedMusic_Metadata[locationKey][senderName] then
+				HM_CachedMusic_Metadata[locationKey][senderName] = {
+					lastSeen = now,
+					isFavorite = false
+				}
+			end
+
+			local meta = HM_CachedMusic_Metadata[locationKey][senderName]
+			
+			local timeDiff = now - (meta.lastSeen or 0)
+			
+			if timeDiff > secondsLimit then
+				if meta.isFavorite then
+				else
+					HM_CachedMusic_DB[locationKey][senderName] = nil
+					HM_CachedMusic_Metadata[locationKey][senderName] = nil
+					cleanedCount = cleanedCount + 1
+				end
+			end
+		end
+
+		if next(HM_CachedMusic_DB[locationKey]) == nil then
+			HM_CachedMusic_DB[locationKey] = nil
+			HM_CachedMusic_Metadata[locationKey] = nil
+		end
+	end
+
+	if cleanedCount > 0 then
+		Print(string.format(L["PurgedOldPlaylists"], cleanedCount, days))
+	end
+end
+
+function HM.SetCachedPlaylistFavorite(locationKey, senderName, isFavorite)
+	if HM_CachedMusic_Metadata and HM_CachedMusic_Metadata[locationKey] and HM_CachedMusic_Metadata[locationKey][senderName] then
+		HM_CachedMusic_Metadata[locationKey][senderName].isFavorite = isFavorite
+		return true
+	end
+	return false
+end
+
 function HM.InitializeDB()
 	HousingMusic_DB = HousingMusic_DB or {}
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
@@ -136,6 +202,8 @@ function HM.InitializeDB()
 	if not HousingMusic_DB.Playlists[L["Default"]] then
 		HousingMusic_DB.Playlists[L["Default"]] = {}
 	end
+
+	HM.PurgeOldPlaylists()
 end
 
 local function GetOwnerHouseKey()
@@ -262,6 +330,31 @@ function HM.RenamePlaylist(oldName, newName)
 	end
 	Print(string.format(L["PlaylistRenamed"], WrapTextInColorCode(newName, "ff91cbfa")))
 	return true
+end
+
+function HM.IsAutoplayEnabled()
+	if HousingMusic_DB and HousingMusic_DB.autoplayMusic ~= nil then
+		return HousingMusic_DB.autoplayMusic
+	end
+	
+	if DefaultsTable and DefaultsTable.autoplayMusic ~= nil then
+		return DefaultsTable.autoplayMusic
+	end
+	
+	return true
+end
+
+function HM.IsControlIconEnabled()
+	if HousingMusic_DB and HousingMusic_DB.showControlFrameIcon ~= nil then
+		return HousingMusic_DB.showControlFrameIcon
+	end
+	
+	-- Fallback to Defaults
+	if DefaultsTable and DefaultsTable.showControlFrameIcon ~= nil then
+		return DefaultsTable.showControlFrameIcon
+	end
+	
+	return true 
 end
 
 ----------------------------------------------------------
@@ -1053,7 +1146,9 @@ local function CheckConditions()
 		end
 		
 		if not musicPlaying and not manualStop then
-			PlayNextTrack()
+			if HM.IsAutoplayEnabled() then
+				PlayNextTrack()
+			end
 		end
 	else
 		if musicPlaying then

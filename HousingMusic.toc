@@ -3,7 +3,7 @@
 ## Version: 0.0.1
 ## Title: Housing Music
 ## Notes: Shareable music playlists for Player Housing.
-## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB
+## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
 
 Libs/LibStub/LibStub.lua
 Libs/LibRPMedia/lib.xml

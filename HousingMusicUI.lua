@@ -10,6 +10,8 @@ if not LRPM then
 	return
 end
 
+local goldR, goldG, goldB, goldA = NORMAL_FONT_COLOR:GetRGBA()
+
 --HousingMusic_DB = HousingMusic_DB or {}
 --HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
 -- DB Initialization is handled in HousingMusic.lua now
@@ -425,6 +427,11 @@ MainframeToggleButton:RegisterEvent("HOUSE_EDITOR_AVAILABILITY_CHANGED")
 MainframeToggleButton:RegisterEvent("CURRENT_HOUSE_INFO_RECIEVED")
 MainframeToggleButton:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 MainframeToggleButton:SetScript("OnEvent", function()
+	if not HM.IsControlIconEnabled() then
+		MainframeToggleButton:Hide()
+		return
+	end
+
 	local HousingFrame
 	if C_Housing.IsInsideOwnHouse() then
 		HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
@@ -580,6 +587,10 @@ local function InitializeCheckboxSetting(button, data)
 	
 	button.checkbox:SetScript("OnClick", function(self)
 		HousingMusic_DB[data.key] = self:GetChecked()
+
+		if data.key == "showControlFrameIcon" then
+			MainframeToggleButton:GetScript("OnEvent")(MainframeToggleButton)
+		end
 	end)
 end
 
@@ -605,11 +616,11 @@ local function InitializeDropdownSetting(button, data)
 	button.dropdown:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_TOP")
 		GameTooltip:AddLine(data.label, 1, 1, 1, true)
-		GameTooltip:AddLine(data.tooltip, 1, 1, 0, true)
+		GameTooltip:AddLine(data.tooltip, goldR, goldG, goldB, goldA, true)
 		for _, tt in ipairs(data.options) do
 			if tt.text and tt.tooltip then
 				GameTooltip:AddLine(" ")
-				GameTooltip:AddLine(string.format("%s: %s", tt.text, WrapTextInColorCode(tt.tooltip, "ffffff00")), 1, 1, 1, true)
+				GameTooltip:AddLine(string.format("%s: %s", tt.text, WrapTextInColorCode(tt.tooltip, NORMAL_FONT_COLOR:GenerateHexColor())), 1, 1, 1, true)
 			end
 		end
 		GameTooltip:Show()
@@ -752,8 +763,8 @@ IgnorePanelBtn:SetPoint("BOTTOM", SettingsFrame, "BOTTOM", 0, 15)
 IgnorePanelBtn:SetText(L["MuteList"])
 IgnorePanelBtn:HookScript("OnEnter", function(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-	GameTooltip:AddLine(L["MuteList"], 1, 1, 0)
-	GameTooltip:AddLine(L["MutePlayerExplanation"], 1, 1, 1, 1, true)
+	GameTooltip:AddLine(L["MuteList"], 1, 1, 1, 1, true)
+	GameTooltip:AddLine(L["MutePlayerExplanation"], goldR, goldG, goldB, goldA, true)
 	GameTooltip:Show()
 
 end)
@@ -766,11 +777,11 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 	if addOnName == "HousingMusic" then
 		allSettingsData = {}
 		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"autoplayMusic",
-		--	L["Setting_AutoplayMusic"],
-		--	L["Setting_AutoplayMusicTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_CheckButton(
+			"autoplayMusic",
+			L["Setting_AutoplayMusic"],
+			L["Setting_AutoplayMusicTT"]
+		))
 		
 		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
 		--	"showMusicOnIcon",
@@ -784,11 +795,11 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 		--	L["Setting_ShowMinimapIconTT"]
 		--))
 		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"showControlFrameIcon",
-		--	L["Setting_ShowControlFrameIcon"],
-		--	L["Setting_ShowControlFrameIconTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_CheckButton(
+			"showControlFrameIcon",
+			L["Setting_ShowControlFrameIcon"],
+			L["Setting_ShowControlFrameIconTT"]
+		))
 		
 		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
 		--	"toastPopup",
@@ -814,41 +825,53 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 		--	L["Setting_ChatboxMessagesTT"]
 		--))
 		
-		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
-		--	"autosharePlaylist",
-		--	L["Setting_AutosharePlaylist"],
-		--	{
-		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AS_EveryoneTT"] },
-		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AS_FriendsandGuildTT"] },
-		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AS_FriendsTT"] },
-		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AS_None"] }
-		--	},
-		--	L["Setting_AutosharePlaylistTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+			"autosharePlaylist",
+			L["Setting_AutosharePlaylist"],
+			{
+				{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AS_EveryoneTT"] },
+				{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AS_FriendsandGuildTT"] },
+				{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AS_FriendsTT"] },
+				{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AS_None"] }
+			},
+			L["Setting_AutosharePlaylistTT"]
+		))
 		
-		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
-		--	"autoImportPlaylist",
-		--	L["Setting_AutoImportPlaylist"],
-		--	{
-		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AI_EveryoneTT"] },
-		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AI_FriendsandGuildTT"] },
-		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AI_FriendsTT"] },
-		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AI_None"] }
-		--	},
-		--	L["Setting_AutoImportPlaylistTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+			"autoImportPlaylist",
+			L["Setting_AutoImportPlaylist"],
+			{
+				{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AI_EveryoneTT"] },
+				{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AI_FriendsandGuildTT"] },
+				{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AI_FriendsTT"] },
+				{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AI_None"] }
+			},
+			L["Setting_AutoImportPlaylistTT"]
+		))
 		
 		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
 		--	"customImportPlaylist",
 		--	L["Setting_CustomImportPlaylist"],
 		--	{
-		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_AI_EveryoneTT"] },
-		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_AI_FriendsandGuildTT"] },
-		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_AI_FriendsTT"] },
-		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_AI_None"] }
+		--		{ text = L["Setting_Everyone"], value = 1, tooltip = L["Setting_CI_EveryoneTT"] },
+		--		{ text = L["Setting_FriendsandGuild"], value = 2, tooltip = L["Setting_CI_FriendsandGuildTT"] },
+		--		{ text = L["Setting_Friends"], value = 3, tooltip = L["Setting_CI_FriendsTT"] },
+		--		{ text = L["Setting_None"], value = 4, tooltip = L["Setting_CI_None"] }
 		--	},
 		--	L["Setting_CustomImportPlaylistTT"]
 		--))
+		
+		table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
+			"clearCache",
+			L["Setting_ClearCache"],
+			{
+				{ text = L["Setting_ClearCache_1"], value = 1, tooltip = nil },
+				{ text = L["Setting_ClearCache_2"], value = 2, tooltip = nil },
+				{ text = L["Setting_ClearCache_3"], value = 3, tooltip = nil },
+				{ text = L["Setting_ClearCache_4"], value = 4, tooltip = nil }
+			},
+			L["Setting_ClearCacheTT"]
+		))
 		
 		FilterSettings()
 	end
@@ -892,7 +915,7 @@ IgnoreInput:SetTextInsets(5, 5, 0, 0)
 IgnoreInput:SetText(L["Setting_NameRealm"])
 IgnoreInput:HookScript("OnEnter", function(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-	GameTooltip:AddLine(L["Setting_MutePlayer"], 1, 1, 0, true)
+	GameTooltip:AddLine(L["Setting_MutePlayer"], goldR, goldG, goldB, goldA, true)
 	GameTooltip:AddLine(L["Setting_MutePlayerRealmAdded"], 1, 1, 1, 1, true)
 	GameTooltip:Show()
 

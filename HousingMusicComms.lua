@@ -39,6 +39,7 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 		local addonName = ...
 		if addonName == "HousingMusic" then
 			HM_CachedMusic_DB = HM_CachedMusic_DB or {}
+			HM_CachedMusic_Metadata = HM_CachedMusic_Metadata or {}
 			
 			C_ChatInfo.RegisterAddonMessagePrefix(HM.CommPrefix)
 		end
@@ -86,6 +87,19 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		
 		HM_CachedMusic_DB[receivedLocationKey][sender] = {}
 		local validSongs = HM_CachedMusic_DB[receivedLocationKey][sender]
+
+		HM_CachedMusic_Metadata = HM_CachedMusic_Metadata or {}
+		HM_CachedMusic_Metadata[receivedLocationKey] = HM_CachedMusic_Metadata[receivedLocationKey] or {}
+		
+		local isFav = false
+		if HM_CachedMusic_Metadata[receivedLocationKey][sender] then
+			isFav = HM_CachedMusic_Metadata[receivedLocationKey][sender].isFavorite
+		end
+
+		HM_CachedMusic_Metadata[receivedLocationKey][sender] = {
+			lastSeen = GetServerTime(),
+			isFavorite = isFav
+		};
 		
 		local currentCount = 0
 		local limit = HM.MAX_PLAYLIST_SIZE or 50
@@ -248,6 +262,31 @@ local function TryAutoShare(unitID)
 	if UnitIsUnit(unitID, "player") then return end
 	if UnitIsDeadOrGhost(unitID) then return end
 
+	local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or 1
+	
+	if setting == 4 then 
+		Print("Refusing to export all comms based on export settings 4.")
+		return
+	elseif setting == 2 then
+		local isFriend = C_FriendList.IsFriend(UnitGUID(unitID))
+		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend -- not exactly tested, but in theory should work
+		local isGuild = UnitIsInMyGuild(unitID)
+
+		Print("Export comm based on export settings 2.")
+		if not isFriend and not isGuild and not isBnetFriend then
+			Print("Refusing to export comms based on export settings 2.")
+			return
+		end
+	elseif setting == 3 then
+		local isFriend = C_FriendList.IsFriend(UnitGUID(unitID))
+		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend
+		Print("Export comm based on export settings 3.")
+		if not isFriend and not isBnetFriend then
+			Print("Refusing to export comms based on export settings 3.")
+			return
+		end
+	end
+
 	local targetName = GetUnitName(unitID, true)
 	if not targetName then return end
 
@@ -283,11 +322,35 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 
 	if not target or target == "" then return end
 
+	sender = Ambiguate(sender, "none")
+
 	if HM.IsPlayerIgnored(target) then
 		return 
 	end
 	
 	if sender == UnitName("player") then return end
+
+	local setting = (HousingMusic_DB and HousingMusic_DB.autoImportPlaylist) or 1
+
+	if setting == 4 then
+		Print("Refusing to import all comms based on import settings 4.")
+		return
+	elseif setting == 2 then
+		local isFriend = C_FriendList.GetFriendInfo(sender)
+		local isGuild = GetGuildMemberIndexFromName(sender)
+		Print("Import comm based on import settings 2.")
+		if not isFriend and not isGuild then
+			Print("Refusing to import comms based on import settings 2.")
+			return
+		end
+	elseif setting == 3 then
+		local isFriend = C_FriendList.GetFriendInfo(sender)
+		Print("Import comm based on import settings 3.")
+		if not isFriend then
+			Print("Refusing to import comms based on import settings 3.")
+			return
+		end
+	end
 
 	-- example: H:LocationKey:Index:Total:Data
 	local msgType, locationKey, idx, total, data = strsplit(":", text, 5)

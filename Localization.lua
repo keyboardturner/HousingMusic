@@ -19,6 +19,9 @@ if LOCALE == "enUS" then
 	-- uses the US English locale code.
 	L["TOC_Title"] = "Housing Music"
 	L["TOC_Notes"] = "Shareable music players for Player Housing."
+	L["SLASH_HM1"] = "housingmusic"
+	L["SLASH_HM2"] = "housingmusic"
+	L["SLASH_HM3"] = "housingmusic"
 
 	L["HousingMusic_Colored"] = "|cffd7ad32HousingMusic|r"
 	L["Default"] = DEFAULT
@@ -88,10 +91,10 @@ if LOCALE == "enUS" then
 	L["Setting_AI_FriendsandGuildTT"] = "Only receive playlists from guild members and friends."
 	L["Setting_AI_FriendsTT"] = "Only receive playlists from friends."
 	L["Setting_AI_None"] = "Never receive playlists."
-	L["Setting_AI_EveryoneTT"] = "Receive custom playlists from all players."
-	L["Setting_AI_FriendsandGuildTT"] = "Only receive custom playlists from guild members and friends."
-	L["Setting_AI_FriendsTT"] = "Only receive custom playlists from friends."
-	L["Setting_AI_None"] = "Never receive custom playlists."
+	L["Setting_CI_EveryoneTT"] = "Receive custom playlists from all players."
+	L["Setting_CI_FriendsandGuildTT"] = "Only receive custom playlists from guild members and friends."
+	L["Setting_CI_FriendsTT"] = "Only receive custom playlists from friends."
+	L["Setting_CI_None"] = "Never receive custom playlists."
 	L["Setting_NameRealm"] = "Name-Realm"
 	L["Setting_MutePlayerRealmAdded"] = "If a realm is not specified, your own realm will be used. If you have a target, this will automatically mute your target."
 	L["Setting_MutePlayer"] = "Mute Player"
@@ -122,6 +125,14 @@ if LOCALE == "enUS" then
 	L["BroadcastingHouseMusicDataViaChannel"] = "Broadcasting house music playlist via %s..."
 	L["PreventingSendingDataToTarget"] = "Preventing sending data to %s"
 	L["MutePlayerExplanation"] = "Muting a player will prevent all playlists to be sent to them and prevent all playlists to be received by them."
+	L["Setting_ClearCache"] = "Other Player Playlists Purge"
+	L["Setting_ClearCacheTT"] = "Purge playlists sent by other players saved in your cached data after a period of time."
+	L["Setting_ClearCache_1"] = "1 Week"
+	L["Setting_ClearCache_2"] = "2 Weeks"
+	L["Setting_ClearCache_3"] = "4 Weeks"
+	L["Setting_ClearCache_4"] = "8 Weeks"
+	L["FavoritedPlaylistsNoPurge"] = "Favorited playlists will never be purged."
+	L["PurgedOldPlaylists"] = "Purged %ds playlists not seen in %d days."
 
 
 return end
