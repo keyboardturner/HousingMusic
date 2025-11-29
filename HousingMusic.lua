@@ -193,6 +193,7 @@ function HM.InitializeDB()
 	HousingMusic_DB = HousingMusic_DB or {}
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
 	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
+	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
 
 	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
 	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or L["Default"]
@@ -254,6 +255,22 @@ function HM.SetSongIgnored(fileID, ignored)
 		HousingMusic_DB.IgnoredSongs[fileID] = true
 	else
 		HousingMusic_DB.IgnoredSongs[fileID] = nil
+	end
+end
+
+function HM.IsSongFavorited(fileID)
+	if not fileID then return false end
+	return HousingMusic_DB and HousingMusic_DB.FavoritedSongs and HousingMusic_DB.FavoritedSongs[fileID]
+end
+
+function HM.SetSongFavorited(fileID, favorited)
+	if not fileID then return end
+	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
+	
+	if favorited then
+		HousingMusic_DB.FavoritedSongs[fileID] = true
+	else
+		HousingMusic_DB.FavoritedSongs[fileID] = nil
 	end
 end
 
