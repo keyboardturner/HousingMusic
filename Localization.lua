@@ -133,6 +133,11 @@ if LOCALE == "enUS" then
 	L["Setting_ClearCache_4"] = "8 Weeks"
 	L["FavoritedPlaylistsNoPurge"] = "Favorited playlists will never be purged."
 	L["PurgedOldPlaylists"] = "Purged %ds playlists not seen in %d days."
+	L["AmountSongs"] = "%s Songs"
+	L["CreateNewPlaylist"] = "Create New Playlist"
+	L["RenameCurrentPlaylist"] = "Rename Current Playlist"
+	L["DeleteCurrentPlaylist"] = "Delete Current Playlist"
+	L["CachedPlaylists"] = "Cached Playlists"
 
 
 return end

@@ -482,7 +482,7 @@ local B_HeaderTitle = BrowserFrame:CreateFontString(nil, "OVERLAY", "GameFontNor
 B_HeaderTitle:SetPoint("CENTER", B_Header, "CENTER", 0, 0)
 B_HeaderTitle:SetFont(GameFontNormal:GetFont(), 17, "")
 B_HeaderTitle:SetTextColor(1, 1, 1)
-B_HeaderTitle:SetText(L["CachedPlaylists"] or "Saved Playlists Browser")
+B_HeaderTitle:SetText(L["CachedPlaylists"])
 
 local B_CloseButton = CreateFrame("Button", nil, BrowserFrame, "UIPanelCloseButtonNoScripts");
 B_CloseButton:SetPoint("TOPRIGHT", 0, 0);
@@ -1696,18 +1696,18 @@ local function GeneratorFunction(dropdown, rootDescription)
 	if isOwner then
 		local active = HM.GetActivePlaylistName()
 
-		rootDescription:CreateButton("|cff00ff00Create New Playlist|r", function()
+		rootDescription:CreateButton(WrapTextInColorCode(L["CreateNewPlaylist"],"ff00ff00"), function()
 			StaticPopup_Show("HOUSINGMUSIC_NEW_PLAYLIST")
 		end)
 
 		if active ~= L["Default"] then
-			rootDescription:CreateButton("|cff00ff00Rename Current Playlist|r", function()
+			rootDescription:CreateButton(WrapTextInColorCode(L["RenameCurrentPlaylist"],"ff00ff00"), function()
 				StaticPopup_Show("HOUSINGMUSIC_RENAME_PLAYLIST", active, nil, active)
 			end)
 		end
 
 		if active ~= L["Default"] then
-			rootDescription:CreateButton("|cffff0000Delete Current Playlist|r", function()
+			rootDescription:CreateButton(WrapTextInColorCode(L["DeleteCurrentPlaylist"],"ffff0000"), function()
 				StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
 			end)
 		end
@@ -2116,31 +2116,6 @@ end
 B_ScrollViewRight:SetElementInitializer("Button", BrowserSong_Initializer)
 B_ScrollViewRight:SetElementExtent(36);
 
-
-local function UpdateBrowserSongs(locationKey, senderName)
-	local songs = {}
-	if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] and HM_CachedMusic_DB[locationKey][senderName] then
-		for fileID, _ in pairs(HM_CachedMusic_DB[locationKey][senderName]) do
-			local info = LRPM:GetMusicInfoByID(fileID)
-			if info then
-				local display = {
-					file = fileID,
-					name = info.names and info.names[1] or tostring(fileID),
-					duration = info.duration
-				}
-				table.insert(songs, display)
-			end
-		end
-	end
-	
-	table.sort(songs, function(a,b) return a.name < b.name end)
-
-	local dataProvider = CreateDataProvider(songs)
-	if B_ScrollBoxRight then
-		B_ScrollBoxRight:SetDataProvider(dataProvider)
-	end
-end
-
 local rawBrowserSongs = {}
 local rawBrowserPlaylists = {}
 
@@ -2182,6 +2157,27 @@ local function FilterBrowserSongs()
 	if B_ScrollBoxRight then
 		B_ScrollBoxRight:SetDataProvider(dataProvider)
 	end
+end
+
+local function UpdateBrowserSongs(locationKey, senderName)
+	rawBrowserSongs = {}
+	if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] and HM_CachedMusic_DB[locationKey][senderName] then
+		for fileID, _ in pairs(HM_CachedMusic_DB[locationKey][senderName]) do
+			local info = LRPM:GetMusicInfoByID(fileID)
+			if info then
+				local display = {
+					file = fileID,
+					names = info.names,
+					name = info.names and info.names[1] or tostring(fileID),
+					duration = info.duration
+				}
+				table.insert(rawBrowserSongs, display)
+			end
+		end
+	end
+	
+	table.sort(rawBrowserSongs, function(a,b) return a.name < b.name end)
+	FilterBrowserSongs()
 end
 
 
@@ -2274,14 +2270,19 @@ local function BrowserPlaylist_Initializer(button, data)
 
 	local displayLoc = ""
 	if data.houseName and data.houseName ~= "" and data.houseName ~= L["Unknown"] then
-		displayLoc = " - " .. WrapTextInColorCode(data.houseName, "ffdac9a6")
+		displayLoc = WrapTextInColorCode(data.houseName, "ffdac9a6")
 	else
 		local locationParts = { strsplit("_", data.locationKey) }
 		local plotID = locationParts[#locationParts] or ""
 		if plotID ~= "" then displayLoc = " [#ID" .. plotID .. "]" end
 	end
+
+	local splitName
+	if data.sender then
+		splitName = string.split("-",data.sender)
+	end
 	
-	button.text:SetText(data.sender .. displayLoc .. " (" .. data.count .. ")")
+	button.text:SetText(splitName .. " - " .. displayLoc .. " (" .. data.count .. ")")
 
 	button:SetScript("OnClick", function()
 		selectedBrowserKey = compositeKey
@@ -2298,8 +2299,10 @@ local function BrowserPlaylist_Initializer(button, data)
 			 GameTooltip:AddLine(L["Favorite"], 1, 0.8, 0)
 		end
 
-		GameTooltip:AddLine(L["LocationKey"] or "Location ID:", 1, 1, 1)
-		GameTooltip:AddLine(data.locationKey, 0.8, 0.8, 0.8, true)
+		GameTooltip:AddLine(data.sender, 1, 1, 1, true)
+		GameTooltip:AddLine(displayLoc, 0.8, 0.8, 0.8, true)
+		GameTooltip:AddLine(string.format(L["AmountSongs"], data.count), 0.8, 0.8, 0.8, true)
+
 		
 		GameTooltip:Show()
 	end)
@@ -2324,27 +2327,6 @@ B_SearchBoxRight:HookScript("OnTextChanged", function(self)
 		end
 	end);
 end);
-
-local function UpdateBrowserSongs(locationKey, senderName)
-	rawBrowserSongs = {}
-	if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] and HM_CachedMusic_DB[locationKey][senderName] then
-		for fileID, _ in pairs(HM_CachedMusic_DB[locationKey][senderName]) do
-			local info = LRPM:GetMusicInfoByID(fileID)
-			if info then
-				local display = {
-					file = fileID,
-					names = info.names,
-					name = info.names and info.names[1] or tostring(fileID),
-					duration = info.duration
-				}
-				table.insert(rawBrowserSongs, display)
-			end
-		end
-	end
-	
-	table.sort(rawBrowserSongs, function(a,b) return a.name < b.name end)
-	FilterBrowserSongs()
-end
 
 
 B_SearchBoxLeft:HookScript("OnTextChanged", function(self)
