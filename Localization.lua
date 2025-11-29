@@ -138,6 +138,8 @@ if LOCALE == "enUS" then
 	L["RenameCurrentPlaylist"] = "Rename Current Playlist"
 	L["DeleteCurrentPlaylist"] = "Delete Current Playlist"
 	L["CachedPlaylists"] = "Cached Playlists"
+	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
+	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 
 
 return end

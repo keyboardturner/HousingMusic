@@ -298,6 +298,15 @@ Header:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", 0, 0);
 Header:SetPoint("BOTTOMRIGHT", Backframe, "TOPRIGHT", 0, 0);
 Header:SetAtlas("housing-basic-container-woodheader");
 MainFrame.Header = Header
+
+MainFrame.favButton = CreateFrame("Button", nil, MainFrame)
+MainFrame.favButton:SetSize(30, 30)
+MainFrame.favButton:SetPoint("LEFT", Header, "LEFT", 20, 0)
+MainFrame.favButton:SetHighlightTexture(favtex) 
+MainFrame.favButton:GetHighlightTexture():SetAlpha(0.5)
+MainFrame.favButton:SetNormalTexture(nofavtex)
+MainFrame.favButton:Hide()
+
 local HeaderTitle = MainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 HeaderTitle:SetPoint("CENTER", Header, "CENTER", 0, 0)
 --HeaderTitle:SetJustifyH("LEFT")
@@ -649,10 +658,13 @@ MainframeToggleButton:SetScript("OnEvent", function()
 	end
 
 	local HousingFrame
+	local isVisitor = false
 	if C_Housing.IsInsideOwnHouse() then
 		HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
+		isVisitor = false
 	elseif C_Housing.IsInsideHouse() then
 		HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.VisitorInspectorButton
+		isVisitor = true
 	end
 	local isInHouse = C_Housing.IsInsideHouse()
 	if HousingFrame and isInHouse then
@@ -662,11 +674,14 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		MainframeToggleButton:Show()
 		MainFrame:ClearAllPoints()
 		MainFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
+		MainFrame.favButton:Show()
 		BrowserFrame:ClearAllPoints()
 		BrowserFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
 	else
 		MainframeToggleButton:Hide()
 		MainFrame:Hide()
+		MainFrame.favButton:Hide()
+		BrowserFrame:Hide()
 	end
 end)
 MainframeToggleButton:SetScript("OnEnter", function(self)
@@ -1453,8 +1468,8 @@ local function Initializer(button, musicInfo)
 	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
-	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
-	button.textFont:SetPoint("RIGHT", button, "RIGHT", -55, 0)
+	button.textFont:SetPoint("TOPLEFT", button, "TOPLEFT", 15, 0)
+	button.textFont:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -55, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
@@ -1815,8 +1830,8 @@ local function SavedInitializer(button, musicInfo)
 	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
-	button.textFont:SetPoint("LEFT", button, "LEFT", 15, 0)
-	button.textFont:SetPoint("RIGHT", button, "RIGHT", -55, 0)
+	button.textFont:SetPoint("TOPLEFT", button, "TOPLEFT", 15, 0)
+	button.textFont:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -55, 0)
 	button.textFont:SetJustifyH("LEFT")
 	button.textFont:SetJustifyV("MIDDLE")
 	button.textFont:SetText(text)
@@ -2005,7 +2020,7 @@ local function BrowserSong_Initializer(button, data)
 
 	button.text = button.text or button:CreateFontString(nil, "OVERLAY")
 	button.text:SetFontObject("GameTooltipTextSmall")
-	button.text:SetPoint("TOPLEFT", button, "TOPLEFT", 10, 0)
+	button.text:SetPoint("TOPLEFT", button, "TOPLEFT", 15, 0)
 	button.text:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -10, 0)
 	button.text:SetJustifyH("LEFT")
 	button.text:SetTextColor(1, 1, 1)
@@ -2284,11 +2299,32 @@ local function BrowserPlaylist_Initializer(button, data)
 	
 	button.text:SetText(splitName .. " - " .. displayLoc .. " (" .. data.count .. ")")
 
-	button:SetScript("OnClick", function()
-		selectedBrowserKey = compositeKey
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		UpdateSelectionHighlights()
-		UpdateBrowserSongs(data.locationKey, data.sender)
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "RightButton" then
+			MenuUtil.CreateContextMenu(self, function(owner, rootDescription)
+				rootDescription:CreateTitle(data.sender)
+				
+				rootDescription:CreateButton(L["Mute"], function()
+					HM.IgnorePlayer(data.sender)
+					
+					if HM_CachedMusic_DB then
+						for k, v in pairs(HM_CachedMusic_DB) do
+							if v[data.sender] then
+								v[data.sender] = nil
+							end
+						end
+					end
+					
+					RefreshBrowserPlaylists()
+				end)
+			end)
+		else
+			selectedBrowserKey = compositeKey
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+			UpdateSelectionHighlights()
+			UpdateBrowserSongs(data.locationKey, data.sender)
+		end
 	end)
 	
 	button:SetScript("OnEnter", function(self)
@@ -2360,6 +2396,7 @@ function UpdateSavedMusicList()
 	local activeList = {}
 
 	if canEdit then
+		if MainFrame.favButton then MainFrame.favButton:Hide() end
 		PlaylistDropdown:SetEnabled(true)
 		
 		activeList = HM.GetActivePlaylistTable()
@@ -2387,6 +2424,44 @@ function UpdateSavedMusicList()
 			if not selectedSender or not HM_CachedMusic_DB[locationKey][selectedSender] then
 				selectedSender = next(HM_CachedMusic_DB[locationKey])
 			end
+		end
+		if locationKey and selectedSender and MainFrame.favButton then
+			MainFrame.favButton:Show()
+			
+			local isFav = false
+			if HM_CachedMusic_Metadata and HM_CachedMusic_Metadata[locationKey] and HM_CachedMusic_Metadata[locationKey][selectedSender] then
+				isFav = HM_CachedMusic_Metadata[locationKey][selectedSender].isFavorite
+			end
+
+			MainFrame.favButton:SetNormalTexture(isFav and favtex or nofavtex)
+
+			MainFrame.favButton:SetScript("OnEnter", function(self)
+				GameTooltip:SetOwner(self, "ANCHOR_TOP")
+				GameTooltip:SetText(isFav and L["Unfavorite"] or L["Favorite"])
+				GameTooltip:Show()
+			end)
+			MainFrame.favButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+			MainFrame.favButton:SetScript("OnClick", function()
+				local newStatus = not isFav
+				
+				HM.SetCachedPlaylistFavorite(locationKey, selectedSender, newStatus)
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+				
+				UpdateSavedMusicList()
+
+				if MainFrame.favButton:IsMouseOver() then
+					local onEnter = MainFrame.favButton:GetScript("OnEnter")
+					if onEnter then onEnter(MainFrame.favButton) end
+				end
+				
+				if BrowserFrame and BrowserFrame:IsShown() then
+					RefreshBrowserPlaylists()
+				end
+			end)
+
+		else
+			if MainFrame.favButton then MainFrame.favButton:Hide() end
 		end
 
 		if selectedSender then
