@@ -96,11 +96,15 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 			isFav = HM_CachedMusic_Metadata[receivedLocationKey][sender].isFavorite
 		end
 
+		local houseInfo = C_Housing.GetCurrentHouseInfo()
+		local currentHouseName = houseInfo and houseInfo.houseName or L["Unknown"]
+
 		HM_CachedMusic_Metadata[receivedLocationKey][sender] = {
 			lastSeen = GetServerTime(),
-			isFavorite = isFav
+			isFavorite = isFav,
+			houseName = currentHouseName
 		};
-		
+
 		local currentCount = 0
 		local limit = HM.MAX_PLAYLIST_SIZE or 50
 		
@@ -269,7 +273,7 @@ local function TryAutoShare(unitID)
 		return
 	elseif setting == 2 then
 		local isFriend = C_FriendList.IsFriend(UnitGUID(unitID))
-		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend -- not exactly tested, but in theory should work
+		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend
 		local isGuild = UnitIsInMyGuild(unitID)
 
 		Print("Export comm based on export settings 2.")
