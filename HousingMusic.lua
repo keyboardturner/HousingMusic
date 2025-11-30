@@ -9,7 +9,7 @@ end
 
 HM.Print = Print
 
-local DefaultsTable = {
+local DefaultsTable = { -- HousingMusic_DB
 	autoplayMusic = true,
 	showMusicOnIcon = true,
 	showMinimapIcon = true,

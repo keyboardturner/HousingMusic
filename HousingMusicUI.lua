@@ -143,6 +143,25 @@ local function IsEditingAllowed()
 	return false
 end
 
+local function NormalizeName(name) -- it's a bit wonky, so just don't use for now
+	if not HousingMusic_DB or not HousingMusic_DB.normalizeNames or not name then 
+		return name 
+	end
+
+	local newName = name
+
+	newName = newName:gsub("^mus_%d+_", "")
+	newName = newName:gsub("^mus_", "")
+	newName = newName:gsub("[_%-]", " ")
+	newName = newName:match("^%s*(.-)%s*$")
+	newName = newName:gsub("(%w)(%w*)", function(first, rest)
+		return first:upper() .. rest:lower()
+	end)
+	newName = newName:gsub("%s0+(%d+)", " %1")
+
+	return newName
+end
+
 local function SearchBox_OnUpdate(self, elapsed)
 	self.t = self.t + elapsed;
 	if self.t >= 0.2 then
