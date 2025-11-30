@@ -175,7 +175,7 @@ local function OpenSongContextMenu(owner, musicInfo)
 		rootDescription:CreateButton(ignoreText, function()
 			HM.SetSongIgnored(fileID, not isIgnored)
 			if HM.UpdateCachedMusicUI then HM.UpdateCachedMusicUI() end
-			RefreshUILists()
+			HM.RefreshButtonForMusic(musicInfo)
 		end)
 	end)
 end
@@ -192,7 +192,6 @@ StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 		local newName = self.EditBox:GetText()
 		if HM.RenamePlaylist(oldName, newName) then
 			UpdateSavedMusicList()
-			RefreshUILists()
 		else
 			Print(L["PlaylistInvalidOrExists"])
 		end
@@ -1546,7 +1545,7 @@ local function Initializer(button, musicInfo)
 		if not currentList[musicInfo.file] then
 			currentList[musicInfo.file] = true 
 			UpdateSavedMusicList()
-			RefreshUILists()
+			HM.RefreshButtonForMusic(musicInfo)
 			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
 		--else
@@ -1638,6 +1637,16 @@ end
 
 ScrollViewLeft:SetElementInitializer("Button", Initializer)
 ScrollViewLeft:SetElementExtent(36);
+
+-- Looks for the button in the left scrollview associated with the provided musicInfo and updates its display
+function HM.RefreshButtonForMusic(musicInfo)
+	local button = ScrollViewLeft:FindFrameByPredicate(function(frame, data)
+		return data.file == musicInfo.file;
+	end);
+	if button then
+		Initializer(button, musicInfo);
+	end
+end
 
 -------------------------------------------------------------------------------
 -- MAIN FRAME - Right Scroll Box
@@ -1891,7 +1900,7 @@ local function SavedInitializer(button, musicInfo)
 	
 	removeButton:SetScript("OnClick", function()
 		RemoveMusicEntry(musicInfo.file, musicInfo.name)
-		RefreshUILists()
+		HM.RefreshButtonForMusic(musicInfo)
 		PlaySound(316562)
 	end)
 	
