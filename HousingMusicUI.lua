@@ -21,9 +21,7 @@ local RefreshBrowserPlaylists
 --local flatMusicList = {} -- trade for FindMusic func in librpmedia
 local fullSavedList = {}
 local ScrollBoxLeft
-local ScrollViewLeft
 local ScrollBoxRight
-local ScrollViewRight
 local B_ScrollBoxLeft
 local B_ScrollBoxRight
 local SearchBoxLeft
@@ -177,7 +175,7 @@ local function OpenSongContextMenu(owner, musicInfo)
 		rootDescription:CreateButton(ignoreText, function()
 			HM.SetSongIgnored(fileID, not isIgnored)
 			if HM.UpdateCachedMusicUI then HM.UpdateCachedMusicUI() end
-			HM.RefreshButtonForMusic(musicInfo)
+			RefreshUILists()
 		end)
 	end)
 end
@@ -194,6 +192,7 @@ StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 		local newName = self.EditBox:GetText()
 		if HM.RenamePlaylist(oldName, newName) then
 			UpdateSavedMusicList()
+			RefreshUILists()
 		else
 			Print(L["PlaylistInvalidOrExists"])
 		end
@@ -1335,12 +1334,11 @@ SettingsButton:SetScript("OnMouseUp", function(self, button)
 end);
 
 MainFrame:Hide()
-MainFrame:SetScript("OnShow", function()MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
+MainFrame:SetScript("OnShow", function()
+	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
 	PlaySound(305110)
-	if not ScrollViewLeft:GetDataProvider() then
-		RefreshUILists()
-	end
 	UpdateSavedMusicList()
+	RefreshUILists()
 	UpdateCVarBlocker()
 end)
 MainFrame:SetScript("OnHide", function()
@@ -1361,7 +1359,7 @@ local ScrollBarLeft = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollBa
 ScrollBarLeft:SetPoint("TOPLEFT", ScrollBoxLeft, "TOPRIGHT", 5, 0)
 ScrollBarLeft:SetPoint("BOTTOMLEFT", ScrollBoxLeft, "BOTTOMRIGHT", 5, 0)
 
-ScrollViewLeft = CreateScrollBoxListLinearView() 
+local ScrollViewLeft = CreateScrollBoxListLinearView() 
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBoxLeft, ScrollBarLeft, ScrollViewLeft)
 
 SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
@@ -1547,21 +1545,8 @@ local function Initializer(button, musicInfo)
 
 		if not currentList[musicInfo.file] then
 			currentList[musicInfo.file] = true 
-			local dataProvider = ScrollViewRight:GetDataProvider()
-			if dataProvider then
-				-- Create the data structure exactly as UpdateSavedMusicList does
-				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], musicInfo.file))
-				local newData = { 
-					name = primaryName, 
-					file = musicInfo.file, 
-					duration = musicInfo.duration,
-					names = musicInfo.names,
-				}
-				-- Insert at the end (or Sort if you prefer)
-				dataProvider:Insert(newData)
-			end
-
-			HM.RefreshButtonForMusic(musicInfo)
+			UpdateSavedMusicList()
+			RefreshUILists()
 			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
 		--else
@@ -1654,16 +1639,6 @@ end
 ScrollViewLeft:SetElementInitializer("Button", Initializer)
 ScrollViewLeft:SetElementExtent(36);
 
--- Looks for the button in the left scrollview associated with the provided musicInfo and updates its display
-function HM.RefreshButtonForMusic(musicInfo)
-	local button = ScrollViewLeft:FindFrameByPredicate(function(frame, data)
-		return data.file == musicInfo.file;
-	end);
-	if button then
-		Initializer(button, musicInfo);
-	end
-end
-
 -------------------------------------------------------------------------------
 -- MAIN FRAME - Right Scroll Box
 -------------------------------------------------------------------------------
@@ -1677,7 +1652,7 @@ local ScrollBarRight = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollB
 ScrollBarRight:SetPoint("TOPLEFT", ScrollBoxRight, "TOPRIGHT", 5, 0)
 ScrollBarRight:SetPoint("BOTTOMLEFT", ScrollBoxRight, "BOTTOMRIGHT", 5, 0)
 
-ScrollViewRight = CreateScrollBoxListLinearView()
+local ScrollViewRight = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBoxRight, ScrollBarRight, ScrollViewRight)
 
 SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
@@ -1812,16 +1787,7 @@ PlaylistDropdown:SetupMenu(GeneratorFunction)
 local function RemoveMusicEntry(musicFile, musicName)
 	local currentList = HM.GetActivePlaylistTable()
 	currentList[musicFile] = nil
-	local dataProvider = ScrollViewRight:GetDataProvider()
-	if dataProvider then
-		local foundData = dataProvider:FindElementDataByPredicate(function(data)
-			return data.file == musicFile
-		end)
-		
-		if foundData then
-			dataProvider:Remove(foundData)
-		end
-	end
+	UpdateSavedMusicList()
 
 	Print(string.format(L["RemovedSongFromPlaylist"], musicName, HM.GetActivePlaylistName()))
 end
@@ -1925,7 +1891,7 @@ local function SavedInitializer(button, musicInfo)
 	
 	removeButton:SetScript("OnClick", function()
 		RemoveMusicEntry(musicInfo.file, musicInfo.name)
-		HM.RefreshButtonForMusic(musicInfo)
+		RefreshUILists()
 		PlaySound(316562)
 	end)
 	
