@@ -714,6 +714,72 @@ MainframeToggleButton:SetScript("OnLeave", function()
 end)
 
 MainframeToggleButton:Hide()
+
+local PulseAnims = {}
+PulseAnims.PulseTexture = MainframeToggleButton:CreateTexture(nil, "OVERLAY")
+PulseAnims.PulseTexture:SetAllPoints()
+PulseAnims.PulseTexture:SetTexture(Decor_Controls_Music_Active)
+PulseAnims.PulseTexture:SetBlendMode("ADD")
+PulseAnims.PulseTexture:SetAlpha(0)
+MainframeToggleButton.PulseTexture = PulseAnims.PulseTexture
+
+PulseAnims.PulseAnimGroup = PulseAnims.PulseTexture:CreateAnimationGroup()
+MainframeToggleButton.PulseAnimGroup = PulseAnims.PulseAnimGroup
+
+PulseAnims.s1 = PulseAnims.PulseAnimGroup:CreateAnimation("Scale")
+PulseAnims.s1:SetOrder(1)
+PulseAnims.s1:SetDuration(0.6)
+PulseAnims.s1:SetScale(1.5, 1.5)
+PulseAnims.s1:SetOrigin("CENTER", 0, 0)
+PulseAnims.a1 = PulseAnims.PulseAnimGroup:CreateAnimation("Alpha")
+PulseAnims.a1:SetOrder(1)
+PulseAnims.a1:SetDuration(0.6)
+PulseAnims.a1:SetFromAlpha(1)
+PulseAnims.a1:SetToAlpha(0)
+
+PulseAnims.s2 = PulseAnims.PulseAnimGroup:CreateAnimation("Scale")
+PulseAnims.s2:SetOrder(2)
+PulseAnims.s2:SetDuration(0.6)
+PulseAnims.s2:SetScale(1.5, 1.5)
+PulseAnims.s2:SetOrigin("CENTER", 0, 0)
+PulseAnims.a2 = PulseAnims.PulseAnimGroup:CreateAnimation("Alpha")
+PulseAnims.a2:SetOrder(2)
+PulseAnims.a2:SetDuration(0.6)
+PulseAnims.a2:SetFromAlpha(1)
+PulseAnims.a2:SetToAlpha(0)
+
+PulseAnims.s3 = PulseAnims.PulseAnimGroup:CreateAnimation("Scale")
+PulseAnims.s3:SetOrder(3)
+PulseAnims.s3:SetDuration(0.6)
+PulseAnims.s3:SetScale(1.5, 1.5)
+PulseAnims.s3:SetOrigin("CENTER", 0, 0)
+PulseAnims.a3 = PulseAnims.PulseAnimGroup:CreateAnimation("Alpha")
+PulseAnims.a3:SetOrder(3)
+PulseAnims.a3:SetDuration(0.6)
+PulseAnims.a3:SetFromAlpha(1)
+PulseAnims.a3:SetToAlpha(0)
+
+PulseAnims.PulseAnimGroup:SetScript("OnFinished", function(self)
+	self:GetParent():Hide()
+end)
+
+function HM.TriggerPulseAnimation()
+	local enabled = true
+	if HousingMusic_DB and HousingMusic_DB.showMusicOnIcon ~= nil then
+		enabled = HousingMusic_DB.showMusicOnIcon
+	elseif HM.DefaultsTable and HM.DefaultsTable.showMusicOnIcon ~= nil then
+		enabled = HM.DefaultsTable.showMusicOnIcon
+	end
+	
+	if not enabled then return end
+	
+	if not MainframeToggleButton:IsVisible() then return end
+	
+	PulseAnims.PulseTexture:Show()
+	PulseAnims.PulseAnimGroup:Stop()
+	PulseAnims.PulseAnimGroup:Play()
+end
+
 local closeButton = CreateFrame("Button", nil, MainFrame, "UIPanelCloseButtonNoScripts");
 closeButton:SetPoint("TOPRIGHT", 0, 0);
 closeButton:SetScript("OnClick", function()
@@ -1035,11 +1101,11 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 			L["Setting_AutoplayMusicTT"]
 		))
 		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"showMusicOnIcon",
-		--	L["Setting_ShowMusicOnIcon"],
-		--	L["Setting_ShowMusicOnIconTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_CheckButton(
+			"showMusicOnIcon",
+			L["Setting_ShowMusicOnIcon"],
+			L["Setting_ShowMusicOnIconTT"]
+		))
 		
 		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
 		--	"showMinimapIcon",

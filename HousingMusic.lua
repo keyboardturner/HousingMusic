@@ -381,18 +381,18 @@ end
 -- playback
 ----------------------------------------------------------
 
+ -- not needed for now, remnant of older playlist creation
+--local DAY_START_HOUR = 6 -- 6:00 AM
+--local NIGHT_START_HOUR = 18 -- 6:00 PM
 
-local DAY_START_HOUR = 6 -- 6:00 AM
-local NIGHT_START_HOUR = 18 -- 6:00 PM
+--local function IsDay()
+--	local hour = GetGameTime()
+--	return hour >= DAY_START_HOUR and hour < NIGHT_START_HOUR
+--end
 
-function IsDay()
-	local hour = GetGameTime()
-	return hour >= DAY_START_HOUR and hour < NIGHT_START_HOUR
-end
-
-function IsNight()
-	return not IsDay()
-end
+--local function IsNight()
+--	return not IsDay()
+--end
 
 local function StartSilentMusic()
 	--if silentMusicActive then return end -- there's no need to check this
@@ -612,6 +612,9 @@ function HM.PlaySpecificMusic(fileID)
 		musicPlaying = true
 		currentTrackName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], fileID))
 		HM.CurrentPlayingID = fileID 
+		if HM.TriggerPulseAnimation then
+			HM.TriggerPulseAnimation()
+		end
 	else
 		soundHandle = nil
 		manualPlayback = false
@@ -718,6 +721,9 @@ local function PlayNextTrack()
 			musicPlaying = true
 			currentTrackName = trackNameForDebug
 			lastTrackIndex = nextIndex
+			if HM.TriggerPulseAnimation then
+				HM.TriggerPulseAnimation()
+			end
 		else
 			soundHandle = nil
 		end
