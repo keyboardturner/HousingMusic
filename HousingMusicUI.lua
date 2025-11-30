@@ -21,7 +21,9 @@ local RefreshBrowserPlaylists
 --local flatMusicList = {} -- trade for FindMusic func in librpmedia
 local fullSavedList = {}
 local ScrollBoxLeft
+local ScrollViewLeft
 local ScrollBoxRight
+local ScrollViewRight
 local B_ScrollBoxLeft
 local B_ScrollBoxRight
 local SearchBoxLeft
@@ -1333,11 +1335,12 @@ SettingsButton:SetScript("OnMouseUp", function(self, button)
 end);
 
 MainFrame:Hide()
-MainFrame:SetScript("OnShow", function()
-	MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
+MainFrame:SetScript("OnShow", function()MainframeToggleButton:SetNormalTexture(Decor_Controls_Music_Active)
 	PlaySound(305110)
+	if not ScrollViewLeft:GetDataProvider() then
+		RefreshUILists()
+	end
 	UpdateSavedMusicList()
-	RefreshUILists()
 	UpdateCVarBlocker()
 end)
 MainFrame:SetScript("OnHide", function()
@@ -1358,7 +1361,7 @@ local ScrollBarLeft = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollBa
 ScrollBarLeft:SetPoint("TOPLEFT", ScrollBoxLeft, "TOPRIGHT", 5, 0)
 ScrollBarLeft:SetPoint("BOTTOMLEFT", ScrollBoxLeft, "BOTTOMRIGHT", 5, 0)
 
-local ScrollViewLeft = CreateScrollBoxListLinearView() 
+ScrollViewLeft = CreateScrollBoxListLinearView() 
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBoxLeft, ScrollBarLeft, ScrollViewLeft)
 
 SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
@@ -1544,7 +1547,20 @@ local function Initializer(button, musicInfo)
 
 		if not currentList[musicInfo.file] then
 			currentList[musicInfo.file] = true 
-			UpdateSavedMusicList()
+			local dataProvider = ScrollViewRight:GetDataProvider()
+			if dataProvider then
+				-- Create the data structure exactly as UpdateSavedMusicList does
+				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], musicInfo.file))
+				local newData = { 
+					name = primaryName, 
+					file = musicInfo.file, 
+					duration = musicInfo.duration,
+					names = musicInfo.names,
+				}
+				-- Insert at the end (or Sort if you prefer)
+				dataProvider:Insert(newData)
+			end
+
 			HM.RefreshButtonForMusic(musicInfo)
 			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
@@ -1661,7 +1677,7 @@ local ScrollBarRight = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollB
 ScrollBarRight:SetPoint("TOPLEFT", ScrollBoxRight, "TOPRIGHT", 5, 0)
 ScrollBarRight:SetPoint("BOTTOMLEFT", ScrollBoxRight, "BOTTOMRIGHT", 5, 0)
 
-local ScrollViewRight = CreateScrollBoxListLinearView()
+ScrollViewRight = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBoxRight, ScrollBarRight, ScrollViewRight)
 
 SearchBoxRight = CreateFrame("EditBox", nil, SectionRight, "SearchBoxTemplate")
@@ -1796,7 +1812,16 @@ PlaylistDropdown:SetupMenu(GeneratorFunction)
 local function RemoveMusicEntry(musicFile, musicName)
 	local currentList = HM.GetActivePlaylistTable()
 	currentList[musicFile] = nil
-	UpdateSavedMusicList()
+	local dataProvider = ScrollViewRight:GetDataProvider()
+	if dataProvider then
+		local foundData = dataProvider:FindElementDataByPredicate(function(data)
+			return data.file == musicFile
+		end)
+		
+		if foundData then
+			dataProvider:Remove(foundData)
+		end
+	end
 
 	Print(string.format(L["RemovedSongFromPlaylist"], musicName, HM.GetActivePlaylistName()))
 end
