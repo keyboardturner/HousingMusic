@@ -284,6 +284,8 @@ function HM.SetActivePlaylist(playlistName)
 				HousingMusic_DB.HouseAssignments[houseKey] = playlistName
 			end
 		end
+		if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
+		
 		return true
 	end
 	return false

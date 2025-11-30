@@ -1564,6 +1564,8 @@ local function Initializer(button, musicInfo)
 			HM.RefreshButtonForMusic(musicInfo)
 			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
+
+			if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
 		--else
 		--	print("|cffffcc00Warning:|r Music already saved.")
 		end
@@ -1824,6 +1826,8 @@ local function RemoveMusicEntry(musicFile, musicName)
 	end
 
 	Print(string.format(L["RemovedSongFromPlaylist"], musicName, HM.GetActivePlaylistName()))
+
+	if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
 end
 
 local function SavedInitializer(button, musicInfo)

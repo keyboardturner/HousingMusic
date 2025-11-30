@@ -13,7 +13,7 @@ local MSG_TYPE_HOUSE = "H"
 
 local MAX_MSG_BYTES = 250
 
-local AUTO_SEND_COOLDOWN = 30
+local AUTO_SEND_COOLDOWN = 180
 
 HM.SentTracker = {}
 
@@ -255,6 +255,7 @@ end
 local TriggerFrame = CreateFrame("Frame")
 TriggerFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 TriggerFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+TriggerFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 TriggerFrame:RegisterEvent("HOUSE_PLOT_ENTERED")
 TriggerFrame:RegisterEvent("HOUSE_PLOT_EXITED")
 
@@ -310,11 +311,28 @@ local function TryAutoShare(unitID)
 	end
 end
 
+function HM.BroadcastToNameplates()
+	local nameplates = C_NamePlate.GetNamePlates()
+	if not nameplates then return end
+	for _, plate in ipairs(nameplates) do
+		local unit = plate.unitToken
+		
+		if unit and UnitExists(unit) then
+			TryAutoShare(unit)
+		end
+	end
+end
+
 TriggerFrame:SetScript("OnEvent", function(self, event, ...)
 	if event == "PLAYER_TARGET_CHANGED" then
 		TryAutoShare("target")
 	elseif event == "UPDATE_MOUSEOVER_UNIT" then
 		TryAutoShare("mouseover")
+	elseif event == "NAME_PLATE_UNIT_ADDED" then
+		local unitToken = ...
+		if unitToken then
+			TryAutoShare(unitToken)
+		end
 	elseif event == "HOUSE_PLOT_ENTERED" or event == "HOUSE_PLOT_EXITED" then
 		HM.SentTracker = {}
 		ChunkBuffer = {}
