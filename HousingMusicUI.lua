@@ -451,7 +451,7 @@ ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 		
 		TimerText:SetText(FormatDuration(state.elapsed) .. " / " .. FormatDuration(state.duration))
 		
-		PlayerTitle:SetText(state.name or "Unknown Track")
+		PlayerTitle:SetText(state.name or L["Unknown"])
 		
 		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
 		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
@@ -585,7 +585,7 @@ B_ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 		self:SetValue(state.elapsed)
 		
 		B_TimerText:SetText(FormatDuration(state.elapsed) .. " / " .. FormatDuration(state.duration))
-		B_PlayerTitle:SetText(state.name or "Unknown Track")
+		B_PlayerTitle:SetText(state.name or L["Unknown"])
 		
 		B_PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
 		B_PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
@@ -718,7 +718,6 @@ end
 function HM.UnignorePlayer(name)
 	if not name then return end
 	HousingMusic_DB.IgnoredPlayers[name] = nil
-	string.format(L["PlayerRemovedFromMute"], name)
 	Print(string.format(L["PlayerRemovedFromMute"], name))
 end
 
@@ -1539,7 +1538,7 @@ local function Initializer(button, musicInfo)
 
 			local playlistCount = 0
 			for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
-			Print(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50))
+			--Print(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50))
 			return
 		end
 
@@ -1562,7 +1561,7 @@ local function Initializer(button, musicInfo)
 			end
 
 			HM.RefreshButtonForMusic(musicInfo)
-			Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
+			--Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
 			PlaySound(316551)
 
 			if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
@@ -2134,12 +2133,12 @@ local function BrowserSong_Initializer(button, data)
 		end
 
 		if isIgnored then
-			GameTooltip:AddLine(L["SongIsMuted"] or "Song is Muted", 0.83, 0.00, 0.00)
+			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00)
 		end
 		
 		if data.names and #data.names > 1 then
 			GameTooltip:AddLine(" ")
-			GameTooltip:AddLine(L["AlternateNames"] or "Alternate Names:", 0.8, 0.8, 0.8)
+			GameTooltip:AddLine(L["AlternateNames"], 0.8, 0.8, 0.8)
 			
 			for i = 2, #data.names do
 				GameTooltip:AddLine(data.names[i], 0.7, 0.7, 0.7)
@@ -2157,7 +2156,7 @@ local function BrowserSong_Initializer(button, data)
 	playButton:SetScript("OnEnter", function(self)
 		HideButtonElements(button)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(L["PreviewSong"] or "Preview Song", 1, 1, 1)
+		GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1)
 		GameTooltip:Show()
 	end)
 

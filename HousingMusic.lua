@@ -176,9 +176,9 @@ function HM.PurgeOldPlaylists()
 		end
 	end
 
-	if cleanedCount > 0 then
-		Print(string.format(L["PurgedOldPlaylists"], cleanedCount, days))
-	end
+	--if cleanedCount > 0 then
+	--	Print(string.format(L["PurgedOldPlaylists"], cleanedCount, days))
+	--end
 end
 
 function HM.SetCachedPlaylistFavorite(locationKey, senderName, isFavorite)
@@ -285,7 +285,7 @@ function HM.SetActivePlaylist(playlistName)
 			end
 		end
 		if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
-		
+
 		return true
 	end
 	return false
@@ -599,7 +599,7 @@ function HM.PlaySpecificMusic(fileID)
 
 	local musicInfo = LRPM:GetMusicInfoByID(fileID)
 	if not musicInfo or not musicInfo.duration then
-		Print(string.format(L["CannotRetrieveInfo"], fileID))
+		--Print(string.format(L["CannotRetrieveInfo"], fileID))
 		manualPlayback = false
 		return
 	end
@@ -745,7 +745,7 @@ local function CheckConditions()
 			
 			StopCurrentMusic()
 			activeZone = zone
-			Print(string.format(L["EnteredCustomZone"], newZoneName))
+			--Print(string.format(L["EnteredCustomZone"], newZoneName))
 		else
 			activeZone = zone 
 		end

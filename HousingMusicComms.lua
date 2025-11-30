@@ -140,7 +140,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		local totalCount = 0
 		for _ in pairs(validSongs) do totalCount = totalCount + 1 end
 
-		Print(string.format(L["ReceivedPlaylistFromSenderSongCount"], sender, totalCount))
+		--Print(string.format(L["ReceivedPlaylistFromSenderSongCount"], sender, totalCount))
 		
 		if HM.UpdateCachedMusicUI then
 			HM.UpdateCachedMusicUI()
@@ -154,7 +154,7 @@ end
 
 local function SendData(channel, target, locationKey, playlistTable)
 	if not ChatThrottleLib then
-		Print(L["ChatThrottleLibNotFound"])
+		--Print(L["ChatThrottleLibNotFound"])
 		return
 	end
 
@@ -207,7 +207,7 @@ function HM.SharePlaylist(context)
 
 	local locationKey = GetCurrentLocationKey()
 	if not locationKey then
-		Print(L["InsideHouseToShare"])
+		--Print(L["InsideHouseToShare"])
 		return
 	end
 
@@ -243,11 +243,11 @@ function HM.SharePlaylist(context)
 		target = context
 	end
 	
-	if target then
-		Print(string.format(L["SendingHouseMusicToTarget"], target))
-	else
-		Print(string.format(L["BroadcastingHouseMusicDataViaChannel"], channel))
-	end
+	--if target then
+	--	Print(string.format(L["SendingHouseMusicToTarget"], target))
+	--else
+	--	Print(string.format(L["BroadcastingHouseMusicDataViaChannel"], channel))
+	--end
 
 	SendData(channel, target, locationKey, playlistTable)
 end
@@ -270,24 +270,24 @@ local function TryAutoShare(unitID)
 	local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or 1
 	
 	if setting == 4 then 
-		Print("Refusing to export all comms based on export settings 4.")
+		--Print("Refusing to export all comms based on export settings 4.")
 		return
 	elseif setting == 2 then
 		local isFriend = C_FriendList.IsFriend(UnitGUID(unitID))
 		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend
 		local isGuild = UnitIsInMyGuild(unitID)
 
-		Print("Export comm based on export settings 2.")
+		--Print("Export comm based on export settings 2.")
 		if not isFriend and not isGuild and not isBnetFriend then
-			Print("Refusing to export comms based on export settings 2.")
+			--Print("Refusing to export comms based on export settings 2.")
 			return
 		end
 	elseif setting == 3 then
 		local isFriend = C_FriendList.IsFriend(UnitGUID(unitID))
 		local isBnetFriend = C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)) and C_BattleNet.GetAccountInfoByGUID(UnitGUID(unitID)).isBattleTagFriend
-		Print("Export comm based on export settings 3.")
+		--Print("Export comm based on export settings 3.")
 		if not isFriend and not isBnetFriend then
-			Print("Refusing to export comms based on export settings 3.")
+			--Print("Refusing to export comms based on export settings 3.")
 			return
 		end
 	end
@@ -296,7 +296,7 @@ local function TryAutoShare(unitID)
 	if not targetName then return end
 
 	if HM.IsPlayerIgnored(targetName) then
-		Print(string.format(L["PreventingSendingDataToTarget"], targetName))
+		--Print(string.format(L["PreventingSendingDataToTarget"], targetName))
 		return 
 	end
 
@@ -355,21 +355,21 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 	local setting = (HousingMusic_DB and HousingMusic_DB.autoImportPlaylist) or 1
 
 	if setting == 4 then
-		Print("Refusing to import all comms based on import settings 4.")
+		--Print("Refusing to import all comms based on import settings 4.")
 		return
 	elseif setting == 2 then
 		local isFriend = C_FriendList.GetFriendInfo(sender)
 		local isGuild = GetGuildMemberIndexFromName(sender)
-		Print("Import comm based on import settings 2.")
+		--Print("Import comm based on import settings 2.")
 		if not isFriend and not isGuild then
-			Print("Refusing to import comms based on import settings 2.")
+			--Print("Refusing to import comms based on import settings 2.")
 			return
 		end
 	elseif setting == 3 then
 		local isFriend = C_FriendList.GetFriendInfo(sender)
-		Print("Import comm based on import settings 3.")
+		--Print("Import comm based on import settings 3.")
 		if not isFriend then
-			Print("Refusing to import comms based on import settings 3.")
+			--Print("Refusing to import comms based on import settings 3.")
 			return
 		end
 	end
