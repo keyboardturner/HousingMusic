@@ -574,6 +574,31 @@ local function FindActiveZone()
 	return nil
 end
 
+HM.SongHistory = {}
+local MAX_HISTORY_SIZE = 20
+
+function HM.PushToHistory(fileID)
+	if not fileID then return end
+	
+	if #HM.SongHistory > 0 and HM.SongHistory[#HM.SongHistory] == fileID then
+		return
+	end
+	
+	table.insert(HM.SongHistory, fileID)
+	
+	if #HM.SongHistory > MAX_HISTORY_SIZE then
+		table.remove(HM.SongHistory, 1)
+	end
+end
+
+function HM.GetPreviousSongName()
+	if #HM.SongHistory == 0 then return nil end
+	local id = HM.SongHistory[#HM.SongHistory]
+	local info = LRPM:GetMusicInfoByID(id)
+	return info and (info.names and info.names[1] or tostring(id)) or tostring(id)
+end
+
+
 local function StopCurrentMusic()
 	musicPlaying = false;
 	musicTimer = 0;
@@ -591,8 +616,13 @@ local function StopCurrentMusic()
 	StopMusic()
 end
 
-function HM.PlaySpecificMusic(fileID)
+function HM.PlaySpecificMusic(fileID, context)
 	manualStop = false
+	
+	local isHistoryAction = context and context.isHistory
+	if not isHistoryAction and HM.CurrentPlayingID then
+		HM.PushToHistory(HM.CurrentPlayingID)
+	end
 	StopCurrentMusic()
 	manualPlayback = true
 	StartSilentMusic()
@@ -621,7 +651,12 @@ function HM.PlaySpecificMusic(fileID)
 	end
 end
 
-
+function HM.PlayPreviousTrack()
+	if #HM.SongHistory > 0 then
+		local prevID = table.remove(HM.SongHistory)
+		HM.PlaySpecificMusic(prevID, { isHistory = true })
+	end
+end
 
 function HM.StopManualMusic()
 	manualStop = true
@@ -664,6 +699,9 @@ local function PlayNextTrack()
 		return
 	end
 
+	if HM.CurrentPlayingID then
+		HM.PushToHistory(HM.CurrentPlayingID)
+	end
 
 	local nextIndex
 	if #availableTracks == 1 then
@@ -719,6 +757,7 @@ local function PlayNextTrack()
 			musicTimer = soundDuration
 			timerElapsed = 0
 			musicPlaying = true
+			HM.CurrentPlayingID = soundFileToPlay
 			currentTrackName = trackNameForDebug
 			lastTrackIndex = nextIndex
 			if HM.TriggerPulseAnimation then
@@ -728,6 +767,11 @@ local function PlayNextTrack()
 			soundHandle = nil
 		end
 	end
+end
+
+function HM.SkipTrack()
+	StopCurrentMusic()
+	PlayNextTrack()
 end
 
 local function CheckConditions()

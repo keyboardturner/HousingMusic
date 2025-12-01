@@ -38,6 +38,10 @@ local Decor_Controls_Music_Default = "Interface\\AddOns\\HousingMusic\\Assets\\T
 local Decor_Controls_Music_Pressed = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Decor_Controls_Music_Pressed.png"
 local favtex = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\FavoriteHeart.png"
 local nofavtex = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\FavoriteHeart_Empty.png"
+local NextTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Next.png"
+local PreviousTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Previous.png"
+local PlayTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Play.png"
+local StopTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Stop.png"
 
 local function RefreshUILists()
 	if SearchBoxLeft then 
@@ -411,7 +415,7 @@ CVarListener:SetScript("OnEvent", function(self, event, arg1)
 end)
 
 local ProgressBar = CreateFrame("StatusBar", nil, Footer)
-ProgressBar:SetPoint("TOPLEFT", Footer, "BOTTOMLEFT", 40, 18)
+ProgressBar:SetPoint("TOPLEFT", Footer, "BOTTOMLEFT", 75, 18)
 ProgressBar:SetPoint("BOTTOMRIGHT", Footer, "BOTTOMRIGHT", -20, 15)
 ProgressBar:SetHeight(8)
 ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
@@ -420,12 +424,24 @@ ProgressBar.bg = ProgressBar:CreateTexture(nil, "BACKGROUND")
 ProgressBar.bg:SetAllPoints()
 ProgressBar.bg:SetColorTexture(0.2, 0.2, 0.2, 0.5)
 
-local PlayerToggleBtn = CreateFrame("Button", nil, ProgressBar)
-PlayerToggleBtn:SetSize(35, 35)
-PlayerToggleBtn:SetPoint("RIGHT", ProgressBar, "LEFT", -3, 9)
-PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play") 
-PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+local PlayerToggleBtn = CreateFrame("Button", nil, Footer)
+PlayerToggleBtn:SetSize(25, 25)
+PlayerToggleBtn:SetPoint("RIGHT", ProgressBar, "LEFT", -25, 9)
+PlayerToggleBtn:SetNormalTexture(PlayTexture)
+PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 PlayerToggleBtn:GetHighlightTexture():SetAlpha(0.5)
+
+local PlayerNextBtn = CreateFrame("Button", nil, Footer)
+PlayerNextBtn:SetSize(20, 20)
+PlayerNextBtn:SetPoint("LEFT", PlayerToggleBtn, "RIGHT", 0, 0)
+PlayerNextBtn:SetNormalTexture(NextTexture)
+PlayerNextBtn:SetHighlightTexture(NextTexture)
+
+local PlayerPrevBtn = CreateFrame("Button", nil, Footer)
+PlayerPrevBtn:SetSize(20, 20)
+PlayerPrevBtn:SetPoint("RIGHT", PlayerToggleBtn, "LEFT", 0, 0)
+PlayerPrevBtn:SetNormalTexture(PreviousTexture)
+PlayerPrevBtn:SetHighlightTexture(PreviousTexture)
 
 local PlayerTitle = ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 PlayerTitle:SetPoint("BOTTOMLEFT", ProgressBar, "TOPLEFT", 0, 5)
@@ -438,19 +454,60 @@ PlayerToggleBtn:SetScript("OnClick", function()
 	
 	if state.isPlaying then
 		HM.StopManualMusic()
-		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
-		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+		PlayerToggleBtn:SetNormalTexture(PlayTexture)
+		PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 		PlayerTitle:SetText(L["NoMusicPlaying"])
 	else
 		if selectedFileID then
 			HM.PlaySpecificMusic(selectedFileID)
-			PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
-			PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
+			PlayerToggleBtn:SetNormalTexture(StopTexture)
+			PlayerToggleBtn:SetHighlightTexture(StopTexture)
 			
 			local info = LRPM:GetMusicInfoByID(selectedFileID)
 			if info then PlayerTitle:SetText(info.names[1] or L["UnknownSong"]) end
 		end
 	end
+end)
+
+function PlayerPrevBtn.PreviousSongTT(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	GameTooltip:AddLine(L["PreviousSong"], 1, 1, 1)
+	
+	local prevName = HM.GetPreviousSongName()
+	if prevName then
+		GameTooltip:AddLine(prevName, 0.8, 0.8, 0.8)
+	end
+	GameTooltip:Show()
+end
+
+PlayerPrevBtn:SetScript("OnClick", function(self)
+	if HM.PlayPreviousTrack then
+		HM.PlayPreviousTrack()
+		PlayerPrevBtn.PreviousSongTT(self)
+	end
+end)
+
+PlayerPrevBtn:SetScript("OnEnter", function(self)
+	PlayerPrevBtn.PreviousSongTT(self)
+end)
+
+PlayerPrevBtn:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+PlayerNextBtn:SetScript("OnClick", function()
+	if HM.SkipTrack then
+		HM.SkipTrack()
+	end
+end)
+
+PlayerNextBtn:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	GameTooltip:AddLine(L["NextSong"], 1, 1, 1)
+	GameTooltip:Show()
+end)
+PlayerNextBtn:SetScript("OnLeave", function()
+	GameTooltip:Hide()
 end)
 
 local TimerText = ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -472,15 +529,15 @@ ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 		
 		PlayerTitle:SetText(state.name or L["Unknown"])
 		
-		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
-		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
+		PlayerToggleBtn:SetNormalTexture(StopTexture)
+		PlayerToggleBtn:SetHighlightTexture(StopTexture)
 	else
 		self:SetValue(0)
 		TimerText:SetText("0:00 / 0:00")
 		PlayerTitle:SetText(L["NoMusicPlaying"])
 		
-		PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
-		PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+		PlayerToggleBtn:SetNormalTexture(PlayTexture)
+		PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 	end
 end)
 
@@ -556,7 +613,7 @@ B_Footer:SetPoint("TOPLEFT", B_Backframe, "BOTTOMLEFT", 0, 0)
 B_Footer:SetPoint("BOTTOMRIGHT", BrowserFrame, "BOTTOMRIGHT", 0, 0)
 
 local B_ProgressBar = CreateFrame("StatusBar", nil, B_Footer)
-B_ProgressBar:SetPoint("TOPLEFT", B_Footer, "BOTTOMLEFT", 40, 18)
+B_ProgressBar:SetPoint("TOPLEFT", B_Footer, "BOTTOMLEFT", 75, 18)
 B_ProgressBar:SetPoint("BOTTOMRIGHT", B_Footer, "BOTTOMRIGHT", -20, 15)
 B_ProgressBar:SetHeight(8)
 B_ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
@@ -566,11 +623,23 @@ B_ProgressBar.bg:SetAllPoints()
 B_ProgressBar.bg:SetColorTexture(0.2, 0.2, 0.2, 0.5)
 
 local B_PlayerToggleBtn = CreateFrame("Button", nil, B_ProgressBar)
-B_PlayerToggleBtn:SetSize(35, 35)
-B_PlayerToggleBtn:SetPoint("RIGHT", B_ProgressBar, "LEFT", -3, 9)
-B_PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play") 
-B_PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+B_PlayerToggleBtn:SetSize(25, 25)
+B_PlayerToggleBtn:SetPoint("RIGHT", B_ProgressBar, "LEFT", -25, 9)
+B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
+B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 B_PlayerToggleBtn:GetHighlightTexture():SetAlpha(0.5)
+
+local B_PlayerNextBtn = CreateFrame("Button", nil, B_ProgressBar)
+B_PlayerNextBtn:SetSize(20, 20)
+B_PlayerNextBtn:SetPoint("LEFT", B_PlayerToggleBtn, "RIGHT", 0, 0)
+B_PlayerNextBtn:SetNormalTexture(NextTexture)
+B_PlayerNextBtn:SetHighlightTexture(NextTexture)
+
+local B_PlayerPrevBtn = CreateFrame("Button", nil, B_ProgressBar)
+B_PlayerPrevBtn:SetSize(20, 20)
+B_PlayerPrevBtn:SetPoint("RIGHT", B_PlayerToggleBtn, "LEFT", 0, 0)
+B_PlayerPrevBtn:SetNormalTexture(PreviousTexture)
+B_PlayerPrevBtn:SetHighlightTexture(PreviousTexture)
 
 local B_PlayerTitle = B_ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 B_PlayerTitle:SetPoint("BOTTOMLEFT", B_ProgressBar, "TOPLEFT", 0, 5)
@@ -588,10 +657,40 @@ B_PlayerToggleBtn:SetScript("OnClick", function()
 	local state = HM.GetPlaybackState()
 	if state.isPlaying then
 		HM.StopManualMusic()
-		B_PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
-		B_PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+		B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
+		B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 		B_PlayerTitle:SetText(L["NoMusicPlaying"])
 	end
+end)
+
+B_PlayerPrevBtn:SetScript("OnClick", function(self)
+	if HM.PlayPreviousTrack then
+		HM.PlayPreviousTrack()
+		PlayerPrevBtn.PreviousSongTT(self)
+	end
+end)
+
+B_PlayerPrevBtn:SetScript("OnEnter", function(self)
+	PlayerPrevBtn.PreviousSongTT(self)
+end)
+
+B_PlayerPrevBtn:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+B_PlayerNextBtn:SetScript("OnClick", function()
+	if HM.SkipTrack then
+		HM.SkipTrack()
+	end
+end)
+
+B_PlayerNextBtn:SetScript("OnEnter", function(self)
+	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+	GameTooltip:AddLine(L["NextSong"], 1, 1, 1)
+	GameTooltip:Show()
+end)
+B_PlayerNextBtn:SetScript("OnLeave", function()
+	GameTooltip:Hide()
 end)
 
 B_ProgressBar:SetScript("OnUpdate", function(self, elapsed)
@@ -606,15 +705,15 @@ B_ProgressBar:SetScript("OnUpdate", function(self, elapsed)
 		B_TimerText:SetText(FormatDuration(state.elapsed) .. " / " .. FormatDuration(state.duration))
 		B_PlayerTitle:SetText(state.name or L["Unknown"])
 		
-		B_PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-stop")
-		B_PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-stop")
+		B_PlayerToggleBtn:SetNormalTexture(StopTexture)
+		B_PlayerToggleBtn:SetHighlightTexture(StopTexture)
 	else
 		self:SetValue(0)
 		B_TimerText:SetText("0:00 / 0:00")
 		B_PlayerTitle:SetText(L["NoMusicPlaying"])
 		
-		B_PlayerToggleBtn:SetNormalAtlas("common-dropdown-icon-play")
-		B_PlayerToggleBtn:SetHighlightAtlas("common-dropdown-icon-play")
+		B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
+		B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
 	end
 end)
 
@@ -1179,17 +1278,18 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 		--	L["Setting_CustomImportPlaylistTT"]
 		--))
 		
-		table.insert(allSettingsData, CreateSettingData_Dropdown(
-			"clearCache",
-			L["Setting_ClearCache"],
-			{
-				{ text = L["Setting_ClearCache_1"], value = 1, tooltip = nil },
-				{ text = L["Setting_ClearCache_2"], value = 2, tooltip = nil },
-				{ text = L["Setting_ClearCache_3"], value = 3, tooltip = nil },
-				{ text = L["Setting_ClearCache_4"], value = 4, tooltip = nil }
-			},
-			L["Setting_ClearCacheTT"]
-		))
+		 -- this is probably not a necessary option to have given that playlists can be favorited
+		--table.insert(allSettingsData, CreateSettingData_Dropdown(
+		--	"clearCache",
+		--	L["Setting_ClearCache"],
+		--	{
+		--		{ text = L["Setting_ClearCache_1"], value = 1, tooltip = nil },
+		--		{ text = L["Setting_ClearCache_2"], value = 2, tooltip = nil },
+		--		{ text = L["Setting_ClearCache_3"], value = 3, tooltip = nil },
+		--		{ text = L["Setting_ClearCache_4"], value = 4, tooltip = nil }
+		--	},
+		--	L["Setting_ClearCacheTT"]
+		--))
 		
 		FilterSettings()
 	end
