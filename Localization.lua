@@ -157,7 +157,7 @@ return end
 if LOCALE == "esMX" then
 	-- Spanish (Mexico) translations go here
 	L["TOC_Title"] = "Música de Viviendas"
-	L["TOC_Notes"] = "Reproductores de música compartibles para Viviendas de Jugadores."
+	L["TOC_Notes"] = "Listas de reproducción musicales compartibles para las Viviendas de Jugadores"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/músicadeviviendas" -- localized slash command
 	L["SLASH_HM3"] = "/músicadehogares" -- localized slash command
@@ -295,7 +295,7 @@ return end
 if LOCALE == "esES" then
 	-- Spanish translations go here
 	L["TOC_Title"] = "Música de Hogares"
-	L["TOC_Notes"] = "Reproductores de música compartibles para Hogares de Jugadores."
+	L["TOC_Notes"] = "Listas de reproducción musicales compartibles para los Hogares de Jugadores"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/músicadehogares" -- localized slash command
 	L["SLASH_HM3"] = "/músicadeviviendas" -- localized slash command
@@ -433,7 +433,7 @@ return end
 if LOCALE == "deDE" then
 	-- German translations go here
 	L["TOC_Title"] = "Behausung Musik"
-	L["TOC_Notes"] = "Teilenbare Musik-Player für Behausungen von Spielern."
+	L["TOC_Notes"] = "Teilbare Musik-Playlisten für Spielerbehausungen"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/behausungmusik" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -571,7 +571,7 @@ return end
 if LOCALE == "frFR" then
 	-- French translations go here
 	L["TOC_Title"] = "Musique de Logis"
-	L["TOC_Notes"] = "Lecteurs de musique partageables pour les logis des joueurs."
+	L["TOC_Notes"] = "Listes de lecture musicales partageables pour les logis des joueurs"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/musiquedeLogis" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -709,7 +709,7 @@ return end
 if LOCALE == "itIT" then
 	-- Italian translations go here
 	L["TOC_Title"] = "Musica degli Alloggi"
-	L["TOC_Notes"] = "Lettori musicali condivisibili per gli alloggi dei giocatori."
+	L["TOC_Notes"] = "Playlist musicali condivisibili per gli alloggi dei giocatori"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/musicadeglialloggi" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -848,7 +848,7 @@ return end
 if LOCALE == "ptBR" then
 	-- Brazilian Portuguese translations go here
 	L["TOC_Title"] = "Música de Moradia"
-	L["TOC_Notes"] = "Reprodutores de música compartilháveis para Moradias de Jogadores."
+	L["TOC_Notes"] = "Playlists de música compartilháveis para moradias de jogadores"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/músicademoradia" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -989,7 +989,7 @@ return end
 if LOCALE == "ruRU" then
 	-- Russian translations go here
 	L["TOC_Title"] = "Музыка для Жилья (Housing Music)"
-	L["TOC_Notes"] = "Игровые плееры музыки, которые можно поделиться для Жилья игрока."
+	L["TOC_Notes"] = "Доступные для обмена музыкальные плейлисты для жилища игрока"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/музыкадляжилья" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -1128,7 +1128,7 @@ return end
 if LOCALE == "koKR" then
 	-- Korean translations go here
 	L["TOC_Title"] = "하우징 음악 (Housing Music)"
-	L["TOC_Notes"] = "플레이어 하우징용 공유 가능한 음악 플레이어."
+	L["TOC_Notes"] = "플레이어 하우징용 공유 가능한 음악 플레이리스트"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/하우징음악" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -1267,7 +1267,7 @@ return end
 if LOCALE == "zhCN" then
 	-- Simplified Chinese translations go here
 	L["TOC_Title"] = "住宅音乐 (Housing Music)"
-	L["TOC_Notes"] = "用于玩家住宅的可共享音乐播放器。"
+	L["TOC_Notes"] = "可共享的玩家住宅音乐播放列表"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/住宅音乐" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
@@ -1406,7 +1406,7 @@ return end
 if LOCALE == "zhTW" then
 	-- Traditional Chinese translations go here
 	L["TOC_Title"] = "房屋音樂 (Housing Music)"
-	L["TOC_Notes"] = "可共享的玩家房屋音樂播放器。"
+	L["TOC_Notes"] = "可共享的玩家房屋音樂播放清單"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
 	L["SLASH_HM2"] = "/房屋音樂" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
