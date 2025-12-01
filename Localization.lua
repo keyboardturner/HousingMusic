@@ -147,6 +147,8 @@ if LOCALE == "enUS" then
 	L["ImportPlaylist"] = "Import Playlist"
 	L["ExportPlaylist"] = "Export Playlist"
 	L["AddedSongsToPlaylist"] = "Added %s songs to %s."
+	L["ImportPlaylistString"] = "Paste Playlist Import Code (control-v)"
+	L["ExportPlaylistString"] = "Copy Playlist Export Code (control-c)"
 
 
 return end
@@ -283,6 +285,8 @@ if LOCALE == "esMX" then
 	L["ImportPlaylist"] = "Importar lista de reproducción"
 	L["ExportPlaylist"] = "Exportar lista de reproducción"
 	L["AddedSongsToPlaylist"] = "Se añadieron %s canciones a %s."
+	L["ImportPlaylistString"] = "Pega el código de importación de la lista (control-v)"
+	L["ExportPlaylistString"] = "Copia el código de exportación de la lista (control-c)"
 
 return end
 
@@ -418,6 +422,8 @@ if LOCALE == "esES" then
 	L["ImportPlaylist"] = "Importar lista de reproducción"
 	L["ExportPlaylist"] = "Exportar lista de reproducción"
 	L["AddedSongsToPlaylist"] = "Se han añadido %s canciones a %s."
+	L["ImportPlaylistString"] = "Pega el código de importación de la lista (control-v)"
+	L["ExportPlaylistString"] = "Copia el código de exportación de la lista (control-c)"
 
 return end
 
@@ -553,6 +559,8 @@ if LOCALE == "deDE" then
 	L["ImportPlaylist"] = "Playlist importieren"
 	L["ExportPlaylist"] = "Playlist exportieren"
 	L["AddedSongsToPlaylist"] = "%s Songs wurden zu %s hinzugefügt."
+	L["ImportPlaylistString"] = "Playlist-Importcode einfügen (control-v)"
+	L["ExportPlaylistString"] = "Playlist-Exportcode kopieren (control-c)"
 
 return end
 
@@ -688,6 +696,8 @@ if LOCALE == "frFR" then
 	L["ImportPlaylist"] = "Importer la playlist"
 	L["ExportPlaylist"] = "Exporter la playlist"
 	L["AddedSongsToPlaylist"] = "%s morceaux ont été ajoutés à %s."
+	L["ImportPlaylistString"] = "Collez le code d’importation de la playlist (control-v)"
+	L["ExportPlaylistString"] = "Copiez le code d’exportation de la playlist (control-c)"
 
 return end
 
@@ -823,6 +833,8 @@ if LOCALE == "itIT" then
 	L["ImportPlaylist"] = "Importa playlist"
 	L["ExportPlaylist"] = "Esporta playlist"
 	L["AddedSongsToPlaylist"] = "Sono state aggiunte %s canzoni a %s."
+	L["ImportPlaylistString"] = "Incolla il codice di importazione della playlist (control-v)"
+	L["ExportPlaylistString"] = "Copia il codice di esportazione della playlist (control-c)"
 
 
 return end
@@ -959,6 +971,8 @@ if LOCALE == "ptBR" then
 	L["ImportPlaylist"] = "Importar playlist"
 	L["ExportPlaylist"] = "Exportar playlist"
 	L["AddedSongsToPlaylist"] = "Foram adicionadas %s músicas a %s."
+	L["ImportPlaylistString"] = "Cole o código de importação da playlist (control-v)"
+	L["ExportPlaylistString"] = "Copie o código de exportação da playlist (control-c)"
 
 
 -- Note that the EU Portuguese WoW client also
@@ -1097,6 +1111,8 @@ if LOCALE == "ruRU" then
 	L["ImportPlaylist"] = "Импортировать плейлист"
 	L["ExportPlaylist"] = "Экспортировать плейлист"
 	L["AddedSongsToPlaylist"] = "Добавлено %s треков в %s."
+	L["ImportPlaylistString"] = "Вставьте код импорта плейлиста (control-v)"
+	L["ExportPlaylistString"] = "Скопируйте код экспорта плейлиста (control-c)"
 
 
 return end
@@ -1233,6 +1249,8 @@ if LOCALE == "koKR" then
 	L["ImportPlaylist"] = "재생 목록 가져오기"
 	L["ExportPlaylist"] = "재생 목록 내보내기"
 	L["AddedSongsToPlaylist"] = "%s개의 곡이 %s에 추가되었습니다."
+	L["ImportPlaylistString"] = "재생 목록 가져오기 코드를 붙여넣기 (control-v)"
+	L["ExportPlaylistString"] = "재생 목록 내보내기 코드를 복사 (control-c)"
 
 
 return end
@@ -1369,6 +1387,8 @@ if LOCALE == "zhCN" then
 	L["ImportPlaylist"] = "导入播放列表"
 	L["ExportPlaylist"] = "导出播放列表"
 	L["AddedSongsToPlaylist"] = "已将 %s 首歌曲添加到 %s。"
+	L["ImportPlaylistString"] = "粘贴播放列表导入代码 (control-v)"
+	L["ExportPlaylistString"] = "复制播放列表导出代码 (control-c)"
 
 
 return end
@@ -1505,6 +1525,8 @@ if LOCALE == "zhTW" then
 	L["ImportPlaylist"] = "匯入播放清單"
 	L["ExportPlaylist"] = "匯出播放清單"
 	L["AddedSongsToPlaylist"] = "已將 %s 首歌曲加入到 %s。"
+	L["ImportPlaylistString"] = "貼上播放清單匯入代碼 (control-v)"
+	L["ExportPlaylistString"] = "複製播放清單匯出代碼 (control-c)"
 
 
 return end

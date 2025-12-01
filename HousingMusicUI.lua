@@ -289,7 +289,7 @@ StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
 };
 
 StaticPopupDialogs["HOUSINGMUSIC_IMPORT_DATA"] = {
-	text = L["ImportPlaylist"],
+	text = L["ImportPlaylistString"],
 	button1 = L["Next"],
 	button2 = L["Cancel"],
 	hasEditBox = true,
@@ -2077,16 +2077,16 @@ ExportFrame.Border = CreateFrame("Frame", nil, ExportFrame, "DialogBorderTemplat
 
 ExportFrame.Title = ExportFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 ExportFrame.Title:SetPoint("TOP", 0, -15)
-ExportFrame.Title:SetText(HM.L["ExportPlaylist"])
+ExportFrame.Title:SetText(L["ExportPlaylist"])
 
 ExportFrame.CopyBox = HM.CreateCopyBox(ExportFrame, 350)
 ExportFrame.CopyBox:SetPoint("CENTER", 0, 10)
-ExportFrame.CopyBox:SetLabel(HM.L["CtrlCToCopy"])
+ExportFrame.CopyBox:SetLabel(L["ExportPlaylistString"])
 
 ExportFrame.CloseBtn = CreateFrame("Button", nil, ExportFrame, "UIPanelButtonTemplate")
 ExportFrame.CloseBtn:SetSize(100, 25)
 ExportFrame.CloseBtn:SetPoint("BOTTOM", 0, 15)
-ExportFrame.CloseBtn:SetText(HM.L["Close"])
+ExportFrame.CloseBtn:SetText(L["Close"])
 ExportFrame.CloseBtn:SetScript("OnClick", function() ExportFrame:Hide() end)
 
 function HM.ShowExportWindow(dataString)
