@@ -274,6 +274,7 @@ local MainFrame = CreateFrame("Frame", "HousingMusic_MainFrame", UIParent)
 MainFrame:SetSize(620, 470)
 MainFrame:SetPoint("CENTER")
 MainFrame:EnableMouse(true)
+HM.MainFrame = MainFrame;
 tinsert(UISpecialFrames, MainFrame:GetName())
 local Border = MainFrame:CreateTexture(nil, "BORDER", nil, 1);
 Border:SetPoint("TOPLEFT", -6, 6);
@@ -550,6 +551,7 @@ BrowserFrame:SetSize(620, 470)
 BrowserFrame:SetPoint("CENTER")
 BrowserFrame:EnableMouse(true)
 BrowserFrame:Hide()
+HM.BrowserFrame = BrowserFrame;
 tinsert(UISpecialFrames, BrowserFrame:GetName())
 
 local B_Border = BrowserFrame:CreateTexture(nil, "BORDER", nil, 1);
@@ -803,10 +805,22 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		BrowserFrame:Hide()
 	end
 end)
-MainframeToggleButton:SetScript("OnEnter", function(self)
+
+function MainframeToggleButton.Tooltip(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
 	GameTooltip:AddLine(L["TOC_Title"], 1, 1, 1)
+
+	local state = HM.GetPlaybackState()
+	if state.isPlaying and state.duration > 0 then
+		GameTooltip:AddLine(" ", 1, 1, 1)
+		GameTooltip:AddLine(state.name or L["Unknown"], 1, 1, 1)
+	end
+
 	GameTooltip:Show()
+end
+
+MainframeToggleButton:SetScript("OnEnter", function(self)
+	MainframeToggleButton.Tooltip(self)
 end)
 MainframeToggleButton:SetScript("OnLeave", function()
 	GameTooltip:Hide()
@@ -1761,7 +1775,7 @@ local function Initializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Show()
 			end
-			if not isSaved and self.addButton then
+			if not isSaved and self.addButton and C_Housing.IsInsideOwnHouse() then
 				self.addButton:Show()
 			end
 		else
@@ -1769,7 +1783,7 @@ local function Initializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Hide()
 			end
-			if self.addButton then
+			if self.addButton and C_Housing.IsInsideOwnHouse() then
 				self.addButton:Hide()
 			end
 		end
@@ -2097,7 +2111,7 @@ local function SavedInitializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Show()
 			end
-			if self.removeButton then
+			if self.removeButton and C_Housing.IsInsideOwnHouse() then
 				self.removeButton:Show()
 			end
 		else
@@ -2105,7 +2119,7 @@ local function SavedInitializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Hide()
 			end
-			if self.removeButton then
+			if self.removeButton and C_Housing.IsInsideOwnHouse() then
 				self.removeButton:Hide()
 			end
 		end

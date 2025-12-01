@@ -845,6 +845,19 @@ f:SetScript("OnUpdate", function(_, elapsed)
 	end
 end)
 
+local function HM_SlashHandler(msg)
+	if HM.MainFrame:IsShown() then
+		HM.MainFrame:Hide()
+	elseif C_Housing.IsInsideHouse() then
+		HM.MainFrame:Show()
+	else
+		Print(L["InsideHouseToView"])
+	end
+end
+SLASH_HOUSINGMUSIC1 = L["SLASH_HM1"];
+SLASH_HOUSINGMUSIC2 = L["SLASH_HM2"];
+SlashCmdList["HOUSINGMUSIC"] = HM_SlashHandler;
+
 f:SetScript("OnEvent", function(_, event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "HousingMusic" then
 		f:RegisterEvent("ZONE_CHANGED")

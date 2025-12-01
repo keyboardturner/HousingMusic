@@ -19,8 +19,8 @@ if LOCALE == "enUS" then
 	-- uses the US English locale code.
 	L["TOC_Title"] = "Housing Music"
 	L["TOC_Notes"] = "Shareable music players for Player Housing."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "housingmusic" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/housingmusic" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -139,6 +139,7 @@ if LOCALE == "enUS" then
 	L["CachedPlaylists"] = "Cached Playlists"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "You must be inside a house to view a playlist."
 
 
 return end
@@ -147,8 +148,8 @@ if LOCALE == "esMX" then
 	-- Spanish (Mexico) translations go here
 	L["TOC_Title"] = "Música de Viviendas"
 	L["TOC_Notes"] = "Reproductores de música compartibles para Viviendas de Jugadores."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "músicadeviviendas" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/músicadeviviendas" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -267,6 +268,7 @@ if LOCALE == "esMX" then
 	L["CachedPlaylists"] = "Listas de reproducción en caché"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Debes estar dentro de una casa para ver una lista de reproducción."
 
 return end
 
@@ -274,8 +276,8 @@ if LOCALE == "esES" then
 	-- Spanish translations go here
 	L["TOC_Title"] = "Música de Hogares"
 	L["TOC_Notes"] = "Reproductores de música compartibles para Hogares de Jugadores."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "músicadehogares" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/músicadehogares" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -394,6 +396,7 @@ if LOCALE == "esES" then
 	L["CachedPlaylists"] = "Listas de reproducción en caché"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Debes estar dentro de una casa para ver una lista de reproducción."
 
 return end
 
@@ -401,8 +404,8 @@ if LOCALE == "deDE" then
 	-- German translations go here
 	L["TOC_Title"] = "Behausung Musik"
 	L["TOC_Notes"] = "Teilenbare Musik-Player für Behausungen von Spielern."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "behausungmusik" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/behausungmusik" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -521,6 +524,7 @@ if LOCALE == "deDE" then
 	L["CachedPlaylists"] = "Zwischengespeicherte Wiedergabelisten"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Du musst dich in einem Haus befinden, um eine Playlist anzusehen."
 
 return end
 
@@ -528,8 +532,8 @@ if LOCALE == "frFR" then
 	-- French translations go here
 	L["TOC_Title"] = "Musique de Logis"
 	L["TOC_Notes"] = "Lecteurs de musique partageables pour les logis des joueurs."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "musiquedeLogis" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/musiquedeLogis" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -648,6 +652,7 @@ if LOCALE == "frFR" then
 	L["CachedPlaylists"] = "Playlists en cache"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Vous devez être à l'intérieur d'une maison pour voir une playlist."
 
 return end
 
@@ -655,8 +660,8 @@ if LOCALE == "itIT" then
 	-- Italian translations go here
 	L["TOC_Title"] = "Musica degli Alloggi"
 	L["TOC_Notes"] = "Lettori musicali condivisibili per gli alloggi dei giocatori."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "musicadeglialloggi" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/musicadeglialloggi" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -775,6 +780,7 @@ if LOCALE == "itIT" then
 	L["CachedPlaylists"] = "Playlist in Cache"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Devi essere dentro una casa per vedere una playlist."
 
 
 return end
@@ -783,8 +789,8 @@ if LOCALE == "ptBR" then
 	-- Brazilian Portuguese translations go here
 	L["TOC_Title"] = "Música de Moradia"
 	L["TOC_Notes"] = "Reprodutores de música compartilháveis para Moradias de Jogadores."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "músicademoradia" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/músicademoradia" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -903,6 +909,7 @@ if LOCALE == "ptBR" then
 	L["CachedPlaylists"] = "Playlists em Cache"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Você precisa estar dentro de uma casa para ver uma lista de reprodução."
 
 
 -- Note that the EU Portuguese WoW client also
@@ -913,8 +920,8 @@ if LOCALE == "ruRU" then
 	-- Russian translations go here
 	L["TOC_Title"] = "Музыка для Жилья (Housing Music)"
 	L["TOC_Notes"] = "Игровые плееры музыки, которые можно поделиться для Жилья игрока."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "музыкадляжилья" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/музыкадляжилья" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode("Музыка для Жилья", "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -1033,6 +1040,7 @@ if LOCALE == "ruRU" then
 	L["CachedPlaylists"] = "Кэшированные плейлисты"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "Вы должны находиться внутри дома, чтобы просматривать плейлист."
 
 
 return end
@@ -1041,8 +1049,8 @@ if LOCALE == "koKR" then
 	-- Korean translations go here
 	L["TOC_Title"] = "하우징 음악 (Housing Music)"
 	L["TOC_Notes"] = "플레이어 하우징용 공유 가능한 음악 플레이어."
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "하우징음악" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/하우징음악" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode("하우징 음악", "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -1161,6 +1169,7 @@ if LOCALE == "koKR" then
 	L["CachedPlaylists"] = "캐시된 플레이리스트"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "플레이리스트를 보려면 집 안에 있어야 합니다."
 
 
 return end
@@ -1169,8 +1178,8 @@ if LOCALE == "zhCN" then
 	-- Simplified Chinese translations go here
 	L["TOC_Title"] = "住宅音乐 (Housing Music)"
 	L["TOC_Notes"] = "用于玩家住宅的可共享音乐播放器。"
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "住宅音乐" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/住宅音乐" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode("住宅音乐", "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -1289,6 +1298,7 @@ if LOCALE == "zhCN" then
 	L["CachedPlaylists"] = "缓存的播放列表"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "您必须在房屋内才能查看播放列表。"
 
 
 return end
@@ -1297,8 +1307,8 @@ if LOCALE == "zhTW" then
 	-- Traditional Chinese translations go here
 	L["TOC_Title"] = "房屋音樂"
 	L["TOC_Notes"] = "可共享的玩家房屋音樂播放器。"
-	L["SLASH_HM1"] = "housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "房屋音樂" -- localized slash command
+	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
+	L["SLASH_HM2"] = "/房屋音樂" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode("房屋音樂", "ffd7ad32")
 	L["Default"] = DEFAULT
@@ -1417,6 +1427,7 @@ if LOCALE == "zhTW" then
 	L["CachedPlaylists"] = "快取的播放清單"
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
+	L["InsideHouseToView"] = "您必須在房屋內才能查看播放列表。"
 
 
 return end
