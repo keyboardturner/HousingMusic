@@ -29,7 +29,7 @@
 ## Notes-koKR: 플레이어 하우징용 공유 가능한 음악 플레이어.
 ## Title-zhCN: 住宅音乐 (Housing Music)
 ## Notes-zhCN: 用于玩家住宅的可共享音乐播放器。
-## Title-zhTW: 房屋音樂
+## Title-zhTW: 房屋音樂 (Housing Music)
 ## Notes-zhTW: 可共享的玩家房屋音樂播放器。
 
 ## LoadSavedVariablesFirst: 1
