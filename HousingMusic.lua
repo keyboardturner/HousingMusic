@@ -856,6 +856,7 @@ local function HM_SlashHandler(msg)
 end
 SLASH_HOUSINGMUSIC1 = L["SLASH_HM1"];
 SLASH_HOUSINGMUSIC2 = L["SLASH_HM2"];
+SLASH_HOUSINGMUSIC2 = L["SLASH_HM3"];
 SlashCmdList["HOUSINGMUSIC"] = HM_SlashHandler;
 
 f:SetScript("OnEvent", function(_, event, arg1)
