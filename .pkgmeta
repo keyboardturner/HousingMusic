@@ -5,7 +5,7 @@ license-output: LICENSE
 
 externals:
   Libs/LibStub: https://repos.wowace.com/wow/libstub/trunk
-  Libs/LibRPMedia-1.2: https://github.com/wow-rp-addons/LibRPMedia
+  Libs/LibRPMedia: https://github.com/wow-rp-addons/LibRPMedia
   Libs/ChatThrottleLib: https://repos.wowace.com/wow/chatthrottlelib/trunk
 
 ignore:
