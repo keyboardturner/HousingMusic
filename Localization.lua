@@ -573,7 +573,7 @@ if LOCALE == "frFR" then
 	L["TOC_Title"] = "Musique de Logis"
 	L["TOC_Notes"] = "Listes de lecture musicales partageables pour les logis des joueurs"
 	L["SLASH_HM1"] = "/housingmusic" -- english slash command - *Do Not Localize*
-	L["SLASH_HM2"] = "/musiquedeLogis" -- localized slash command
+	L["SLASH_HM2"] = "/musiquedelogis" -- localized slash command
 	L["SLASH_HM3"] = "/housingmusic" -- localized slash command
 
 	L["HousingMusic_Colored"] = WrapTextInColorCode(L["TOC_Title"], "ffd7ad32")
