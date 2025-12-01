@@ -205,6 +205,30 @@ local function OpenSongContextMenu(owner, musicInfo)
 	end)
 end
 
+local function GenerateExportString()
+	local list = HM.GetActivePlaylistTable()
+	if not list then return "" end
+	
+	local ids = {}
+	for k, v in pairs(list) do
+		if v then table.insert(ids, k) end
+	end
+	return table.concat(ids, ",")
+end
+
+local function ParseImportString(str)
+	local ids = {}
+	if not str then return ids end
+	
+	for id in str:gmatch("%d+") do
+		local num = tonumber(id)
+		if num then
+			table.insert(ids, num)
+		end
+	end
+	return ids
+end
+
 StaticPopupDialogs["HOUSINGMUSIC_RENAME_PLAYLIST"] = {
 	text = L["RenamePlaylistTo"],
 	button1 = L["Rename"],
@@ -263,6 +287,125 @@ StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
 	hideOnEscape = true,
 	preferredIndex = 3,
 };
+
+StaticPopupDialogs["HOUSINGMUSIC_IMPORT_DATA"] = {
+	text = L["ImportPlaylist"],
+	button1 = L["Next"],
+	button2 = L["Cancel"],
+	hasEditBox = true,
+	OnAccept = function(self)
+		local text = self.EditBox:GetText()
+		local ids = ParseImportString(text)
+		
+		if #ids > 0 then
+			StaticPopup_Show("HOUSINGMUSIC_IMPORT_NAME", nil, nil, ids)
+		else
+			Print(L["InvalidImportString"])
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+};
+
+StaticPopupDialogs["HOUSINGMUSIC_IMPORT_NAME"] = {
+	text = L["NewPlaylistName"],
+	button1 = L["Import"],
+	button2 = L["Cancel"],
+	hasEditBox = true,
+	OnAccept = function(self, songIDs)
+		local name = self.EditBox:GetText()
+		
+		if HM.CreatePlaylist(name) then
+			HM.SetActivePlaylist(name)
+			
+			local activeList = HM.GetActivePlaylistTable()
+			local count = 0
+			for _, fileID in ipairs(songIDs) do
+				if count >= (HM.MAX_PLAYLIST_SIZE or 50) then break end
+				
+				if LRPM:GetMusicInfoByID(fileID) then
+					activeList[fileID] = true
+					count = count + 1
+				end
+			end
+			
+			UpdateSavedMusicList()
+			RefreshUILists()
+			Print(string.format(L["AddedSongsToPlaylist"], count, name))
+		else
+			Print(L["PlaylistInvalidOrExists"])
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+};
+
+
+local HM_CopyBoxMixin = {}
+
+function HM_CopyBoxMixin:OnLoad()
+	self:SetAutoFocus(false)
+	self:SetFontObject("ChatFontNormal")
+	self:SetTextInsets(5, 5, 0, 0)
+
+	-- 2. Create the Label FontString
+	self.Label = self:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
+	self.Label:SetJustifyH("LEFT")
+	self.Label:SetText("")
+	self.Label:SetWordWrap(false)
+	self.Label:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 2)
+	self.Label:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 2)
+
+
+
+	-- 4. Setup Scripts
+	self:SetScript("OnEnterPressed", self.OnEnterPressed)
+	self:SetScript("OnKeyDown", self.OnKeyDown)
+	self:SetScript("OnTextChanged", self.OnTextChanged)
+	self:SetScript("OnEscapePressed", self.ClearFocus)
+end
+
+function HM_CopyBoxMixin:SetLabel(text)
+	self.Label:SetText(text)
+	self.Label:Show()
+end
+
+function HM_CopyBoxMixin:OnEnterPressed()
+	self:ClearFocus()
+end
+
+function HM_CopyBoxMixin:OnKeyDown(key)
+	if IsControlKeyDown() and (key == "C" or key == "X") then
+		PlaySound(SOUNDKIT.TUTORIAL_POPUP)
+		
+		C_Timer.After(0.1, function() 
+			self:ClearFocus() 
+		end)
+	end
+end
+
+function HM_CopyBoxMixin:OnTextChanged(userInput)
+	if userInput then
+		self:SetText(self.contentString or "")
+		self:HighlightText()
+	else
+		self.contentString = self:GetText()
+	end
+end
+
+function HM.CreateCopyBox(parent, width)
+	local copyBox = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
+	copyBox:SetSize(width or 200, 20)
+	
+	Mixin(copyBox, HM_CopyBoxMixin)
+	copyBox:OnLoad()
+	
+	return copyBox
+end
 
 
 
@@ -1920,6 +2063,39 @@ end
 -- As a side note, it may be worth debouncing this callback if your search method is particularly performance intensive
 SearchBoxRight:HookScript("OnTextChanged", SearchBox_OnTextChanged);
 
+local ExportFrame = CreateFrame("Frame", "HousingMusic_ExportFrame", UIParent)
+ExportFrame:SetSize(400, 120)
+ExportFrame:SetPoint("CENTER")
+ExportFrame:SetFrameStrata("DIALOG")
+ExportFrame:Hide()
+
+ExportFrame.Bg = ExportFrame:CreateTexture(nil, "BACKGROUND")
+ExportFrame.Bg:SetAllPoints()
+ExportFrame.Bg:SetColorTexture(0, 0, 0, 0.9)
+
+ExportFrame.Border = CreateFrame("Frame", nil, ExportFrame, "DialogBorderTemplate")
+
+ExportFrame.Title = ExportFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+ExportFrame.Title:SetPoint("TOP", 0, -15)
+ExportFrame.Title:SetText(HM.L["ExportPlaylist"])
+
+ExportFrame.CopyBox = HM.CreateCopyBox(ExportFrame, 350)
+ExportFrame.CopyBox:SetPoint("CENTER", 0, 10)
+ExportFrame.CopyBox:SetLabel(HM.L["CtrlCToCopy"])
+
+ExportFrame.CloseBtn = CreateFrame("Button", nil, ExportFrame, "UIPanelButtonTemplate")
+ExportFrame.CloseBtn:SetSize(100, 25)
+ExportFrame.CloseBtn:SetPoint("BOTTOM", 0, 15)
+ExportFrame.CloseBtn:SetText(HM.L["Close"])
+ExportFrame.CloseBtn:SetScript("OnClick", function() ExportFrame:Hide() end)
+
+function HM.ShowExportWindow(dataString)
+	ExportFrame:Show()
+	ExportFrame.CopyBox:SetText(dataString)
+	ExportFrame.CopyBox:SetFocus()
+	ExportFrame.CopyBox:HighlightText()
+end
+
 local PlaylistDropdown = CreateFrame("DropdownButton", "HM_PlaylistDropdown", SectionRight, "WowStyle1DropdownTemplate")
 PlaylistDropdown:SetPoint("TOPLEFT", SectionRight, "TOP", -10, -2.5)
 PlaylistDropdown:SetPoint("TOPRIGHT", SectionRight, "TOPRIGHT", -20, 0)
@@ -1946,7 +2122,19 @@ local function GeneratorFunction(dropdown, rootDescription)
 			end)
 		end
 
+		rootDescription:CreateButton(WrapTextInColorCode(L["ImportPlaylist"], "ff00ff00"), function()
+			StaticPopup_Show("HOUSINGMUSIC_IMPORT_DATA")
+		end)
+		
+		local exportString = GenerateExportString()
+		if exportString and exportString ~= "" then
+			rootDescription:CreateButton(WrapTextInColorCode(L["ExportPlaylist"], "ff00ff00"), function()
+				HM.ShowExportWindow(exportString)
+			end)
+		end
+
 		if active ~= L["Default"] then
+			rootDescription:CreateDivider()
 			rootDescription:CreateButton(WrapTextInColorCode(L["DeleteCurrentPlaylist"],"ffff0000"), function()
 				StaticPopup_Show("HOUSINGMUSIC_DELETE_PLAYLIST", active)
 			end)

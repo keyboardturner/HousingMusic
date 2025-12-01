@@ -42,7 +42,7 @@ if LOCALE == "enUS" then
 	L["RenamePlaylistTo"] = "Rename playlist %s to:"
 	L["Rename"] = TRANSMOG_CUSTOM_SET_RENAME
 	L["Cancel"] = CANCEL
-	L["PlaylistInvalidOrExists"] = "PlayList name invalid or already exists."
+	L["PlaylistInvalidOrExists"] = "Playlist name invalid or already exists."
 	L["Create"] = COMMUNITIES_CREATE
 	L["NewPlaylistName"] = "Enter new playlist name:"
 	L["DeletePlaylist"] = "Delete playlist %s?"
@@ -140,6 +140,13 @@ if LOCALE == "enUS" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "You must be inside a house to view a playlist."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Import Playlist"
+	L["ExportPlaylist"] = "Export Playlist"
+	L["AddedSongsToPlaylist"] = "Added %s songs to %s."
 
 
 return end
@@ -269,6 +276,13 @@ if LOCALE == "esMX" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Debes estar dentro de una casa para ver una lista de reproducción."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Importar lista de reproducción"
+	L["ExportPlaylist"] = "Exportar lista de reproducción"
+	L["AddedSongsToPlaylist"] = "Se añadieron %s canciones a %s."
 
 return end
 
@@ -397,6 +411,13 @@ if LOCALE == "esES" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Debes estar dentro de una casa para ver una lista de reproducción."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Importar lista de reproducción"
+	L["ExportPlaylist"] = "Exportar lista de reproducción"
+	L["AddedSongsToPlaylist"] = "Se han añadido %s canciones a %s."
 
 return end
 
@@ -525,6 +546,13 @@ if LOCALE == "deDE" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Du musst dich in einem Haus befinden, um eine Playlist anzusehen."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Playlist importieren"
+	L["ExportPlaylist"] = "Playlist exportieren"
+	L["AddedSongsToPlaylist"] = "%s Songs wurden zu %s hinzugefügt."
 
 return end
 
@@ -653,6 +681,13 @@ if LOCALE == "frFR" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Vous devez être à l'intérieur d'une maison pour voir une playlist."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Importer la playlist"
+	L["ExportPlaylist"] = "Exporter la playlist"
+	L["AddedSongsToPlaylist"] = "%s morceaux ont été ajoutés à %s."
 
 return end
 
@@ -781,6 +816,13 @@ if LOCALE == "itIT" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Devi essere dentro una casa per vedere una playlist."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Importa playlist"
+	L["ExportPlaylist"] = "Esporta playlist"
+	L["AddedSongsToPlaylist"] = "Sono state aggiunte %s canzoni a %s."
 
 
 return end
@@ -910,6 +952,13 @@ if LOCALE == "ptBR" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Você precisa estar dentro de uma casa para ver uma lista de reprodução."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Importar playlist"
+	L["ExportPlaylist"] = "Exportar playlist"
+	L["AddedSongsToPlaylist"] = "Foram adicionadas %s músicas a %s."
 
 
 -- Note that the EU Portuguese WoW client also
@@ -1041,6 +1090,13 @@ if LOCALE == "ruRU" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "Вы должны находиться внутри дома, чтобы просматривать плейлист."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "Импортировать плейлист"
+	L["ExportPlaylist"] = "Экспортировать плейлист"
+	L["AddedSongsToPlaylist"] = "Добавлено %s треков в %s."
 
 
 return end
@@ -1170,6 +1226,13 @@ if LOCALE == "koKR" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "플레이리스트를 보려면 집 안에 있어야 합니다."
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "재생 목록 가져오기"
+	L["ExportPlaylist"] = "재생 목록 내보내기"
+	L["AddedSongsToPlaylist"] = "%s개의 곡이 %s에 추가되었습니다."
 
 
 return end
@@ -1299,6 +1362,13 @@ if LOCALE == "zhCN" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "您必须在房屋内才能查看播放列表。"
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "导入播放列表"
+	L["ExportPlaylist"] = "导出播放列表"
+	L["AddedSongsToPlaylist"] = "已将 %s 首歌曲添加到 %s。"
 
 
 return end
@@ -1428,6 +1498,13 @@ if LOCALE == "zhTW" then
 	L["Unfavorite"] = COMMUNITIES_LIST_DROP_DOWN_UNFAVORITE
 	L["Favorite"] = COMMUNITIES_LIST_DROP_DOWN_FAVORITE
 	L["InsideHouseToView"] = "您必須在房屋內才能查看播放列表。"
+	L["CtrlCToCopy"] = TALENT_FRAME_INSPECT_COPY_BUTTON_TEXT
+	L["Close"] = CLOSE
+	L["Next"] = NEXT
+	L["Import"] = HUD_EDIT_MODE_IMPORT_LAYOUT
+	L["ImportPlaylist"] = "匯入播放清單"
+	L["ExportPlaylist"] = "匯出播放清單"
+	L["AddedSongsToPlaylist"] = "已將 %s 首歌曲加入到 %s。"
 
 
 return end
