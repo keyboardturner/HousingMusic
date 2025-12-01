@@ -2,7 +2,7 @@
 ## Author: Keyboardturner
 ## Version: @project-version@
 ## Title: Housing Music
-## Notes: Shareable music playlists for Player Housing.
+## Notes: Shareable music playlists for Player Housing
 ## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
 
 ## X-Curse-Project-ID: 1393460
@@ -10,27 +10,27 @@
 ## X-WoWI-ID: 
 
 ## Title-enUS: Housing Music
-## Notes-enUS: Shareable music players for Player Housing.
+## Notes-enUS: Shareable music playlists for Player Housing
 ## Title-frFR: Musique de Logis
-## Notes-frFR: Lecteurs de musique partageables pour les logis des joueurs.
+## Notes-frFR: Listes de lecture musicales partageables pour les logis des joueurs
 ## Title-esES: Música de Hogares
-## Notes-esES: Reproductores de música compartibles para Hogares de Jugadores.
+## Notes-esES: Listas de reproducción musicales compartibles para los Hogares de Jugadores
 ## Title-esMX: Música de Viviendas
-## Notes-esMX: Reproductores de música compartibles para Viviendas de Jugadores.
+## Notes-esMX: Listas de reproducción musicales compartibles para las Viviendas de Jugadores
 ## Title-deDE: Behausung Musik
-## Notes-deDE: Teilenbare Musik-Player für Behausungen von Spielern.
+## Notes-deDE: Teilbare Musik-Playlisten für Spielerbehausungen
 ## Title-itIT: Musica degli Alloggi
-## Notes-itIT: Lettori musicali condivisibili per gli alloggi dei giocatori.
+## Notes-itIT: Playlist musicali condivisibili per gli alloggi dei giocatori
 ## Title-ptBR: Música de Moradia
-## Notes-ptBR: Reprodutores de música compartilháveis para Moradias de Jogadores.
+## Notes-ptBR: Playlists de música compartilháveis para moradias de jogadores
 ## Title-ruRU: Музыка для Жилья (Housing Music)
-## Notes-ruRU: Игровые плееры музыки, которые можно поделиться для Жилья игрока.
+## Notes-ruRU: Доступные для обмена музыкальные плейлисты для жилища игрока
 ## Title-koKR: 하우징 음악 (Housing Music)
-## Notes-koKR: 플레이어 하우징용 공유 가능한 음악 플레이어.
+## Notes-koKR: 플레이어 하우징용 공유 가능한 음악 플레이리스트
 ## Title-zhCN: 住宅音乐 (Housing Music)
-## Notes-zhCN: 用于玩家住宅的可共享音乐播放器。
+## Notes-zhCN: 可共享的玩家住宅音乐播放列表
 ## Title-zhTW: 房屋音樂 (Housing Music)
-## Notes-zhTW: 可共享的玩家房屋音樂播放器。
+## Notes-zhTW: 可共享的玩家房屋音樂播放清單
 
 ## LoadSavedVariablesFirst: 1
 
