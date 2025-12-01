@@ -1,9 +1,38 @@
 ## Interface: 110207, 120000
 ## Author: Keyboardturner
-## Version: 0.0.1
+## Version: @project-version@
 ## Title: Housing Music
 ## Notes: Shareable music playlists for Player Housing.
 ## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
+
+## X-Curse-Project-ID: 1393460
+## X-Wago-ID: b6mbB4KP
+## X-WoWI-ID: 
+
+## Title-enUS: Housing Music
+## Notes-enUS: Shareable music players for Player Housing.
+## Title-frFR: Musique de Logis
+## Notes-frFR: Lecteurs de musique partageables pour les logis des joueurs.
+## Title-esES: Música de Hogares
+## Notes-esES: Reproductores de música compartibles para Hogares de Jugadores.
+## Title-esMX: Música de Viviendas
+## Notes-esMX: Reproductores de música compartibles para Viviendas de Jugadores.
+## Title-deDE: Behausung Musik
+## Notes-deDE: Teilenbare Musik-Player für Behausungen von Spielern.
+## Title-itIT: Musica degli Alloggi
+## Notes-itIT: Lettori musicali condivisibili per gli alloggi dei giocatori.
+## Title-ptBR: Música de Moradia
+## Notes-ptBR: Reprodutores de música compartilháveis para Moradias de Jogadores.
+## Title-ruRU: Музыка для Жилья (Housing Music)
+## Notes-ruRU: Игровые плееры музыки, которые можно поделиться для Жилья игрока.
+## Title-koKR: 하우징 음악 (Housing Music)
+## Notes-koKR: 플레이어 하우징용 공유 가능한 음악 플레이어.
+## Title-zhCN: 住宅音乐 (Housing Music)
+## Notes-zhCN: 用于玩家住宅的可共享音乐播放器。
+## Title-zhTW: 房屋音樂
+## Notes-zhTW: 可共享的玩家房屋音樂播放器。
+
+## LoadSavedVariablesFirst: 1
 
 Libs/LibStub/LibStub.lua
 Libs/LibRPMedia/lib.xml

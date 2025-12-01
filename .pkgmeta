@@ -1,0 +1,26 @@
+package-as: HousingMusic
+enable-nolib-creation: yes
+
+license-output: LICENSE
+
+externals:
+  Libs/LibStub: https://repos.wowace.com/wow/libstub/trunk
+  Libs/LibRPMedia-1.2: https://github.com/wow-rp-addons/LibRPMedia
+  Libs/ChatThrottleLib: https://repos.wowace.com/wow/chatthrottlelib/trunk
+
+ignore:
+  - Libs/*/*.rockspec
+  - Libs/*/*.toc
+  - Libs/*/changelog.*
+  - Libs/*/CHANGELOG.*
+  - Libs/*/docs
+  - Libs/*/examples
+  - Libs/*/README.*
+  - Libs/*/tests
+  - Libs/*/.pkgmeta
+  - CHANGELOG.md
+  - README.md
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
