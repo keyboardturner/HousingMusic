@@ -773,14 +773,22 @@ function HM.SkipTrack()
 	StopCurrentMusic()
 	PlayNextTrack()
 end
+local function CheckCVar()
+	local CVar = C_CVar.GetCVar
+	if CVar("Sound_EnableMusic") ~= "1" or CVar("Sound_EnableSoundWhenGameIsInBG") ~= "1" or CVar("Sound_MusicVolume") == "0" then
+		StopCurrentMusic()
+	end
+end
+
+local CVarListener = CreateFrame("Frame")
+CVarListener:RegisterEvent("CVAR_UPDATE")
+CVarListener:SetScript("OnEvent", function(self, event, arg1)
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG" or arg1 == "Sound_EnableMusic" or arg1 == "Sound_MusicVolume" then
+		CheckCVar()
+	end
+end)
 
 local function CheckConditions()
-	if C_CVar.GetCVar("Sound_EnableMusic") ~= "1" or C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG") ~= "1" then
-		if musicPlaying then
-			StopCurrentMusic()
-		end
-		return
-	end
 
 	if manualPlayback then return end
 
