@@ -4,6 +4,7 @@
 ## Title: Housing Music
 ## Notes: Shareable music playlists for Player Housing
 ## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
+## IconTexture: Interface/AddOns/HousingMusic/Assets/Textures/tocicon.blp
 
 ## X-Curse-Project-ID: 1393460
 ## X-Wago-ID: b6mbB4KP
@@ -31,6 +32,17 @@
 ## Notes-zhCN: 可共享的玩家住宅音乐播放列表
 ## Title-zhTW: 房屋音樂 (Housing Music)
 ## Notes-zhTW: 可共享的玩家房屋音樂播放清單
+## Category-enUS: Housing
+## Category-deDE: Behausung
+## Category-esES: Hogares
+## Category-esMX: Viviendas
+## Category-frFR: Logis
+## Category-itIT: Alloggi
+## Category-koKR: 하우징
+## Category-ptBR: Moradia
+## Category-ruRU: Жилье
+## Category-zhCN: 住宅
+## Category-zhTW: 房屋
 
 ## LoadSavedVariablesFirst: 1
 
