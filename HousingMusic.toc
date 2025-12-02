@@ -5,8 +5,8 @@
 ## Notes: Shareable music playlists for Player Housing
 ## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
 
-## X-Curse-Project-ID: 1393460
-## X-Wago-ID: b6mbB4KP
+## X-Curse-Project-ID:
+## X-Wago-ID:
 ## X-WoWI-ID: 
 
 ## Title-enUS: Housing Music
