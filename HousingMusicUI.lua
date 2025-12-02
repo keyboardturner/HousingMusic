@@ -885,22 +885,11 @@ MainframeToggleButton:SetSize(36, 36)
 MainframeToggleButton:SetScript("OnClick", function(self, button, down)
 	if down then return end
 
-	if button == "RightButton" then
-		if BrowserFrame and BrowserFrame:IsShown() then
-			BrowserFrame:Hide()
-		else
-			if BrowserFrame then 
-				BrowserFrame:Show() 
-				if MainFrame:IsShown() then MainFrame:Hide() end
-			end
-		end
+	if MainFrame:IsShown() then
+		MainFrame:Hide()
 	else
-		if MainFrame:IsShown() then
-			MainFrame:Hide()
-		else
-			MainFrame:Show()
-			if BrowserFrame and BrowserFrame:IsShown() then BrowserFrame:Hide() end
-		end
+		MainFrame:Show()
+		if BrowserFrame and BrowserFrame:IsShown() then BrowserFrame:Hide() end
 	end
 end)
 MainframeToggleButton:RegisterForClicks("AnyDown", "AnyUp")
