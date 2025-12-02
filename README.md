@@ -1,5 +1,5 @@
 # Housing Music
-Allows for shareable music playlsits within your player house.
+Allows for shareable music playlists within your player house.
 
 The primary feature of this addon is being able to craft playlists for your player house. Currently you can assign a playlist to your horde house and your alliance house independently (if more houses were to open up somehow, it should also adapt to those as well.)
 
