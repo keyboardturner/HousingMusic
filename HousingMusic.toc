@@ -7,7 +7,7 @@
 
 ## X-Curse-Project-ID: 1393460
 ## X-Wago-ID: b6mbB4KP
-## X-WoWI-ID: 
+## X-WoWI-ID: 26996
 
 ## Title-enUS: Housing Music
 ## Notes-enUS: Shareable music playlists for Player Housing
