@@ -267,7 +267,8 @@ local function TryAutoShare(unitID)
 	if UnitIsUnit(unitID, "player") then return end
 	if UnitIsDeadOrGhost(unitID) then return end
 
-	local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or 1
+	local default = (DefaultsTable and DefaultsTable.autosharePlaylist) or 1
+	local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or default
 	
 	if setting == 4 then 
 		--Print("Refusing to export all comms based on export settings 4.")
@@ -352,7 +353,8 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 	
 	if sender == UnitName("player") then return end
 
-	local setting = (HousingMusic_DB and HousingMusic_DB.autoImportPlaylist) or 1
+	local default = (DefaultsTable and DefaultsTable.autoImportPlaylist) or 1
+	local setting = (HousingMusic_DB and HousingMusic_DB.autoImportPlaylist) or default
 
 	if setting == 4 then
 		--Print("Refusing to import all comms based on import settings 4.")

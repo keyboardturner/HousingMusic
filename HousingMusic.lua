@@ -191,6 +191,15 @@ end
 
 function HM.InitializeDB()
 	HousingMusic_DB = HousingMusic_DB or {}
+	
+	if HM.DefaultsTable then
+		for key, value in pairs(HM.DefaultsTable) do
+			if HousingMusic_DB[key] == nil then
+				HousingMusic_DB[key] = value
+			end
+		end
+	end
+
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
 	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
 	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
