@@ -1142,14 +1142,25 @@ local function InitializeCheckboxSetting(button, data)
 	button.label:SetText(data.label)
 	button.checkbox.tooltip = WrapTextInColorCode(data.label, "ffffffff") .. "\n" .. data.tooltip
 	
-	if HousingMusic_DB[data.key] == nil then
-		button.checkbox:SetChecked(DefaultsTable[data.key])
+	local isChecked
+	if data.get then
+		isChecked = data.get()
 	else
-		button.checkbox:SetChecked(HousingMusic_DB[data.key])
+		if HousingMusic_DB[data.key] == nil then
+			isChecked = DefaultsTable[data.key]
+		else
+			isChecked = HousingMusic_DB[data.key]
+		end
 	end
-	
+	button.checkbox:SetChecked(isChecked)
 	button.checkbox:SetScript("OnClick", function(self)
-		HousingMusic_DB[data.key] = self:GetChecked()
+		local val = self:GetChecked()
+		
+		if data.set then
+			data.set(val)
+		else
+			HousingMusic_DB[data.key] = val
+		end
 
 		if data.key == "showControlFrameIcon" then
 			MainframeToggleButton:GetScript("OnEvent")(MainframeToggleButton)
@@ -1411,6 +1422,30 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 			},
 			L["Setting_AutoImportPlaylistTT"]
 		))
+
+		table.insert(allSettingsData, {
+			type = "checkbox",
+			key = "TRP3_StopMusic",
+
+			label = string.format(L["AddonCompatibility"], L["TRP3"]),
+			tooltip = string.format(L["AddonCompatibilityTT"], L["TRP3"]),
+			searchText = string.join((L["TRP3"] .. " " .. L["AddonCompatibility"] .. " " .. L["AddonCompatibilityTT"]):lower()),
+			get = function()
+				if HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic ~= nil then
+					return HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic
+				end
+				if DefaultsTable.addonCompatibilities then
+					return DefaultsTable.addonCompatibilities.TotalRP3_StopMusic
+				end
+				return true
+			end,
+			set = function(value)
+				if not HousingMusic_DB.addonCompatibilities then
+					HousingMusic_DB.addonCompatibilities = {}
+				end
+				HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic = value
+			end
+		})
 		
 		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
 		--	"customImportPlaylist",
@@ -2093,6 +2128,11 @@ PlaylistDropdown.Text:SetPoint("TOPLEFT",PlaylistDropdown,"TOPLEFT", 3, 6)
 PlaylistDropdown.Text:SetPoint("BOTTOMRIGHT",PlaylistDropdown.Arrow,"BOTTOMLEFT", 0, 0)
 PlaylistDropdown:SetHeight(16)
 
+local MapIcons = {
+	[2351] = "charcreatetest-logo-horde",
+	[2352] = "charcreatetest-logo-alliance",
+}
+
 local function GeneratorFunction(dropdown, rootDescription)
 	rootDescription:SetScrollMode(300)
 
@@ -2142,7 +2182,32 @@ local function GeneratorFunction(dropdown, rootDescription)
 			end
 			
 			local displayName = string.format("(%d/%d) %s", songCount, HM.MAX_PLAYLIST_SIZE or 50, name)
-			
+
+			if HousingMusic_DB.HouseAssignments then
+				local iconsString = ""
+				
+				for key, assignedName in pairs(HousingMusic_DB.HouseAssignments) do
+					if assignedName == name then
+						local parts = {strsplit("_", key)}
+						
+						if parts[2] and parts[3] then
+							local mapID = C_Housing.GetUIMapIDForNeighborhood(parts[2])
+							local iconAtlas = MapIcons[mapID]
+							
+							if iconAtlas then
+								iconsString = iconsString .. string.format(" |A:%s:16:16|a", iconAtlas)
+							else
+								iconsString = iconsString .. string.format(" (#%s)", parts[3])
+							end
+						end
+					end
+				end
+
+				if iconsString ~= "" then
+					displayName = displayName .. iconsString
+				end
+			end
+
 			rootDescription:CreateRadio(displayName, function(playlistName)
 				return HM.GetActivePlaylistName() == playlistName
 			end, function(playlistName)

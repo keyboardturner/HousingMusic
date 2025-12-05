@@ -150,6 +150,9 @@ if LOCALE == "enUS" then
 	L["AddedSongsToPlaylist"] = "Added %s songs to %s."
 	L["ImportPlaylistString"] = "Paste Playlist Import Code (control-v)"
 	L["ExportPlaylistString"] = "Copy Playlist Export Code (control-c)"
+	L["AddonCompatibility"] = "%s Addon Compatibility"
+	L["AddonCompatibilityTT"] = "Stop music when %s is playing."
+	L["TRP3"] = "Total RP 3"
 
 
 return end
@@ -289,6 +292,9 @@ if LOCALE == "esMX" then
 	L["AddedSongsToPlaylist"] = "Se añadieron %s canciones a %s."
 	L["ImportPlaylistString"] = "Pega el código de importación de la lista (control-v)"
 	L["ExportPlaylistString"] = "Copia el código de exportación de la lista (control-c)"
+	L["AddonCompatibility"] = "Compatibilidad con el addon %s"
+	L["AddonCompatibilityTT"] = "Detiene la música cuando %s está reproduciendo."
+	L["TRP3"] = "Total RP 3"
 
 return end
 
@@ -427,6 +433,9 @@ if LOCALE == "esES" then
 	L["AddedSongsToPlaylist"] = "Se han añadido %s canciones a %s."
 	L["ImportPlaylistString"] = "Pega el código de importación de la lista (control-v)"
 	L["ExportPlaylistString"] = "Copia el código de exportación de la lista (control-c)"
+	L["AddonCompatibility"] = "Compatibilidad con el addon %s"
+	L["AddonCompatibilityTT"] = "Detiene la música cuando %s está reproduciendo."
+	L["TRP3"] = "Total RP 3"
 
 return end
 
@@ -565,6 +574,9 @@ if LOCALE == "deDE" then
 	L["AddedSongsToPlaylist"] = "%s Songs wurden zu %s hinzugefügt."
 	L["ImportPlaylistString"] = "Playlist-Importcode einfügen (control-v)"
 	L["ExportPlaylistString"] = "Playlist-Exportcode kopieren (control-c)"
+	L["AddonCompatibility"] = "%s Addon-Kompatibilität"
+	L["AddonCompatibilityTT"] = "Stoppt die Musik, wenn %s abgespielt wird."
+	L["TRP3"] = "Total RP 3"
 
 return end
 
@@ -703,6 +715,9 @@ if LOCALE == "frFR" then
 	L["AddedSongsToPlaylist"] = "%s morceaux ont été ajoutés à %s."
 	L["ImportPlaylistString"] = "Collez le code d’importation de la playlist (control-v)"
 	L["ExportPlaylistString"] = "Copiez le code d’exportation de la playlist (control-c)"
+	L["AddonCompatibility"] = "Compatibilité avec l’addon %s"
+	L["AddonCompatibilityTT"] = "Arrête la musique lorsque %s est en lecture."
+	L["TRP3"] = "Total RP 3"
 
 return end
 
@@ -841,6 +856,9 @@ if LOCALE == "itIT" then
 	L["AddedSongsToPlaylist"] = "Sono state aggiunte %s canzoni a %s."
 	L["ImportPlaylistString"] = "Incolla il codice di importazione della playlist (control-v)"
 	L["ExportPlaylistString"] = "Copia il codice di esportazione della playlist (control-c)"
+	L["AddonCompatibility"] = "Compatibilità con l’addon %s"
+	L["AddonCompatibilityTT"] = "Interrompe la musica quando %s è in riproduzione."
+	L["TRP3"] = "Total RP 3"
 
 
 return end
@@ -980,6 +998,9 @@ if LOCALE == "ptBR" then
 	L["AddedSongsToPlaylist"] = "Foram adicionadas %s músicas a %s."
 	L["ImportPlaylistString"] = "Cole o código de importação da playlist (control-v)"
 	L["ExportPlaylistString"] = "Copie o código de exportação da playlist (control-c)"
+	L["AddonCompatibility"] = "Compatibilidade com o addon %s"
+	L["AddonCompatibilityTT"] = "Para a música quando %s está tocando."
+	L["TRP3"] = "Total RP 3"
 
 
 -- Note that the EU Portuguese WoW client also
@@ -1121,6 +1142,9 @@ if LOCALE == "ruRU" then
 	L["AddedSongsToPlaylist"] = "Добавлено %s треков в %s."
 	L["ImportPlaylistString"] = "Вставьте код импорта плейлиста (control-v)"
 	L["ExportPlaylistString"] = "Скопируйте код экспорта плейлиста (control-c)"
+	L["AddonCompatibility"] = "Совместимость с аддоном %s"
+	L["AddonCompatibilityTT"] = "Останавливает музыку, когда проигрывается %s."
+	L["TRP3"] = "Total RP 3"
 
 
 return end
@@ -1260,6 +1284,9 @@ if LOCALE == "koKR" then
 	L["AddedSongsToPlaylist"] = "%s개의 곡이 %s에 추가되었습니다."
 	L["ImportPlaylistString"] = "재생 목록 가져오기 코드를 붙여넣기 (control-v)"
 	L["ExportPlaylistString"] = "재생 목록 내보내기 코드를 복사 (control-c)"
+	L["AddonCompatibility"] = "%s 애드온 호환성"
+	L["AddonCompatibilityTT"] = "%s이(가) 재생될 때 음악을 중지합니다."
+	L["TRP3"] = "Total RP 3"
 
 
 return end
@@ -1399,6 +1426,9 @@ if LOCALE == "zhCN" then
 	L["AddedSongsToPlaylist"] = "已将 %s 首歌曲添加到 %s。"
 	L["ImportPlaylistString"] = "粘贴播放列表导入代码 (control-v)"
 	L["ExportPlaylistString"] = "复制播放列表导出代码 (control-c)"
+	L["AddonCompatibility"] = "%s 插件兼容性"
+	L["AddonCompatibilityTT"] = "当 %s 播放时停止音乐。"
+	L["TRP3"] = "Total RP 3"
 
 
 return end
@@ -1538,6 +1568,9 @@ if LOCALE == "zhTW" then
 	L["AddedSongsToPlaylist"] = "已將 %s 首歌曲加入到 %s。"
 	L["ImportPlaylistString"] = "貼上播放清單匯入代碼 (control-v)"
 	L["ExportPlaylistString"] = "複製播放清單匯出代碼 (control-c)"
+	L["AddonCompatibility"] = "%s 插件相容性"
+	L["AddonCompatibilityTT"] = "當 %s 播放時停止音樂。"
+	L["TRP3"] = "Total RP 3"
 
 
 return end

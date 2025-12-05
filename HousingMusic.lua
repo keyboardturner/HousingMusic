@@ -449,8 +449,12 @@ local function GetPlayerHouseZone()
 		local ownerKey = GetOwnerHouseKey()
 		local targetPlaylistName = L["Default"]
 		
-		if ownerKey and HousingMusic_DB.HouseAssignments[ownerKey] then
-			targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey]
+		if ownerKey then
+			if HousingMusic_DB.HouseAssignments[ownerKey] then
+				targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey]
+			else
+				targetPlaylistName = L["Default"]
+			end
 			
 			if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
 				 HousingMusic_DB.ActivePlaylist = targetPlaylistName
@@ -622,7 +626,16 @@ local function StopCurrentMusic()
 		soundHandle = nil;
 	end
 	
-	StopMusic()
+	if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic and C_AddOns.IsAddOnLoaded("totalRP3") then
+		for _, handler in pairs(TRP3_API.utils.music.getHandlers()) do
+			if handler.channel == "Music" then
+				-- A music is currently playing
+				return
+			end
+		end
+	else
+		StopMusic()
+	end
 end
 
 function HM.PlaySpecificMusic(fileID, context)
@@ -868,18 +881,42 @@ SLASH_HOUSINGMUSIC2 = L["SLASH_HM2"];
 SLASH_HOUSINGMUSIC2 = L["SLASH_HM3"];
 SlashCmdList["HOUSINGMUSIC"] = HM_SlashHandler;
 
+local function SetupTRP3Hook()
+	if TRP3_API and TRP3_API.utils and TRP3_API.utils.music and TRP3_API.utils.music.playMusic then
+		hooksecurefunc(TRP3_API.utils.music, "playMusic", function()
+			if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic then
+				HM.StopManualMusic()
+			end
+		end)
+		hooksecurefunc(TRP3_API.utils.music, "stopMusic", function()
+			if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic then
+				manualStop = false
+				CheckConditions()
+			end
+		end)
+	end
+end
+
 f:SetScript("OnEvent", function(_, event, arg1)
-	if event == "ADDON_LOADED" and arg1 == "HousingMusic" then
-		f:RegisterEvent("ZONE_CHANGED")
-		f:RegisterEvent("PLAYER_ENTERING_WORLD")
-		f:RegisterEvent("PLAYER_STARTED_MOVING")
-		f:RegisterEvent("NEW_WMO_CHUNK")
-		f:RegisterEvent("PLAYER_LEAVING_WORLD")
-		f:RegisterEvent("ZONE_CHANGED_INDOORS")
-		f:RegisterEvent("AREA_POIS_UPDATED")
-		f:RegisterEvent("FOG_OF_WAR_UPDATED")
-		f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
-		HM.InitializeDB()
+	if event == "ADDON_LOADED" then
+		if arg1 == "HousingMusic" then
+			f:RegisterEvent("ZONE_CHANGED")
+			f:RegisterEvent("PLAYER_ENTERING_WORLD")
+			f:RegisterEvent("PLAYER_STARTED_MOVING")
+			f:RegisterEvent("NEW_WMO_CHUNK")
+			f:RegisterEvent("PLAYER_LEAVING_WORLD")
+			f:RegisterEvent("ZONE_CHANGED_INDOORS")
+			f:RegisterEvent("AREA_POIS_UPDATED")
+			f:RegisterEvent("FOG_OF_WAR_UPDATED")
+			f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+			HM.InitializeDB()
+			
+			if C_AddOns.IsAddOnLoaded("TotalRP3") then
+				SetupTRP3Hook()
+			end
+		elseif arg1 == "TotalRP3" then
+			SetupTRP3Hook()
+		end
 	elseif event == "PLAYER_LEAVING_WORLD" then
 		StopCurrentMusic()
 	else
