@@ -1429,7 +1429,7 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 
 			label = string.format(L["AddonCompatibility"], L["TRP3"]),
 			tooltip = string.format(L["AddonCompatibilityTT"], L["TRP3"]),
-			searchText = string.join((L["TRP3"] .. " " .. L["AddonCompatibility"] .. " " .. L["AddonCompatibilityTT"]):lower()),
+			searchText = (string.format(L["AddonCompatibility"], L["TRP3"]) .. " " .. string.format(L["AddonCompatibilityTT"], L["TRP3"])):lower(),
 			get = function()
 				if HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic ~= nil then
 					return HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic
