@@ -1,5 +1,11 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.0.4
+
+Added slider settings to temporarily adjust volume while inside the house
+
+Added options to temporarily toggle footstep and interact key cue sounds while inside the house
+
 # 0.0.3
 
 Adjusted playlist upon creation
