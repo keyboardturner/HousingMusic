@@ -1456,6 +1456,46 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 
 		table.insert(allSettingsData, {
 			type = "checkbox",
+			key = "FootstepSounds",
+			label = L["Setting_Footsteps"],
+			tooltip = L["Setting_FootstepsTT"],
+			searchText = (L["Setting_Footsteps"] .. " " .. L["Setting_FootstepsTT"] ):lower(),
+			get = function()
+				local val = HousingMusic_DB.volumeControls["FootstepSounds"]
+				if val == nil then val = DefaultsTable.volumeControls["FootstepSounds"] end
+				return (val == 1 or val == "1")
+			end,
+			set = function(value)
+				local num = value and 1 or 0
+				HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {}
+				HousingMusic_DB.volumeControls["FootstepSounds"] = num
+				
+				HM.UpdateVolumeCVar("FootstepSounds", num)
+			end
+		})
+
+		table.insert(allSettingsData, {
+			type = "checkbox",
+			key = "softTargettingInteractKeySound",
+			label = L["Setting_InteractKeySound"],
+			tooltip = L["Setting_InteractKeySoundTT"],
+			searchText = (L["Setting_InteractKeySound"] .. " " .. L["Setting_InteractKeySoundTT"] ):lower(),
+			get = function()
+				local val = HousingMusic_DB.volumeControls["softTargettingInteractKeySound"]
+				if val == nil then val = DefaultsTable.volumeControls["softTargettingInteractKeySound"] end
+				return (val == 1 or val == "1")
+			end,
+			set = function(value)
+				local num = value and 1 or 0
+				HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {}
+				HousingMusic_DB.volumeControls["softTargettingInteractKeySound"] = num
+				
+				HM.UpdateVolumeCVar("softTargettingInteractKeySound", num)
+			end
+		})
+
+		table.insert(allSettingsData, {
+			type = "checkbox",
 			key = "TRP3_StopMusic",
 
 			label = string.format(L["AddonCompatibility"], L["TRP3"]),

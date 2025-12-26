@@ -30,7 +30,7 @@ local DefaultsTable = { -- HousingMusic_DB
 		TotalRP3_StopMusic = true,
 		TotalRP3_ShowPlaylistOnProfile = true,
 	},
-	volumeControls = { -- first inherit the current user's CVar Values to restore them afterward
+	volumeControls = {
 		Sound_MasterVolume = 1.0,
 		Sound_MusicVolume = 0.4,
 		Sound_SFXVolume = 1.0,
@@ -130,6 +130,8 @@ local VolumeCVars = {
 	"Sound_SFXVolume",
 	"Sound_AmbienceVolume",
 	"Sound_DialogVolume",
+	"FootstepSounds",
+	"softTargettingInteractKeySound",
 };
 
 function HM.StoreVolumeSettings()
