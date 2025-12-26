@@ -352,7 +352,6 @@ function HM_CopyBoxMixin:OnLoad()
 	self:SetFontObject("ChatFontNormal")
 	self:SetTextInsets(5, 5, 0, 0)
 
-	-- 2. Create the Label FontString
 	self.Label = self:CreateFontString(nil, "ARTWORK", "GameFontWhiteSmall")
 	self.Label:SetJustifyH("LEFT")
 	self.Label:SetText("")
@@ -360,9 +359,6 @@ function HM_CopyBoxMixin:OnLoad()
 	self.Label:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 2)
 	self.Label:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 2)
 
-
-
-	-- 4. Setup Scripts
 	self:SetScript("OnEnterPressed", self.OnEnterPressed)
 	self:SetScript("OnKeyDown", self.OnKeyDown)
 	self:SetScript("OnTextChanged", self.OnTextChanged)
@@ -1121,6 +1117,17 @@ local function CreateSettingData_Dropdown(settingKey, label, options, tooltip)
 	}
 end
 
+local function CreateSettingData_Slider(settingKey, label, tooltip, cvar)
+	return {
+		type = "slider",
+		key = settingKey,
+		label = label,
+		tooltip = tooltip,
+		cvar = cvar,
+		searchText = (label .. " " .. tooltip):lower()
+	}
+end
+
 local function InitializeCheckboxSetting(button, data)
 	button:SetHeight(30)
 	
@@ -1210,40 +1217,94 @@ local function InitializeDropdownSetting(button, data)
 			return HousingMusic_DB[data.key]
 		end
 	end
-	
+
 	local function UpdateDropdownText()
 		local currentValue = GetCurrentValue()
-		for _, option in ipairs(data.options) do
-			if option.value == currentValue then
-				button.dropdown.Text:SetText(option.text)
-				break
-			end
-		end
+		for _, option in ipairs(data.options) do if option.value == currentValue then button.dropdown.Text:SetText(option.text) break end end
 	end
-	
 	local function GeneratorFunction(dropdown, rootDescription)
 		rootDescription:SetScrollMode(300)
-		
 		for _, option in ipairs(data.options) do
-			rootDescription:CreateRadio(
-				option.text,
-				function()
-					return GetCurrentValue() == option.value
-				end,
-				function()
-					HousingMusic_DB[data.key] = option.value
-					UpdateDropdownText()
-				end,
-				option.value
-			)
+			rootDescription:CreateRadio(option.text, function() return GetCurrentValue() == option.value end, function() HousingMusic_DB[data.key] = option.value UpdateDropdownText() end, option.value)
 		end
 	end
-	
 	button.dropdown:SetupMenu(GeneratorFunction)
 	UpdateDropdownText()
 end
 
+local function InitializeSliderSetting(button, data)
+	button:SetHeight(30)
+	
+	if not button.slider then
+		local options = Settings.CreateSliderOptions(0, 100, 1)
+		options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value) return value .. "%" end)
+		
+		button.slider = CreateFrame("Frame", nil, button, "MinimalSliderWithSteppersTemplate")
+		button.slider:SetPoint("LEFT", 10, 0)
+		button.slider:SetWidth(250)
+		button.slider:Init(50, options.minValue, options.maxValue, options.steps, options.formatters)
+		
+		button.sliderLabel = button:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+		button.sliderLabel:SetPoint("LEFT", button.slider, "RIGHT", 50, 0)
+		button.sliderLabel:SetText("Slider Label")
+		button.sliderLabel:SetTextColor(1, 1, 1)
+
+
+		button.slider.tooltip = WrapTextInColorCode(data.label, "ffffffff") .. "\n" .. data.tooltip
+		
+		button.slider.Slider:HookScript("OnEnter", function(self)
+			if button.slider.tooltip then
+				GameTooltip:SetOwner(self, "ANCHOR_TOP")
+				GameTooltip:SetText(button.slider.tooltip, goldR, goldG, goldB, goldA, true)
+				GameTooltip:Show()
+			end
+		end)
+		button.slider.Slider:HookScript("OnLeave", function() GameTooltip:Hide() end)
+	end
+	
+	button.slider:Show()
+	button.sliderLabel:Show()
+	button.sliderLabel:SetText(data.label)
+	button.slider.tooltipText = button.slider.tooltip
+	
+	local dbValue
+	if HousingMusic_DB.volumeControls and HousingMusic_DB.volumeControls[data.cvar] ~= nil then
+		dbValue = HousingMusic_DB.volumeControls[data.cvar]
+	else
+		dbValue = 0.5
+	end
+	local sliderValue = math.floor(dbValue * 100)
+	
+	if button.slider.OnValueChangedCallback then
+		button.slider:UnregisterCallback("OnValueChanged", button.slider.OnValueChangedCallback)
+	end
+
+	local function OnValueChanged(self, value)
+		if button.slider.isInitializing then return end
+
+		local normalized = value / 100
+		HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {}
+		HousingMusic_DB.volumeControls[data.cvar] = normalized
+		
+		HM.UpdateVolumeCVar(data.cvar, normalized)
+	end
+
+	button.slider.OnValueChangedCallback = OnValueChanged
+	button.slider:RegisterCallback("OnValueChanged", OnValueChanged, button.slider)
+
+	button.slider.isInitializing = true
+	button.slider:SetValue(sliderValue)
+	button.slider.isInitializing = false
+end
+
 local function SettingsRowInitializer(button, data)
+	if button.checkbox then button.checkbox:Hide() end
+	if button.checkboxLabel then button.checkboxLabel:Hide() end
+	if button.dropdown then button.dropdown:Hide() end
+	if button.dropdownLabel then button.dropdownLabel:Hide() end
+	if button.slider then button.slider:Hide() end
+	if button.sliderLabel then button.sliderLabel:Hide() end
+
 	if data.type == "checkbox" then
 		if button.checkbox then 
 			button.checkbox:Show()
@@ -1266,6 +1327,8 @@ local function SettingsRowInitializer(button, data)
 		end
 		
 		InitializeDropdownSetting(button, data)
+	elseif data.type == "slider" then
+		InitializeSliderSetting(button, data)
 	end
 end
 
@@ -1351,53 +1414,21 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 	if addOnName == "HousingMusic" then
 		allSettingsData = {}
 		
-		table.insert(allSettingsData, CreateSettingData_CheckButton(
-			"autoplayMusic",
-			L["Setting_AutoplayMusic"],
-			L["Setting_AutoplayMusicTT"]
-		))
 		
-		table.insert(allSettingsData, CreateSettingData_CheckButton(
-			"showMusicOnIcon",
-			L["Setting_ShowMusicOnIcon"],
-			L["Setting_ShowMusicOnIconTT"]
-		))
+		table.insert(allSettingsData, CreateSettingData_CheckButton("autoplayMusic", L["Setting_AutoplayMusic"], L["Setting_AutoplayMusicTT"]))
+		table.insert(allSettingsData, CreateSettingData_CheckButton("showMusicOnIcon", L["Setting_ShowMusicOnIcon"], L["Setting_ShowMusicOnIconTT"]))
+		table.insert(allSettingsData, CreateSettingData_CheckButton("showControlFrameIcon", L["Setting_ShowControlFrameIcon"], L["Setting_ShowControlFrameIconTT"]))
+		--table.insert(allSettingsData, CreateSettingData_CheckButton("showMinimapIcon", L["Setting_ShowMinimapIcon"], L["Setting_ShowMinimapIconTT"])) -- NYI
+		--table.insert(allSettingsData, CreateSettingData_CheckButton("toastPopup", L["Setting_ToastPopup"], L["Setting_ToastPopupTT"])) -- NYI
+		--table.insert(allSettingsData, CreateSettingData_CheckButton("keepMinimized", L["Setting_KeepMinimized"], L["Setting_KeepMinimizedTT"])) -- NYI
+		--table.insert(allSettingsData, CreateSettingData_CheckButton("normalizeNames", L["Setting_NormalizeNames"], L["Setting_NormalizeNamesTT"])) -- NYI
+		--table.insert(allSettingsData, CreateSettingData_CheckButton("chatboxMessages", L["Setting_ChatboxMessages"], L["Setting_ChatboxMessagesTT"])) -- NYI
 		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"showMinimapIcon",
-		--	L["Setting_ShowMinimapIcon"],
-		--	L["Setting_ShowMinimapIconTT"]
-		--))
-		
-		table.insert(allSettingsData, CreateSettingData_CheckButton(
-			"showControlFrameIcon",
-			L["Setting_ShowControlFrameIcon"],
-			L["Setting_ShowControlFrameIconTT"]
-		))
-		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"toastPopup",
-		--	L["Setting_ToastPopup"],
-		--	L["Setting_ToastPopupTT"]
-		--))
-		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"keepMinimized",
-		--	L["Setting_KeepMinimized"],
-		--	L["Setting_KeepMinimizedTT"]
-		--))
-		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"normalizeNames",
-		--	L["Setting_NormalizeNames"],
-		--	L["Setting_NormalizeNamesTT"]
-		--))
-		
-		--table.insert(allSettingsData, CreateSettingData_CheckButton( -- NYI
-		--	"chatboxMessages",
-		--	L["Setting_ChatboxMessages"],
-		--	L["Setting_ChatboxMessagesTT"]
-		--))
+		table.insert(allSettingsData, CreateSettingData_Slider("vol_master", L["Setting_MasterVolume"], L["Setting_MasterVolumeTT"], "Sound_MasterVolume"))
+		table.insert(allSettingsData, CreateSettingData_Slider("vol_music", L["Setting_MusicVolume"], L["Setting_MusicVolumeTT"], "Sound_MusicVolume"))
+		table.insert(allSettingsData, CreateSettingData_Slider("vol_sfx", L["Setting_SFXVolume"], L["Setting_SFXVolumeTT"], "Sound_SFXVolume"))
+		table.insert(allSettingsData, CreateSettingData_Slider("vol_ambience", L["Setting_AmbienceVolume"], L["Setting_AmbienceVolumeTT"], "Sound_AmbienceVolume"))
+		table.insert(allSettingsData, CreateSettingData_Slider("vol_dialog", L["Setting_DialogVolume"], L["Setting_DialogVolumeTT"], "Sound_DialogVolume"))
 		
 		table.insert(allSettingsData, CreateSettingData_Dropdown(
 			"autosharePlaylist",

@@ -65,6 +65,7 @@ local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("HOUSE_PLOT_ENTERED")
 f:RegisterEvent("HOUSE_PLOT_EXITED")
+f:RegisterEvent("PLAYER_LOGOUT")
 f:RegisterEvent("CURRENT_HOUSE_INFO_UPDATED")
 
 local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
@@ -119,6 +120,57 @@ HM.MAX_PLAYLIST_SIZE = 50
 --EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_RELEASED", function(...) DevTools_Dump({...}); print("pinframe released"); end) -- query pin frame released during floorplan editor
 --EventRegistry:RegisterFrameEventAndCallback("HOUSING_LAYOUT_PIN_FRAME_ADDED", function(...) DevTools_Dump({...}); print("pinframe added"); end) -- query pin frame released during floorplan editor
 
+----------------------------------------------------------
+-- volume sliders
+----------------------------------------------------------
+
+local VolumeCVars = {
+	"Sound_MasterVolume",
+	"Sound_MusicVolume",
+	"Sound_SFXVolume",
+	"Sound_AmbienceVolume",
+	"Sound_DialogVolume",
+};
+
+function HM.StoreVolumeSettings()
+	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {}
+	
+	local hasStored = false
+	for _, cvar in ipairs(VolumeCVars) do
+		if HousingMusic_DB.restoreVolumes[cvar] == nil then
+			local currentVal = GetCVar(cvar)
+			HousingMusic_DB.restoreVolumes[cvar] = currentVal
+			hasStored = true
+		end
+	end
+end
+
+function HM.RestoreVolumeSettings()
+	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return end
+	
+	for cvar, val in pairs(HousingMusic_DB.restoreVolumes) do
+		SetCVar(cvar, val)
+	end
+	
+	HousingMusic_DB.restoreVolumes = nil
+end
+
+function HM.ApplyHouseVolumeSettings()
+	if not HousingMusic_DB or not HousingMusic_DB.volumeControls then return end
+	
+	for _, cvar in ipairs(VolumeCVars) do
+		local val = HousingMusic_DB.volumeControls[cvar]
+		if val then
+			SetCVar(cvar, val)
+		end
+	end
+end
+
+function HM.UpdateVolumeCVar(cvar, value)
+	if C_Housing.IsInsideHouse() then
+		SetCVar(cvar, value)
+	end
+end
 
 ----------------------------------------------------------
 -- profiles
@@ -200,6 +252,19 @@ function HM.InitializeDB()
 		end
 	end
 
+	HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {}
+	
+	for _, cvar in ipairs(VolumeCVars) do
+		if HousingMusic_DB.volumeControls[cvar] == nil then
+			local currentVal = tonumber(GetCVar(cvar))
+			if currentVal then
+				HousingMusic_DB.volumeControls[cvar] = currentVal
+			else
+				HousingMusic_DB.volumeControls[cvar] = 0.5 
+			end
+		end
+	end
+
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
 	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
 	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
@@ -236,10 +301,7 @@ local function GetLocationKey()
 	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
 end
 
-function HM.GetActivePlaylistName()
-	if not HousingMusic_DB then return end
-	return HousingMusic_DB.ActivePlaylist or L["Default"]
-end
+function HM.GetActivePlaylistName() return HousingMusic_DB and HousingMusic_DB.ActivePlaylist or L["Default"] end
 
 function HM.GetActivePlaylistTable()
 	local name = HM.GetActivePlaylistName()
@@ -910,6 +972,11 @@ f:SetScript("OnEvent", function(_, event, arg1)
 			f:RegisterEvent("FOG_OF_WAR_UPDATED")
 			f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
 			HM.InitializeDB()
+
+			if C_Housing.IsInsideHouse() then
+				HM.StoreVolumeSettings()
+				HM.ApplyHouseVolumeSettings()
+			end
 			
 			if C_AddOns.IsAddOnLoaded("TotalRP3") then
 				SetupTRP3Hook()
@@ -917,6 +984,21 @@ f:SetScript("OnEvent", function(_, event, arg1)
 		elseif arg1 == "TotalRP3" then
 			SetupTRP3Hook()
 		end
+
+	elseif event == "HOUSE_PLOT_ENTERED" then
+		CheckConditions()
+
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		if C_Housing.IsInsideHouse() then
+			HM.StoreVolumeSettings()
+			HM.ApplyHouseVolumeSettings()
+		end
+		CheckConditions()
+
+	elseif event == "HOUSE_PLOT_EXITED" or event == "PLAYER_LOGOUT" then
+		HM.RestoreVolumeSettings()
+		if event == "HOUSE_PLOT_EXITED" then CheckConditions() end
+
 	elseif event == "PLAYER_LEAVING_WORLD" then
 		StopCurrentMusic()
 	else

@@ -153,6 +153,16 @@ if LOCALE == "enUS" then
 	L["AddonCompatibility"] = "%s Addon Compatibility"
 	L["AddonCompatibilityTT"] = "Stop music when %s is playing."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
@@ -295,6 +305,16 @@ if LOCALE == "esMX" then
 	L["AddonCompatibility"] = "Compatibilidad con el addon %s"
 	L["AddonCompatibilityTT"] = "Detiene la música cuando %s está reproduciendo."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 return end
 
@@ -436,6 +456,16 @@ if LOCALE == "esES" then
 	L["AddonCompatibility"] = "Compatibilidad con el addon %s"
 	L["AddonCompatibilityTT"] = "Detiene la música cuando %s está reproduciendo."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 return end
 
@@ -577,6 +607,16 @@ if LOCALE == "deDE" then
 	L["AddonCompatibility"] = "%s Addon-Kompatibilität"
 	L["AddonCompatibilityTT"] = "Stoppt die Musik, wenn %s abgespielt wird."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 return end
 
@@ -718,6 +758,16 @@ if LOCALE == "frFR" then
 	L["AddonCompatibility"] = "Compatibilité avec l’addon %s"
 	L["AddonCompatibilityTT"] = "Arrête la musique lorsque %s est en lecture."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 return end
 
@@ -859,6 +909,16 @@ if LOCALE == "itIT" then
 	L["AddonCompatibility"] = "Compatibilità con l’addon %s"
 	L["AddonCompatibilityTT"] = "Interrompe la musica quando %s è in riproduzione."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
@@ -1001,6 +1061,16 @@ if LOCALE == "ptBR" then
 	L["AddonCompatibility"] = "Compatibilidade com o addon %s"
 	L["AddonCompatibilityTT"] = "Para a música quando %s está tocando."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 -- Note that the EU Portuguese WoW client also
@@ -1145,6 +1215,16 @@ if LOCALE == "ruRU" then
 	L["AddonCompatibility"] = "Совместимость с аддоном %s"
 	L["AddonCompatibilityTT"] = "Останавливает музыку, когда проигрывается %s."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
@@ -1287,6 +1367,16 @@ if LOCALE == "koKR" then
 	L["AddonCompatibility"] = "%s 애드온 호환성"
 	L["AddonCompatibilityTT"] = "%s이(가) 재생될 때 음악을 중지합니다."
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
@@ -1429,6 +1519,16 @@ if LOCALE == "zhCN" then
 	L["AddonCompatibility"] = "%s 插件兼容性"
 	L["AddonCompatibilityTT"] = "当 %s 播放时停止音乐。"
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
@@ -1571,6 +1671,16 @@ if LOCALE == "zhTW" then
 	L["AddonCompatibility"] = "%s 插件相容性"
 	L["AddonCompatibilityTT"] = "當 %s 播放時停止音樂。"
 	L["TRP3"] = "Total RP 3"
+	L["Setting_MasterVolume"] = MASTER_VOLUME
+	L["Setting_MasterVolumeTT"] = OPTION_TOOLTIP_MASTER_VOLUME
+	L["Setting_MusicVolume"] = MUSIC_VOLUME
+	L["Setting_MusicVolumeTT"] = OPTION_TOOLTIP_MUSIC_VOLUME
+	L["Setting_SFXVolume"] = FX_VOLUME
+	L["Setting_SFXVolumeTT"] = OPTION_TOOLTIP_FX_VOLUME
+	L["Setting_AmbienceVolume"] = AMBIENCE_VOLUME
+	L["Setting_AmbienceVolumeTT"] = OPTION_TOOLTIP_AMBIENCE_VOLUME
+	L["Setting_DialogVolume"] = DIALOG_VOLUME
+	L["Setting_DialogVolumeTT"] = OPTION_TOOLTIP_DIALOG_VOLUME
 
 
 return end
