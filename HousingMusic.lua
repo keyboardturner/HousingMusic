@@ -31,10 +31,6 @@ local DefaultsTable = { -- HousingMusic_DB
 		TotalRP3_ShowPlaylistOnProfile = true,
 	},
 	volumeControls = {
-		Sound_MasterVolume = 1.0,
-		Sound_MusicVolume = 0.4,
-		Sound_SFXVolume = 1.0,
-		Sound_AmbienceVolume = 0.6,
 		FootstepSounds = 1,
 		softTargettingInteractKeySound = 0, -- this might change with the interact key
 	},
