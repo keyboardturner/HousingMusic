@@ -1,5 +1,9 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.0.6
+
+Regen LibRPMedia database (midnight prepatch title screen music)
+
 # 0.0.5
 
 Correctly set the default values of the in-house sliders (was being set to game defaults instead of copying the existing game volume slider values)
