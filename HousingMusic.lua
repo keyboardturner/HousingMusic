@@ -130,15 +130,41 @@ local VolumeCVars = {
 	"softTargettingInteractKeySound",
 };
 
+local CameraCVars = {
+	"CameraKeepCharacterCentered",
+	"CameraReduceUnexpectedMovement",
+};
+
 function HM.StoreVolumeSettings()
 	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {}
 	
-	local hasStored = false
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.restoreVolumes[cvar] == nil then
 			local currentVal = GetCVar(cvar)
 			HousingMusic_DB.restoreVolumes[cvar] = currentVal
-			hasStored = true
+		end
+	end
+
+	for _, cvar in ipairs(CameraCVars) do
+		if HousingMusic_DB.restoreVolumes[cvar] == nil then
+			local currentVal = GetCVar(cvar)
+			HousingMusic_DB.restoreVolumes[cvar] = currentVal
+		end
+	end
+end
+
+function HM.UpdateCameraCVars(enabled)
+	if not C_Housing.IsInsideHouse() then return end
+
+	if enabled then
+		SetCVar("CameraKeepCharacterCentered", "0")
+		SetCVar("CameraReduceUnexpectedMovement", "1")
+	else
+		if HousingMusic_DB.restoreVolumes then
+			for _, cvar in ipairs(CameraCVars) do
+				local val = HousingMusic_DB.restoreVolumes[cvar]
+				if val then SetCVar(cvar, val) end
+			end
 		end
 	end
 end
@@ -161,6 +187,10 @@ function HM.ApplyHouseVolumeSettings()
 		if val then
 			SetCVar(cvar, val)
 		end
+	end
+
+	if HousingMusic_DB.reduceCameraMovement ~= nil then
+		HM.UpdateCameraCVars(HousingMusic_DB.reduceCameraMovement)
 	end
 end
 
@@ -260,6 +290,14 @@ function HM.InitializeDB()
 			else
 				HousingMusic_DB.volumeControls[cvar] = 0.5 
 			end
+		end
+	end
+
+	if HousingMusic_DB.reduceCameraMovement == nil then
+		if GetCVar("CameraReduceUnexpectedMovement") == "1" and GetCVar("CameraKeepCharacterCentered") == "0" then
+			HousingMusic_DB.reduceCameraMovement = true
+		else
+			HousingMusic_DB.reduceCameraMovement = false
 		end
 	end
 

@@ -1517,6 +1517,23 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 				HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic = value
 			end
 		})
+
+		table.insert(allSettingsData, {
+			type = "checkbox",
+			key = "reduceCameraMovement",
+			label = L["Setting_ReduceCameraMovement"],
+			tooltip = L["Setting_ReduceCameraMovementTT"] or "Disables character centering and enables reduced camera movement while inside the house.",
+			searchText = (L["Setting_ReduceCameraMovement"] .. " " .. L["Setting_ReduceCameraMovementTT"]):lower(),
+			get = function()
+				return HousingMusic_DB.reduceCameraMovement
+			end,
+			set = function(value)
+				HousingMusic_DB.reduceCameraMovement = value
+				if HM.UpdateCameraCVars then 
+					HM.UpdateCameraCVars(value) 
+				end
+			end
+		})
 		
 		--table.insert(allSettingsData, CreateSettingData_Dropdown( -- NYI
 		--	"customImportPlaylist",

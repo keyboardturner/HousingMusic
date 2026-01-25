@@ -167,6 +167,8 @@ if LOCALE == "enUS" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Footstep Sounds"
 	L["Setting_FootstepsTT"] = "Toggle footstep sounds while inside the house."
+	L["Setting_ReduceCameraMovement"] = "Reduce Camera Movement"
+	L["Setting_ReduceCameraMovementTT"] = "Disables character centering and enables reduced camera movement while inside the house."
 
 
 return end
@@ -323,6 +325,8 @@ if LOCALE == "esMX" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Sonidos de pasos"
 	L["Setting_FootstepsTT"] = "Activa o desactiva los sonidos de pasos dentro de la casa."
+	L["Setting_ReduceCameraMovement"] = "Reducir movimiento de la cámara"
+	L["Setting_ReduceCameraMovementTT"] = "Desactiva el centrado del personaje y reduce el movimiento de la cámara mientras estás dentro de la casa."
 
 return end
 
@@ -478,6 +482,8 @@ if LOCALE == "esES" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Sonidos de pasos"
 	L["Setting_FootstepsTT"] = "Activa o desactiva los sonidos de pasos dentro de la casa."
+	L["Setting_ReduceCameraMovement"] = "Reducir movimiento de la cámara"
+	L["Setting_ReduceCameraMovementTT"] = "Desactiva el centrado del personaje y reduce el movimiento de la cámara mientras estás dentro de la casa."
 
 return end
 
@@ -633,6 +639,8 @@ if LOCALE == "deDE" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Schrittgeräusche"
 	L["Setting_FootstepsTT"] = "Schaltet Schrittgeräusche innerhalb des Hauses ein oder aus."
+	L["Setting_ReduceCameraMovement"] = "Kamerabewegung reduzieren"
+	L["Setting_ReduceCameraMovementTT"] = "Deaktiviert die Charakterzentrierung und reduziert die Kamerabewegung, während man sich im Haus befindet."
 
 return end
 
@@ -788,6 +796,8 @@ if LOCALE == "frFR" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Sons de pas"
 	L["Setting_FootstepsTT"] = "Active ou désactive les sons de pas à l'intérieur de la maison."
+	L["Setting_ReduceCameraMovement"] = "Réduire les mouvements de la caméra"
+	L["Setting_ReduceCameraMovementTT"] = "Désactive le centrage du personnage et réduit les mouvements de la caméra lorsque vous êtes à l’intérieur de la maison."
 
 return end
 
@@ -943,6 +953,8 @@ if LOCALE == "itIT" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Suoni dei passi"
 	L["Setting_FootstepsTT"] = "Attiva o disattiva i suoni dei passi all'interno della casa."
+	L["Setting_ReduceCameraMovement"] = "Riduci movimento della telecamera"
+	L["Setting_ReduceCameraMovementTT"] = "Disattiva la centratura del personaggio e riduce il movimento della telecamera mentre ti trovi all’interno della casa."
 
 
 return end
@@ -1099,6 +1111,8 @@ if LOCALE == "ptBR" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Sons de passos"
 	L["Setting_FootstepsTT"] = "Ativa ou desativa os sons de passos dentro da casa."
+	L["Setting_ReduceCameraMovement"] = "Reduzir movimento da câmera"
+	L["Setting_ReduceCameraMovementTT"] = "Desativa a centralização do personagem e reduz o movimento da câmera enquanto estiver dentro da casa."
 
 
 -- Note that the EU Portuguese WoW client also
@@ -1257,6 +1271,8 @@ if LOCALE == "ruRU" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "Звуки шагов"
 	L["Setting_FootstepsTT"] = "Включает или отключает звуки шагов внутри дома."
+	L["Setting_ReduceCameraMovement"] = "Уменьшить движение камеры"
+	L["Setting_ReduceCameraMovementTT"] = "Отключает центрирование персонажа и уменьшает движение камеры, пока вы находитесь внутри дома."
 
 
 return end
@@ -1413,6 +1429,8 @@ if LOCALE == "koKR" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "발소리"
 	L["Setting_FootstepsTT"] = "집 안에 있을 때 발소리를 켜거나 끕니다."
+	L["Setting_ReduceCameraMovement"] = "카메라 움직임 감소"
+	L["Setting_ReduceCameraMovementTT"] = "집 안에 있는 동안 캐릭터 중앙 정렬을 비활성화하고 카메라 움직임을 줄입니다."
 
 
 return end
@@ -1569,6 +1587,8 @@ if LOCALE == "zhCN" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "脚步声"
 	L["Setting_FootstepsTT"] = "切换在房屋内的脚步声。"
+	L["Setting_ReduceCameraMovement"] = "减少镜头移动"
+	L["Setting_ReduceCameraMovementTT"] = "在屋内时禁用角色居中，并减少镜头移动。"
 
 
 return end
@@ -1725,6 +1745,8 @@ if LOCALE == "zhTW" then
 	L["Setting_InteractKeySoundTT"] = ENABLE_INTERACT_SOUND_OPTION_TOOLTIP
 	L["Setting_Footsteps"] = "腳步聲"
 	L["Setting_FootstepsTT"] = "切換在房屋內的腳步聲。"
+	L["Setting_ReduceCameraMovement"] = "減少鏡頭移動"
+	L["Setting_ReduceCameraMovementTT"] = "在屋內時停用角色置中，並減少鏡頭移動。"
 
 
 return end
