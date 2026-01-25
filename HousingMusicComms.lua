@@ -99,10 +99,17 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		local houseInfo = C_Housing.GetCurrentHouseInfo()
 		local currentHouseName = houseInfo and houseInfo.houseName or L["Unknown"]
 
+		local isFriend = C_FriendList.GetFriendInfo(sender)
+		local isGuild = GetGuildMemberIndexFromName(sender)
+		local isBNetFriend = HM.IsBNetFriend(sender)
+
 		HM_CachedMusic_Metadata[receivedLocationKey][sender] = {
 			lastSeen = GetServerTime(),
 			isFavorite = isFav,
-			houseName = currentHouseName
+			houseName = currentHouseName,
+			wasFriend = (isFriend ~= nil),
+			wasGuild = (isGuild ~= nil and isGuild > 0),
+			wasBNetFriend = (isBNetFriend == true)
 		};
 
 		local currentCount = 0

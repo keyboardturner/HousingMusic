@@ -9,6 +9,35 @@ end
 
 HM.Print = Print
 
+function HM.IsBNetFriend(name)
+	if not name then return false end
+	
+	local checkName = name
+	if not string.find(checkName, "-") then
+		checkName = checkName .. "-" .. GetNormalizedRealmName()
+	end
+	checkName = checkName:gsub("%s+", "")
+
+	local numFriends = BNGetNumFriends()
+	for i = 1, numFriends do
+		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+		if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
+			local charName = accountInfo.gameAccountInfo.characterName
+			local realmName = accountInfo.gameAccountInfo.realmName
+			
+			if charName and realmName then
+				local fullName = charName .. "-" .. realmName
+				fullName = fullName:gsub("%s+", "")
+				
+				if string.lower(checkName) == string.lower(fullName) then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 local DefaultsTable = { -- HousingMusic_DB
 	autoplayMusic = true,
 	showMusicOnIcon = true,
@@ -243,8 +272,14 @@ function HM.PurgeOldPlaylists()
 			if timeDiff > secondsLimit then
 				local isFriend = C_FriendList.GetFriendInfo(senderName)
 				local isGuild = GetGuildMemberIndexFromName(senderName)
+				local isBNetFriend = HM.IsBNetFriend(senderName)
+				
+				local wasFriend = meta.wasFriend
+				local wasGuild = meta.wasGuild
+				local wasBNet = meta.wasBNetFriend
 
-				if meta.isFavorite or isFriend or isGuild then
+				if meta.isFavorite or isFriend or isGuild or isBNetFriend or wasFriend or wasGuild or wasBNet then
+					-- keep data
 				else
 					HM_CachedMusic_DB[locationKey][senderName] = nil
 					HM_CachedMusic_Metadata[locationKey][senderName] = nil
