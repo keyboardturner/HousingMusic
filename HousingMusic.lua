@@ -241,7 +241,10 @@ function HM.PurgeOldPlaylists()
 			local timeDiff = now - (meta.lastSeen or 0)
 			
 			if timeDiff > secondsLimit then
-				if meta.isFavorite then
+				local isFriend = C_FriendList.GetFriendInfo(senderName)
+				local isGuild = GetGuildMemberIndexFromName(senderName)
+
+				if meta.isFavorite or isFriend or isGuild then
 				else
 					HM_CachedMusic_DB[locationKey][senderName] = nil
 					HM_CachedMusic_Metadata[locationKey][senderName] = nil

@@ -1,5 +1,9 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.0.7
+
+Added option to reduce camera movement while in the house (should help with stairs and the like).
+
 # 0.0.6
 
 Regen LibRPMedia database (midnight prepatch title screen music)
