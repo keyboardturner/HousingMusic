@@ -32,38 +32,9 @@ local function GetCurrentLocationKey()
 	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
 end
 
-local function ResolveBNetSender(sender)
-	local bnetID = tonumber(sender)
-	if not bnetID then
-		return sender
-	end
-	
-	local numFriends = BNGetNumFriends()
-	for i = 1, numFriends do
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
-		if accountInfo then
-			if accountInfo.bnetAccountID == bnetID then
-				if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
-					return accountInfo.gameAccountInfo.characterName
-				end
-				
-				if accountInfo.battleTag then
-					local name = accountInfo.battleTag:match("^([^#]+)")
-					if name then
-						return name
-					end
-				end
-			end
-		end
-	end
-	
-	return sender
-end
-
 local CommsFrame = CreateFrame("Frame")
 CommsFrame:RegisterEvent("ADDON_LOADED")
 CommsFrame:RegisterEvent("CHAT_MSG_ADDON")
-CommsFrame:RegisterEvent("BN_CHAT_MSG_ADDON")
 
 
 CommsFrame:SetScript("OnEvent", function(self, event, ...)
@@ -75,7 +46,7 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 			
 			C_ChatInfo.RegisterAddonMessagePrefix(HM.CommPrefix)
 		end
-	elseif event == "CHAT_MSG_ADDON" or event == "BN_CHAT_MSG_ADDON" then
+	elseif event == "CHAT_MSG_ADDON" then
 		HM.OnCommReceived(...)
 	end
 end)
@@ -191,7 +162,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 	end
 end
 
-local function SendData(channel, target, locationKey, playlistTable, isBNet, gameAccountID)
+local function SendData(channel, target, locationKey, playlistTable)
 	if not ChatThrottleLib then
 		--Print(L["ChatThrottleLibNotFound"])
 		return
@@ -235,16 +206,9 @@ local function SendData(channel, target, locationKey, playlistTable, isBNet, gam
 	
 	local totalChunks = #chunks
 
-	if isBNet and gameAccountID then
-		for i, chunkData in ipairs(chunks) do
-			local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
-			ChatThrottleLib:BNSendGameData("NORMAL", HM.CommPrefix, payload, "WHISPER", gameAccountID)
-		end
-	else
-		for i, chunkData in ipairs(chunks) do
-			local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
-			ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
-		end
+	for i, chunkData in ipairs(chunks) do
+		local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
+		ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
 	end
 	--print(channel, target, locationKey, playlistTable)
 end
@@ -372,36 +336,6 @@ function HM.BroadcastToNameplates()
 	end
 end
 
-local function BroadcastToBNetFriends()
-	local playlistTable = HM.GetActivePlaylistTable()
-	if not playlistTable then return end
-
-	local locationKey = GetCurrentLocationKey()
-	if not locationKey then return end
-
-	local numBNetTotal, numBNetOnline = BNGetNumFriends()
-	
-	for i = 1, numBNetOnline do
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
-		if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
-			local gameAccountID = accountInfo.gameAccountInfo.gameAccountID
-			local characterName = accountInfo.gameAccountInfo.characterName
-			
-			if gameAccountID and characterName then
-				if not HM.IsPlayerIgnored(characterName) then
-					local now = GetTime()
-					local lastSent = HM.SentTracker[characterName] or 0
-					
-					if (now - lastSent) > AUTO_SEND_COOLDOWN then
-						HM.SentTracker[characterName] = now
-						SendData(nil, nil, locationKey, playlistTable, true, gameAccountID)
-					end
-				end
-			end
-		end
-	end
-end
-
 local BroadcastFrame = CreateFrame("Frame")
 BroadcastFrame:SetScript("OnUpdate", function(self, elapsed)
 	AutoBroadcastTimer = AutoBroadcastTimer + elapsed
@@ -418,10 +352,6 @@ BroadcastFrame:SetScript("OnUpdate", function(self, elapsed)
 				
 				if IsInGroup() then
 					HM.SharePlaylist("party")
-				end
-				
-				if setting == 1 or setting == 2 or setting == 3 then
-					BroadcastToBNetFriends()
 				end
 			end
 		end
@@ -448,7 +378,6 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 	if prefix ~= HM.CommPrefix then return end
 
 	sender = Ambiguate(sender, "none")
-	sender = ResolveBNetSender(sender)
 
 	if target and not target == "" and HM.IsPlayerIgnored(target) then
 		return 
