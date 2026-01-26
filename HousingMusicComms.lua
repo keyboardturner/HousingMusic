@@ -13,7 +13,9 @@ local MSG_TYPE_HOUSE = "H"
 
 local MAX_MSG_BYTES = 250
 
-local AUTO_SEND_COOLDOWN = 180
+local AUTO_SEND_COOLDOWN = 60
+local AutoBroadcastTimer = 0
+local BROADCAST_INTERVAL = 60
 
 HM.SentTracker = {}
 
@@ -30,9 +32,39 @@ local function GetCurrentLocationKey()
 	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
 end
 
+local function ResolveBNetSender(sender)
+	local bnetID = tonumber(sender)
+	if not bnetID then
+		return sender
+	end
+	
+	local numFriends = BNGetNumFriends()
+	for i = 1, numFriends do
+		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+		if accountInfo then
+			if accountInfo.bnetAccountID == bnetID then
+				if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
+					return accountInfo.gameAccountInfo.characterName
+				end
+				
+				if accountInfo.battleTag then
+					local name = accountInfo.battleTag:match("^([^#]+)")
+					if name then
+						return name
+					end
+				end
+			end
+		end
+	end
+	
+	return sender
+end
+
 local CommsFrame = CreateFrame("Frame")
 CommsFrame:RegisterEvent("ADDON_LOADED")
 CommsFrame:RegisterEvent("CHAT_MSG_ADDON")
+CommsFrame:RegisterEvent("BN_CHAT_MSG_ADDON")
+
 
 CommsFrame:SetScript("OnEvent", function(self, event, ...)
 	if event == "ADDON_LOADED" then
@@ -43,7 +75,7 @@ CommsFrame:SetScript("OnEvent", function(self, event, ...)
 			
 			C_ChatInfo.RegisterAddonMessagePrefix(HM.CommPrefix)
 		end
-	elseif event == "CHAT_MSG_ADDON" then
+	elseif event == "CHAT_MSG_ADDON" or event == "BN_CHAT_MSG_ADDON" then
 		HM.OnCommReceived(...)
 	end
 end)
@@ -100,7 +132,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 		local currentHouseName = houseInfo and houseInfo.houseName or L["Unknown"]
 
 		local isFriend = C_FriendList.GetFriendInfo(sender)
-		local isGuild = GetGuildMemberIndexFromName(sender)
+		local isGuild = C_GuildInfo.MemberExistsByName(sender)
 		local isBNetFriend = HM.IsBNetFriend(sender)
 
 		HM_CachedMusic_Metadata[receivedLocationKey][sender] = {
@@ -159,7 +191,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 	end
 end
 
-local function SendData(channel, target, locationKey, playlistTable)
+local function SendData(channel, target, locationKey, playlistTable, isBNet, gameAccountID)
 	if not ChatThrottleLib then
 		--Print(L["ChatThrottleLibNotFound"])
 		return
@@ -202,10 +234,19 @@ local function SendData(channel, target, locationKey, playlistTable)
 	end
 	
 	local totalChunks = #chunks
-	for i, chunkData in ipairs(chunks) do
-		local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
-		ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
+
+	if isBNet and gameAccountID then
+		for i, chunkData in ipairs(chunks) do
+			local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
+			ChatThrottleLib:BNSendGameData("NORMAL", HM.CommPrefix, payload, "WHISPER", gameAccountID)
+		end
+	else
+		for i, chunkData in ipairs(chunks) do
+			local payload = string.format("%s:%s:%d:%d:%s", MSG_TYPE_HOUSE, locationKey, i, totalChunks, chunkData)
+			ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target)
+		end
 	end
+	--print(channel, target, locationKey, playlistTable)
 end
 
 function HM.SharePlaylist(context)
@@ -331,6 +372,62 @@ function HM.BroadcastToNameplates()
 	end
 end
 
+local function BroadcastToBNetFriends()
+	local playlistTable = HM.GetActivePlaylistTable()
+	if not playlistTable then return end
+
+	local locationKey = GetCurrentLocationKey()
+	if not locationKey then return end
+
+	local numBNetTotal, numBNetOnline = BNGetNumFriends()
+	
+	for i = 1, numBNetOnline do
+		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+		if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
+			local gameAccountID = accountInfo.gameAccountInfo.gameAccountID
+			local characterName = accountInfo.gameAccountInfo.characterName
+			
+			if gameAccountID and characterName then
+				if not HM.IsPlayerIgnored(characterName) then
+					local now = GetTime()
+					local lastSent = HM.SentTracker[characterName] or 0
+					
+					if (now - lastSent) > AUTO_SEND_COOLDOWN then
+						HM.SentTracker[characterName] = now
+						SendData(nil, nil, locationKey, playlistTable, true, gameAccountID)
+					end
+				end
+			end
+		end
+	end
+end
+
+local BroadcastFrame = CreateFrame("Frame")
+BroadcastFrame:SetScript("OnUpdate", function(self, elapsed)
+	AutoBroadcastTimer = AutoBroadcastTimer + elapsed
+	
+	if AutoBroadcastTimer >= BROADCAST_INTERVAL then
+		AutoBroadcastTimer = 0
+		
+		if C_Housing and C_Housing.IsInsideHouse() and C_Housing.IsInsideOwnHouse() then
+			local default = (DefaultsTable and DefaultsTable.autosharePlaylist) or 1
+			local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or default
+
+			if setting ~= 4 then
+				HM.BroadcastToNameplates()
+				
+				if IsInGroup() then
+					HM.SharePlaylist("party")
+				end
+				
+				if setting == 1 or setting == 2 or setting == 3 then
+					BroadcastToBNetFriends()
+				end
+			end
+		end
+	end
+end)
+
 TriggerFrame:SetScript("OnEvent", function(self, event, ...)
 	if event == "PLAYER_TARGET_CHANGED" then
 		TryAutoShare("target")
@@ -350,11 +447,10 @@ end)
 function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID)
 	if prefix ~= HM.CommPrefix then return end
 
-	if not target or target == "" then return end
-
 	sender = Ambiguate(sender, "none")
+	sender = ResolveBNetSender(sender)
 
-	if HM.IsPlayerIgnored(target) then
+	if target and not target == "" and HM.IsPlayerIgnored(target) then
 		return 
 	end
 	
@@ -367,15 +463,15 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 		--Print("Refusing to import all comms based on import settings 4.")
 		return
 	elseif setting == 2 then
-		local isFriend = C_FriendList.GetFriendInfo(sender)
-		local isGuild = GetGuildMemberIndexFromName(sender)
+		local isFriend = C_FriendList.GetFriendInfo(sender) or tonumber(Ambiguate(sender, "none"))
+		local isGuild = C_GuildInfo.MemberExistsByName(sender)
 		--Print("Import comm based on import settings 2.")
 		if not isFriend and not isGuild then
 			--Print("Refusing to import comms based on import settings 2.")
 			return
 		end
 	elseif setting == 3 then
-		local isFriend = C_FriendList.GetFriendInfo(sender)
+		local isFriend = C_FriendList.GetFriendInfo(sender) or tonumber(Ambiguate(sender, "none"))
 		--Print("Import comm based on import settings 3.")
 		if not isFriend then
 			--Print("Refusing to import comms based on import settings 3.")

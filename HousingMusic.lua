@@ -271,7 +271,7 @@ function HM.PurgeOldPlaylists()
 			
 			if timeDiff > secondsLimit then
 				local isFriend = C_FriendList.GetFriendInfo(senderName)
-				local isGuild = GetGuildMemberIndexFromName(senderName)
+				local isGuild = C_GuildInfo.MemberExistsByName(senderName)
 				local isBNetFriend = HM.IsBNetFriend(senderName)
 				
 				local wasFriend = meta.wasFriend
