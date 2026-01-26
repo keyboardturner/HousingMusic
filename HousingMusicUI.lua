@@ -1212,7 +1212,7 @@ local function InitializeDropdownSetting(button, data)
 	
 	local function GetCurrentValue()
 		if HousingMusic_DB[data.key] == nil then
-			return DefaultsTable[data.key]
+			return (HM.DefaultsTable and HM.DefaultsTable[data.key]) or 1
 		else
 			return HousingMusic_DB[data.key]
 		end

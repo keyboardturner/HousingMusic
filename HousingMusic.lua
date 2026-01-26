@@ -522,6 +522,37 @@ function HM.IsControlIconEnabled()
 	return true 
 end
 
+function HM.GetAutoSharePlaylistSettings()
+	if HousingMusic_DB and HousingMusic_DB.autosharePlaylist then
+		return HousingMusic_DB.autosharePlaylist
+	end
+	
+	if HM.DefaultsTable and HM.DefaultsTable.autosharePlaylist then
+		return HM.DefaultsTable.autosharePlaylist
+	end
+	
+	return 1 
+end
+
+function HM.GetAutoImportPlaylistSettings()
+	if HousingMusic_DB and HousingMusic_DB.autoImportPlaylist then
+		return HousingMusic_DB.autoImportPlaylist
+	end
+	
+	if HM.DefaultsTable and HM.DefaultsTable.autoImportPlaylist then
+		return HM.DefaultsTable.autoImportPlaylist
+	end
+	
+	return 1
+end
+
+function HM.GetCustomImportPlaylistSettings()
+	if HousingMusic_DB and HousingMusic_DB.customImportPlaylist then
+		return HousingMusic_DB.customImportPlaylist
+	end
+	return 2
+end
+
 ----------------------------------------------------------
 -- playback
 ----------------------------------------------------------
