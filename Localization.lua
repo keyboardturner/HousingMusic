@@ -169,7 +169,15 @@ if LOCALE == "enUS" then
 	L["Setting_FootstepsTT"] = "Toggle footstep sounds while inside the house."
 	L["Setting_ReduceCameraMovement"] = "Reduce Camera Movement"
 	L["Setting_ReduceCameraMovementTT"] = "Disables character centering and enables reduced camera movement while inside the house."
-
+	L["BlockerFrame_AllSound"] = "Sound is currently disabled."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "Master Volume is set to 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Enable Master Volume"
+	L["BlockerFrame_EnableMusic"] = "Music is currently disabled."
+	L["BlockerFrame_EnableEnableMusic"] = "Enable Music"
+	L["BlockerFrame_MusicVolume"] = "Music Volume is set to 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Enable Music Volume"
+	L["BlockerFrame_EnableSoundInBackground"] = "Enable Sound in Background"
 
 return end
 
@@ -327,6 +335,15 @@ if LOCALE == "esMX" then
 	L["Setting_FootstepsTT"] = "Activa o desactiva los sonidos de pasos dentro de la casa."
 	L["Setting_ReduceCameraMovement"] = "Reducir movimiento de la cámara"
 	L["Setting_ReduceCameraMovementTT"] = "Desactiva el centrado del personaje y reduce el movimiento de la cámara mientras estás dentro de la casa."
+	L["BlockerFrame_AllSound"] = "El sonido está desactivado."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "El volumen general está configurado al 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Activar volumen general"
+	L["BlockerFrame_EnableMusic"] = "La música está desactivada."
+	L["BlockerFrame_EnableEnableMusic"] = "Activar música"
+	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
+	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
 
 return end
 
@@ -484,6 +501,15 @@ if LOCALE == "esES" then
 	L["Setting_FootstepsTT"] = "Activa o desactiva los sonidos de pasos dentro de la casa."
 	L["Setting_ReduceCameraMovement"] = "Reducir movimiento de la cámara"
 	L["Setting_ReduceCameraMovementTT"] = "Desactiva el centrado del personaje y reduce el movimiento de la cámara mientras estás dentro de la casa."
+	L["BlockerFrame_AllSound"] = "El sonido está desactivado."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "El volumen general está configurado al 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Activar volumen general"
+	L["BlockerFrame_EnableMusic"] = "La música está desactivada."
+	L["BlockerFrame_EnableEnableMusic"] = "Activar música"
+	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
+	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
 
 return end
 
@@ -641,6 +667,15 @@ if LOCALE == "deDE" then
 	L["Setting_FootstepsTT"] = "Schaltet Schrittgeräusche innerhalb des Hauses ein oder aus."
 	L["Setting_ReduceCameraMovement"] = "Kamerabewegung reduzieren"
 	L["Setting_ReduceCameraMovementTT"] = "Deaktiviert die Charakterzentrierung und reduziert die Kamerabewegung, während man sich im Haus befindet."
+	L["BlockerFrame_AllSound"] = "Der Sound ist derzeit deaktiviert."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "Die Gesamtlautstärke ist auf 0 % eingestellt."
+	L["BlockerFrame_EnableMasterVolume"] = "Gesamtlautstärke aktivieren"
+	L["BlockerFrame_EnableMusic"] = "Die Musik ist derzeit deaktiviert."
+	L["BlockerFrame_EnableEnableMusic"] = "Musik aktivieren"
+	L["BlockerFrame_MusicVolume"] = "Die Musiklautstärke ist auf 0 % eingestellt."
+	L["BlockerFrame_EnableMusicVolume"] = "Musiklautstärke aktivieren"
+	L["BlockerFrame_EnableSoundInBackground"] = "Sound im Hintergrund aktivieren"
 
 return end
 
@@ -798,6 +833,15 @@ if LOCALE == "frFR" then
 	L["Setting_FootstepsTT"] = "Active ou désactive les sons de pas à l'intérieur de la maison."
 	L["Setting_ReduceCameraMovement"] = "Réduire les mouvements de la caméra"
 	L["Setting_ReduceCameraMovementTT"] = "Désactive le centrage du personnage et réduit les mouvements de la caméra lorsque vous êtes à l’intérieur de la maison."
+	L["BlockerFrame_AllSound"] = "Le son est actuellement désactivé."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "Le volume principal est réglé sur 0 %."
+	L["BlockerFrame_EnableMasterVolume"] = "Activer le volume principal"
+	L["BlockerFrame_EnableMusic"] = "La musique est actuellement désactivée."
+	L["BlockerFrame_EnableEnableMusic"] = "Activer la musique"
+	L["BlockerFrame_MusicVolume"] = "Le volume de la musique est réglé sur 0 %."
+	L["BlockerFrame_EnableMusicVolume"] = "Activer le volume de la musique"
+	L["BlockerFrame_EnableSoundInBackground"] = "Activer le son en arrière-plan"
 
 return end
 
@@ -955,7 +999,15 @@ if LOCALE == "itIT" then
 	L["Setting_FootstepsTT"] = "Attiva o disattiva i suoni dei passi all'interno della casa."
 	L["Setting_ReduceCameraMovement"] = "Riduci movimento della telecamera"
 	L["Setting_ReduceCameraMovementTT"] = "Disattiva la centratura del personaggio e riduce il movimento della telecamera mentre ti trovi all’interno della casa."
-
+	L["BlockerFrame_AllSound"] = "Il suono è attualmente disattivato."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "Il volume principale è impostato allo 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Abilita volume principale"
+	L["BlockerFrame_EnableMusic"] = "La musica è attualmente disattivata."
+	L["BlockerFrame_EnableEnableMusic"] = "Abilita musica"
+	L["BlockerFrame_MusicVolume"] = "Il volume della musica è impostato allo 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Abilita volume della musica"
+	L["BlockerFrame_EnableSoundInBackground"] = "Abilita suoni in background"
 
 return end
 
@@ -1113,7 +1165,15 @@ if LOCALE == "ptBR" then
 	L["Setting_FootstepsTT"] = "Ativa ou desativa os sons de passos dentro da casa."
 	L["Setting_ReduceCameraMovement"] = "Reduzir movimento da câmera"
 	L["Setting_ReduceCameraMovementTT"] = "Desativa a centralização do personagem e reduz o movimento da câmera enquanto estiver dentro da casa."
-
+	L["BlockerFrame_AllSound"] = "O som está desativado no momento."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "O volume principal está definido em 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Ativar volume principal"
+	L["BlockerFrame_EnableMusic"] = "A música está desativada no momento."
+	L["BlockerFrame_EnableEnableMusic"] = "Ativar música"
+	L["BlockerFrame_MusicVolume"] = "O volume da música está definido em 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Ativar volume da música"
+	L["BlockerFrame_EnableSoundInBackground"] = "Ativar som em segundo plano"
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -1273,7 +1333,15 @@ if LOCALE == "ruRU" then
 	L["Setting_FootstepsTT"] = "Включает или отключает звуки шагов внутри дома."
 	L["Setting_ReduceCameraMovement"] = "Уменьшить движение камеры"
 	L["Setting_ReduceCameraMovementTT"] = "Отключает центрирование персонажа и уменьшает движение камеры, пока вы находитесь внутри дома."
-
+	L["BlockerFrame_AllSound"] = "Звук в настоящее время отключён."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "Общая громкость установлена на 0%."
+	L["BlockerFrame_EnableMasterVolume"] = "Включить общую громкость"
+	L["BlockerFrame_EnableMusic"] = "Музыка в настоящее время отключена."
+	L["BlockerFrame_EnableEnableMusic"] = "Включить музыку"
+	L["BlockerFrame_MusicVolume"] = "Громкость музыки установлена на 0%."
+	L["BlockerFrame_EnableMusicVolume"] = "Включить громкость музыки"
+	L["BlockerFrame_EnableSoundInBackground"] = "Включить звук в фоновом режиме"
 
 return end
 
@@ -1431,7 +1499,15 @@ if LOCALE == "koKR" then
 	L["Setting_FootstepsTT"] = "집 안에 있을 때 발소리를 켜거나 끕니다."
 	L["Setting_ReduceCameraMovement"] = "카메라 움직임 감소"
 	L["Setting_ReduceCameraMovementTT"] = "집 안에 있는 동안 캐릭터 중앙 정렬을 비활성화하고 카메라 움직임을 줄입니다."
-
+	L["BlockerFrame_AllSound"] = "현재 소리가 비활성화되어 있습니다."
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "주 음량이 0%로 설정되어 있습니다."
+	L["BlockerFrame_EnableMasterVolume"] = "주 음량 활성화"
+	L["BlockerFrame_EnableMusic"] = "현재 음악이 비활성화되어 있습니다."
+	L["BlockerFrame_EnableEnableMusic"] = "음악 활성화"
+	L["BlockerFrame_MusicVolume"] = "음악 음량이 0%로 설정되어 있습니다."
+	L["BlockerFrame_EnableMusicVolume"] = "음악 음량 활성화"
+	L["BlockerFrame_EnableSoundInBackground"] = "백그라운드 사운드 활성화"
 
 return end
 
@@ -1589,7 +1665,15 @@ if LOCALE == "zhCN" then
 	L["Setting_FootstepsTT"] = "切换在房屋内的脚步声。"
 	L["Setting_ReduceCameraMovement"] = "减少镜头移动"
 	L["Setting_ReduceCameraMovementTT"] = "在屋内时禁用角色居中，并减少镜头移动。"
-
+	L["BlockerFrame_AllSound"] = "声音当前已禁用。"
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "主音量已设置为 0%。"
+	L["BlockerFrame_EnableMasterVolume"] = "启用主音量"
+	L["BlockerFrame_EnableMusic"] = "音乐当前已禁用。"
+	L["BlockerFrame_EnableEnableMusic"] = "启用音乐"
+	L["BlockerFrame_MusicVolume"] = "音乐音量已设置为 0%。"
+	L["BlockerFrame_EnableMusicVolume"] = "启用音乐音量"
+	L["BlockerFrame_EnableSoundInBackground"] = "启用后台声音"
 
 return end
 
@@ -1747,6 +1831,14 @@ if LOCALE == "zhTW" then
 	L["Setting_FootstepsTT"] = "切換在房屋內的腳步聲。"
 	L["Setting_ReduceCameraMovement"] = "減少鏡頭移動"
 	L["Setting_ReduceCameraMovementTT"] = "在屋內時停用角色置中，並減少鏡頭移動。"
-
+	L["BlockerFrame_AllSound"] = "聲音目前已停用。"
+	L["BlockerFrame_EnableSound"] = ENABLE_SOUND
+	L["BlockerFrame_MasterVolume"] = "主音量已設為 0%。"
+	L["BlockerFrame_EnableMasterVolume"] = "啟用主音量"
+	L["BlockerFrame_EnableMusic"] = "音樂目前已停用。"
+	L["BlockerFrame_EnableEnableMusic"] = "啟用音樂"
+	L["BlockerFrame_MusicVolume"] = "音樂音量已設為 0%。"
+	L["BlockerFrame_EnableMusicVolume"] = "啟用音樂音量"
+	L["BlockerFrame_EnableSoundInBackground"] = "啟用背景音效"
 
 return end

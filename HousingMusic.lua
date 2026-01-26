@@ -964,7 +964,11 @@ function HM.SkipTrack()
 end
 local function CheckCVar()
 	local CVar = C_CVar.GetCVar
-	if CVar("Sound_EnableMusic") ~= "1" or CVar("Sound_EnableSoundWhenGameIsInBG") ~= "1" or CVar("Sound_MusicVolume") == "0" then
+	if CVar("Sound_EnableMusic") ~= "1"
+	or CVar("Sound_EnableSoundWhenGameIsInBG") ~= "1"
+	or CVar("Sound_MusicVolume") == "0" 
+	or CVar("Sound_MasterVolume") == "0" 
+	or CVar("Sound_EnableAllSound") ~= "1" then
 		StopCurrentMusic()
 	end
 end
@@ -972,7 +976,11 @@ end
 local CVarListener = CreateFrame("Frame")
 CVarListener:RegisterEvent("CVAR_UPDATE")
 CVarListener:SetScript("OnEvent", function(self, event, arg1)
-	if arg1 == "Sound_EnableSoundWhenGameIsInBG" or arg1 == "Sound_EnableMusic" or arg1 == "Sound_MusicVolume" then
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG" 
+	or arg1 == "Sound_EnableMusic" 
+	or arg1 == "Sound_MusicVolume" 
+	or arg1 == "Sound_MasterVolume" 
+	or arg1 == "Sound_EnableAllSound" then
 		CheckCVar()
 	end
 end)

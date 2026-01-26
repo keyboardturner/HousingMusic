@@ -527,20 +527,59 @@ FixButton:SetScript("OnClick", function()
 	C_CVar.SetCVar("Sound_EnableSoundWhenGameIsInBG", "1")
 end)
 
-FixButton:SetScript("OnEnter", function(self)
-	GameTooltip:SetOwner(self, "ANCHOR_TOP")
-	GameTooltip:AddLine(ENABLE_BGSOUND, 1, 1, 1)
-	GameTooltip:AddLine(OPTION_TOOLTIP_ENABLE_BGSOUND, 1, 1, 1, true)
-	GameTooltip:Show()
-end)
-FixButton:SetScript("OnLeave", function()
-	GameTooltip:Hide()
-end)
+--FixButton:SetScript("OnEnter", function(self)
+--	GameTooltip:SetOwner(self, "ANCHOR_TOP")
+--	GameTooltip:AddLine(ENABLE_BGSOUND, 1, 1, 1)
+--	GameTooltip:AddLine(OPTION_TOOLTIP_ENABLE_BGSOUND, 1, 1, 1, true)
+--	GameTooltip:Show()
+--end)
+--FixButton:SetScript("OnLeave", function()
+--	GameTooltip:Hide()
+--end)
 
 local function UpdateCVarBlocker()
-	local setting = C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG")
-	if setting == "0" then
+	local reason = nil
+	local cvarToFix = nil
+	local fixValue = "1"
+	local btnText = "Fix Setting"
+
+	if C_CVar.GetCVar("Sound_EnableAllSound") == "0" then
+		reason = L["BlockerFrame_AllSound"]
+		extraReason = ""
+		cvarToFix = "Sound_EnableAllSound"
+		btnText = L["BlockerFrame_EnableSound"]
+	elseif C_CVar.GetCVar("Sound_MasterVolume") == "0" then
+		reason = L["BlockerFrame_MasterVolume"]
+		extraReason = ""
+		cvarToFix = "Sound_MasterVolume"
+		fixValue = "0.2"
+		btnText = L["BlockerFrame_EnableMasterVolume"]
+	elseif C_CVar.GetCVar("Sound_EnableMusic") == "0" then
+		reason = L["BlockerFrame_EnableMusic"]
+		extraReason = ""
+		cvarToFix = "Sound_EnableMusic"
+		btnText = L["BlockerFrame_EnableEnableMusic"]
+	elseif C_CVar.GetCVar("Sound_MusicVolume") == "0" then
+		reason = L["BlockerFrame_MusicVolume"]
+		extraReason = ""
+		cvarToFix = "Sound_MusicVolume"
+		fixValue = "0.5"
+		btnText = L["BlockerFrame_EnableMusicVolume"]
+	elseif C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG") == "0" then
+		reason = L["BlockerFrameText"]
+		extraReason = L["BlockerFrameSubtext"]
+		cvarToFix = "Sound_EnableSoundWhenGameIsInBG"
+		btnText = L["BlockerFrame_EnableSoundInBackground"]
+	end
+
+	if reason then
 		BlockerFrame:Show()
+		BlockerFrame.text:SetText(reason)
+		BlockerFrame.subtext:SetText(extraReason)
+		FixButton:SetText(btnText)
+		FixButton:SetScript("OnClick", function()
+			C_CVar.SetCVar(cvarToFix, fixValue)
+		end)
 	else
 		BlockerFrame:Hide()
 	end
@@ -549,7 +588,11 @@ end
 local CVarListener = CreateFrame("Frame")
 CVarListener:RegisterEvent("CVAR_UPDATE")
 CVarListener:SetScript("OnEvent", function(self, event, arg1)
-	if arg1 == "Sound_EnableSoundWhenGameIsInBG" then
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG" 
+	or arg1 == "Sound_EnableAllSound" 
+	or arg1 == "Sound_MasterVolume"
+	or arg1 == "Sound_EnableMusic"
+	or arg1 == "Sound_MusicVolume" then
 		UpdateCVarBlocker()
 	end
 end)

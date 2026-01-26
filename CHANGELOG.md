@@ -8,6 +8,8 @@ Potential fix to auto-share playlists
 
 Adjusted some logic to save playlist data from others if they're friends/guild members
 
+Added checks to see if the player has certain sound settings disabled because some of you can't behave
+
 # 0.0.6
 
 Regen LibRPMedia database (midnight prepatch title screen music)
