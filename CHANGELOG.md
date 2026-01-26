@@ -2,7 +2,7 @@
 
 # 0.0.7
 
-Added option to reduce camera movement while in the house (should help with stairs and the like).
+Added option to reduce camera movement while in the house (should help with stairs and the like)
 
 Potential fix to auto-share playlists
 
