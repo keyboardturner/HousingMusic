@@ -4,6 +4,10 @@
 
 Added option to reduce camera movement while in the house (should help with stairs and the like).
 
+Potential fix to auto-share playlists
+
+Adjusted some logic to save playlist data from others if they're friends/guild members
+
 # 0.0.6
 
 Regen LibRPMedia database (midnight prepatch title screen music)
