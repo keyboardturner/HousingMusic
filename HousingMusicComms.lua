@@ -111,7 +111,7 @@ local function ProcessReceivedPlaylist(sender, receivedLocationKey, chunkIndex, 
 			isFavorite = isFav,
 			houseName = currentHouseName,
 			wasFriend = (isFriend ~= nil),
-			wasGuild = (isGuild ~= nil and isGuild > 0),
+			wasGuild = (isGuild ~= nil and isGuild),
 			wasBNetFriend = (isBNetFriend == true)
 		};
 

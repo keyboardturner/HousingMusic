@@ -1,5 +1,9 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.0.8
+
+Quick fix to "attempt to compare number with boolean" error that occurred when checking if a playlist was sent by a guild member.
+
 # 0.0.7
 
 Added option to reduce camera movement while in the house (should help with stairs and the like)
