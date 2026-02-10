@@ -2,6 +2,8 @@
 
 # 0.0.9
 
+Added 481 musics (LibRPMedia)
+
 12.0.1 toc update
 
 # 0.0.8
