@@ -1,5 +1,9 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.0.9
+
+12.0.1 toc update
+
 # 0.0.8
 
 Quick fix to "attempt to compare number with boolean" error that occurred when checking if a playlist was sent by a guild member.
