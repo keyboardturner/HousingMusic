@@ -1,5 +1,9 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.0
+
+why are realm names sometime nil blizz
+
 # 0.0.9
 
 Added 481 musics (LibRPMedia)

@@ -13,8 +13,8 @@ function HM.IsBNetFriend(name)
 	if not name then return false end
 	
 	local checkName = name
-	if not string.find(checkName, "-") then
-		checkName = checkName .. "-" .. GetNormalizedRealmName()
+	if not string.find(checkName, "-") and GetNormalizedRealmName() then
+		checkName = checkName .. "-" .. GetNormalizedRealmName();
 	end
 	checkName = checkName:gsub("%s+", "")
 
