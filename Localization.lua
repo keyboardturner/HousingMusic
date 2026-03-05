@@ -178,6 +178,12 @@ if LOCALE == "enUS" then
 	L["BlockerFrame_MusicVolume"] = "Music Volume is set to 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Enable Music Volume"
 	L["BlockerFrame_EnableSoundInBackground"] = "Enable Sound in Background"
+	L["OutlineModeTT"] = "Modifies the graphics outline mode while inside the house. Does not function in Edit Mode."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -344,6 +350,12 @@ if LOCALE == "esMX" then
 	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
+	L["OutlineModeTT"] = "Modifica el modo de contorno gráfico dentro de la casa. No funciona en el modo Edición."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -510,6 +522,12 @@ if LOCALE == "esES" then
 	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
+	L["OutlineModeTT"] = "Modifica el modo de contorno gráfico dentro de la casa. No funciona en el modo Edición."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -676,6 +694,12 @@ if LOCALE == "deDE" then
 	L["BlockerFrame_MusicVolume"] = "Die Musiklautstärke ist auf 0 % eingestellt."
 	L["BlockerFrame_EnableMusicVolume"] = "Musiklautstärke aktivieren"
 	L["BlockerFrame_EnableSoundInBackground"] = "Sound im Hintergrund aktivieren"
+	L["OutlineModeTT"] = "Ändert den Grafik-Umrissmodus innerhalb des Hauses. Funktioniert nicht im Bearbeitungsmodus."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -842,6 +866,12 @@ if LOCALE == "frFR" then
 	L["BlockerFrame_MusicVolume"] = "Le volume de la musique est réglé sur 0 %."
 	L["BlockerFrame_EnableMusicVolume"] = "Activer le volume de la musique"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activer le son en arrière-plan"
+	L["OutlineModeTT"] = "Modifie le mode de contour graphique à l’intérieur de la maison. Ne fonctionne pas en mode Édition."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -1008,6 +1038,12 @@ if LOCALE == "itIT" then
 	L["BlockerFrame_MusicVolume"] = "Il volume della musica è impostato allo 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Abilita volume della musica"
 	L["BlockerFrame_EnableSoundInBackground"] = "Abilita suoni in background"
+	L["OutlineModeTT"] = "Modifica la modalità contorno grafico all’interno della casa. Non funziona in modalità Modifica."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -1174,6 +1210,12 @@ if LOCALE == "ptBR" then
 	L["BlockerFrame_MusicVolume"] = "O volume da música está definido em 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Ativar volume da música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Ativar som em segundo plano"
+	L["OutlineModeTT"] = "Modifica o modo de contorno gráfico dentro da casa. Não funciona no Modo de Edição."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -1342,6 +1384,12 @@ if LOCALE == "ruRU" then
 	L["BlockerFrame_MusicVolume"] = "Громкость музыки установлена на 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Включить громкость музыки"
 	L["BlockerFrame_EnableSoundInBackground"] = "Включить звук в фоновом режиме"
+	L["OutlineModeTT"] = "Изменяет режим графической обводки внутри дома. Не работает в режиме редактирования."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -1508,6 +1556,12 @@ if LOCALE == "koKR" then
 	L["BlockerFrame_MusicVolume"] = "음악 음량이 0%로 설정되어 있습니다."
 	L["BlockerFrame_EnableMusicVolume"] = "음악 음량 활성화"
 	L["BlockerFrame_EnableSoundInBackground"] = "백그라운드 사운드 활성화"
+	L["OutlineModeTT"] = "집 내부에서 그래픽 외곽선 모드를 변경합니다. 편집 모드에서는 작동하지 않습니다."
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -1674,6 +1728,12 @@ if LOCALE == "zhCN" then
 	L["BlockerFrame_MusicVolume"] = "音乐音量已设置为 0%。"
 	L["BlockerFrame_EnableMusicVolume"] = "启用音乐音量"
 	L["BlockerFrame_EnableSoundInBackground"] = "启用后台声音"
+	L["OutlineModeTT"] = "在房屋内修改图形描边模式。在编辑模式下无效。"
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end
 
@@ -1840,5 +1900,11 @@ if LOCALE == "zhTW" then
 	L["BlockerFrame_MusicVolume"] = "音樂音量已設為 0%。"
 	L["BlockerFrame_EnableMusicVolume"] = "啟用音樂音量"
 	L["BlockerFrame_EnableSoundInBackground"] = "啟用背景音效"
+	L["OutlineModeTT"] = "在房屋內修改圖形外框模式。在編輯模式下無效。"
+	L["Musician"] = "Musician"
+	L["OutlineMode"] = OUTLINE_MODE
+	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
+	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
+	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
 
 return end

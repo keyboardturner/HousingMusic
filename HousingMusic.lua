@@ -164,21 +164,46 @@ local CameraCVars = {
 	"CameraReduceUnexpectedMovement",
 };
 
+HM.isHouseEditingActive = false
+
+EventRegistry:RegisterCallback("HouseEditor.StateUpdated", function(_, isEditing)
+	HM.isHouseEditingActive = isEditing
+	
+	if not C_Housing.IsInsideHouse() then return end
+	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return end
+	
+	if isEditing then
+		local originalOutline = HousingMusic_DB.restoreVolumes["graphicsOutlineMode"]
+		if originalOutline then
+			C_CVar.SetCVar("graphicsOutlineMode", originalOutline)
+		end
+	else
+		local customOutline = HousingMusic_DB.graphicsOutlineMode
+		if customOutline ~= nil then
+			C_CVar.SetCVar("graphicsOutlineMode", customOutline)
+		end
+	end
+end)
+
 function HM.StoreVolumeSettings()
 	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {}
 	
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = GetCVar(cvar)
+			local currentVal = C_CVar.GetCVar(cvar)
 			HousingMusic_DB.restoreVolumes[cvar] = currentVal
 		end
 	end
 
 	for _, cvar in ipairs(CameraCVars) do
 		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = GetCVar(cvar)
+			local currentVal = C_CVar.GetCVar(cvar)
 			HousingMusic_DB.restoreVolumes[cvar] = currentVal
 		end
+	end
+	
+	if HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] == nil then
+		HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] = C_CVar.GetCVar("graphicsOutlineMode")
 	end
 end
 
@@ -186,13 +211,13 @@ function HM.UpdateCameraCVars(enabled)
 	if not C_Housing.IsInsideHouse() then return end
 
 	if enabled then
-		SetCVar("CameraKeepCharacterCentered", "0")
-		SetCVar("CameraReduceUnexpectedMovement", "1")
+		C_CVar.SetCVar("CameraKeepCharacterCentered", "0")
+		C_CVar.SetCVar("CameraReduceUnexpectedMovement", "1")
 	else
 		if HousingMusic_DB.restoreVolumes then
 			for _, cvar in ipairs(CameraCVars) do
 				local val = HousingMusic_DB.restoreVolumes[cvar]
-				if val then SetCVar(cvar, val) end
+				if val then C_CVar.SetCVar(cvar, val) end
 			end
 		end
 	end
@@ -202,7 +227,7 @@ function HM.RestoreVolumeSettings()
 	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return end
 	
 	for cvar, val in pairs(HousingMusic_DB.restoreVolumes) do
-		SetCVar(cvar, val)
+		C_CVar.SetCVar(cvar, val)
 	end
 	
 	HousingMusic_DB.restoreVolumes = nil
@@ -214,18 +239,32 @@ function HM.ApplyHouseVolumeSettings()
 	for _, cvar in ipairs(VolumeCVars) do
 		local val = HousingMusic_DB.volumeControls[cvar]
 		if val then
-			SetCVar(cvar, val)
+			C_CVar.SetCVar(cvar, val)
 		end
 	end
 
 	if HousingMusic_DB.reduceCameraMovement ~= nil then
 		HM.UpdateCameraCVars(HousingMusic_DB.reduceCameraMovement)
 	end
+
+	if HousingMusic_DB.graphicsOutlineMode ~= nil then
+		if HM.isHouseEditingActive then
+			if HousingMusic_DB.restoreVolumes and HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] then
+				C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.restoreVolumes["graphicsOutlineMode"])
+			end
+		else
+			C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.graphicsOutlineMode)
+		end
+	end
 end
 
 function HM.UpdateVolumeCVar(cvar, value)
 	if C_Housing.IsInsideHouse() then
-		SetCVar(cvar, value)
+		if cvar == "graphicsOutlineMode" and HM.isHouseEditingActive then
+			return
+		end
+		
+		C_CVar.SetCVar(cvar, value)
 	end
 end
 
@@ -322,7 +361,7 @@ function HM.InitializeDB()
 	
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.volumeControls[cvar] == nil then
-			local currentVal = tonumber(GetCVar(cvar))
+			local currentVal = tonumber(C_CVar.GetCVar(cvar))
 			if currentVal then
 				HousingMusic_DB.volumeControls[cvar] = currentVal
 			else
@@ -332,11 +371,15 @@ function HM.InitializeDB()
 	end
 
 	if HousingMusic_DB.reduceCameraMovement == nil then
-		if GetCVar("CameraReduceUnexpectedMovement") == "1" and GetCVar("CameraKeepCharacterCentered") == "0" then
+		if C_CVar.GetCVar("CameraReduceUnexpectedMovement") == "1" and C_CVar.GetCVar("CameraKeepCharacterCentered") == "0" then
 			HousingMusic_DB.reduceCameraMovement = true
 		else
 			HousingMusic_DB.reduceCameraMovement = false
 		end
+	end
+
+	if HousingMusic_DB.graphicsOutlineMode == nil then
+		HousingMusic_DB.graphicsOutlineMode = tonumber(C_CVar.GetCVar("graphicsOutlineMode")) or 2
 	end
 
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
@@ -785,7 +828,6 @@ local function StopCurrentMusic()
 	timerElapsed = 0;
 	currentTrackIndex = 1;
 	currentTrackName = nil;
-	-- activeZone = nil;
 	silentMusicActive = false;
 
 	if soundHandle then
@@ -793,14 +835,32 @@ local function StopCurrentMusic()
 		soundHandle = nil;
 	end
 	
-	if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic and C_AddOns.IsAddOnLoaded("totalRP3") then
-		for _, handler in pairs(TRP3_API.utils.music.getHandlers()) do
-			if handler.channel == "Music" then
-				-- A music is currently playing
-				return
+	local blockStopMusic = false
+	
+	if HousingMusic_DB and HousingMusic_DB.addonCompatibilities then
+		if HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic and C_AddOns.IsAddOnLoaded("totalRP3") then
+			for _, handler in pairs(TRP3_API.utils.music.getHandlers()) do
+				if handler.channel == "Music" then
+					-- A music is currently playing
+					blockStopMusic = true
+					break
+				end
 			end
 		end
-	else
+		
+		if not blockStopMusic and HousingMusic_DB.addonCompatibilities.Musician_StopMusic and C_AddOns.IsAddOnLoaded("Musician") then
+			if Musician and Musician.songs then
+				for _, song in pairs(Musician.songs) do
+					if song:IsPlaying() then
+						blockStopMusic = true
+						break
+					end
+				end
+			end
+		end
+	end
+
+	if not blockStopMusic then
 		StopMusic()
 	end
 end
@@ -1072,6 +1132,27 @@ local function SetupTRP3Hook()
 	end
 end
 
+local function SetupMusicianHook()
+	if Musician and Musician.Events then
+		local AceEvent = LibStub("AceEvent-3.0", true)
+		if AceEvent then
+			local hmCompatTarget = {}
+			AceEvent.RegisterMessage(hmCompatTarget, Musician.Events.SongPlay, function()
+				if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.Musician_StopMusic then
+					HM.StopManualMusic()
+				end
+			end)
+			
+			AceEvent.RegisterMessage(hmCompatTarget, Musician.Events.SongStop, function()
+				if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.Musician_StopMusic then
+					manualStop = false
+					CheckConditions()
+				end
+			end)
+		end
+	end
+end
+
 f:SetScript("OnEvent", function(_, event, arg1)
 	if event == "ADDON_LOADED" then
 		if arg1 == "HousingMusic" then
@@ -1094,8 +1175,13 @@ f:SetScript("OnEvent", function(_, event, arg1)
 			if C_AddOns.IsAddOnLoaded("TotalRP3") then
 				SetupTRP3Hook()
 			end
+			if C_AddOns.IsAddOnLoaded("Musician") then
+				SetupMusicianHook()
+			end
 		elseif arg1 == "TotalRP3" then
 			SetupTRP3Hook()
+		elseif arg1 == "Musician" then
+			SetupMusicianHook()
 		end
 
 	elseif event == "HOUSE_PLOT_ENTERED" then

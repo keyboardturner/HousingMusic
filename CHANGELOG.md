@@ -1,5 +1,11 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.1
+
+Added support for Musician addon to stop housing music playback when Musician begins its own playback
+
+Added an "outline mode" option to adjust outline mode while inside the house (does not apply in Edit Mode)
+
 # 0.1.0
 
 why are realm names sometime nil blizz

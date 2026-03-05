@@ -1254,6 +1254,7 @@ local function InitializeDropdownSetting(button, data)
 	end)
 	
 	local function GetCurrentValue()
+		if data.get then return data.get() end
 		if HousingMusic_DB[data.key] == nil then
 			return (HM.DefaultsTable and HM.DefaultsTable[data.key]) or 1
 		else
@@ -1268,7 +1269,15 @@ local function InitializeDropdownSetting(button, data)
 	local function GeneratorFunction(dropdown, rootDescription)
 		rootDescription:SetScrollMode(300)
 		for _, option in ipairs(data.options) do
-			rootDescription:CreateRadio(option.text, function() return GetCurrentValue() == option.value end, function() HousingMusic_DB[data.key] = option.value UpdateDropdownText() end, option.value)
+			rootDescription:CreateRadio(option.text, function() return GetCurrentValue() == option.value end, function() 
+				
+				if data.set then 
+					data.set(option.value) 
+				else 
+					HousingMusic_DB[data.key] = option.value 
+				end
+				UpdateDropdownText() 
+			end, option.value)
 		end
 	end
 	button.dropdown:SetupMenu(GeneratorFunction)
@@ -1538,6 +1547,27 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 		})
 
 		table.insert(allSettingsData, {
+			type = "dropdown",
+			key = "graphicsOutlineMode",
+			label = L["OutlineMode"],
+			tooltip = L["OutlineModeTT"],
+			searchText = (L["Setting_InteractKeySound"] .. " " .. L["OutlineModeTT"] ):lower(),
+			options = {
+				{ text = L["OutlineMode_Disabled"], value = 0 },
+				{ text = L["OutlineMode_Good"], value = 1 },
+				{ text = L["OutlineMode_High"], value = 2 }
+			},
+			get = function()
+				if HousingMusic_DB.graphicsOutlineMode == nil then return tonumber(C_CVar.GetCVar("graphicsOutlineMode")) or 2 end
+				return HousingMusic_DB.graphicsOutlineMode
+			end,
+			set = function(value)
+				HousingMusic_DB.graphicsOutlineMode = value
+				HM.UpdateVolumeCVar("graphicsOutlineMode", value)
+			end
+		})
+
+		table.insert(allSettingsData, {
 			type = "checkbox",
 			key = "TRP3_StopMusic",
 
@@ -1558,6 +1588,29 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 					HousingMusic_DB.addonCompatibilities = {}
 				end
 				HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic = value
+			end
+		})
+		
+		table.insert(allSettingsData, {
+			type = "checkbox",
+			key = "Musician_StopMusic",
+			label = string.format(L["AddonCompatibility"], L["Musician"]),
+			tooltip = string.format(L["AddonCompatibilityTT"], L["Musician"]),
+			searchText = (string.format(L["AddonCompatibility"], L["Musician"]) .. " " .. string.format(L["AddonCompatibilityTT"], L["Musician"])):lower(),
+			get = function()
+				if HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.Musician_StopMusic ~= nil then
+					return HousingMusic_DB.addonCompatibilities.Musician_StopMusic
+				end
+				if DefaultsTable.addonCompatibilities then
+					return DefaultsTable.addonCompatibilities.Musician_StopMusic
+				end
+				return true
+			end,
+			set = function(value)
+				if not HousingMusic_DB.addonCompatibilities then
+					HousingMusic_DB.addonCompatibilities = {}
+				end
+				HousingMusic_DB.addonCompatibilities.Musician_StopMusic = value
 			end
 		})
 
