@@ -1,5 +1,11 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.2
+
+Regen LibRPMedia database
+
+12.0.5 toc update
+
 # 0.1.1
 
 Added support for Musician addon to stop housing music playback when Musician begins its own playback
