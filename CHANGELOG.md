@@ -1,5 +1,15 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.3
+
+Added Ambience selection feature
+ - An ambience track can be selected and shared for each home, similar to music playlists
+ - There are currently 566 ambience options to choose from
+
+Regen LibRPMedia database
+
+12.0.7 toc update
+
 # 0.1.2
 
 Regen LibRPMedia database

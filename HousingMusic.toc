@@ -1,9 +1,9 @@
-## Interface: 120000, 120001, 120005
+## Interface: 120005, 120007
 ## Author: Keyboardturner
 ## Version: @project-version@
 ## Title: Housing Music
 ## Notes: Shareable music playlists for Player Housing
-## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata
+## SavedVariables: HousingMusic_DB, HM_CachedMusic_DB, HM_CachedMusic_Metadata, HM_CachedAmbience_DB
 ## IconTexture: Interface/AddOns/HousingMusic/Assets/Textures/tocicon.blp
 
 ## X-Curse-Project-ID: 1393460

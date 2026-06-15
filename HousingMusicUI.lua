@@ -26,6 +26,7 @@ local ScrollBoxRight
 local ScrollViewRight
 local B_ScrollBoxLeft
 local B_ScrollBoxRight
+local AmbSectionRight
 local SearchBoxLeft
 local SearchBoxRight
 local FilterAvailableList
@@ -44,8 +45,8 @@ local PlayTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Play.png
 local StopTexture = "Interface\\AddOns\\HousingMusic\\Assets\\Textures\\Stop.png"
 
 local function RefreshUILists()
-	if SearchBoxLeft then 
-		FilterAvailableList(SearchBoxLeft) 
+	if SearchBoxLeft then
+		FilterAvailableList(SearchBoxLeft)
 	end
 
 	if SearchBoxRight then
@@ -148,8 +149,8 @@ local function IsEditingAllowed()
 end
 
 local function NormalizeName(name) -- it's a bit wonky, so just don't use for now
-	if not HousingMusic_DB or not HousingMusic_DB.normalizeNames or not name then 
-		return name 
+	if not HousingMusic_DB or not HousingMusic_DB.normalizeNames or not name then
+		return name
 	end
 
 	local newName = name
@@ -259,7 +260,7 @@ StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 	OnAccept = function(self)
 		local text = self.EditBox:GetText()
 		if HM.CreatePlaylist(text) then
-			HM.SetActivePlaylist(text) 
+			HM.SetActivePlaylist(text)
 			UpdateSavedMusicList()
 			RefreshUILists()
 		else
@@ -269,7 +270,7 @@ StaticPopupDialogs["HOUSINGMUSIC_NEW_PLAYLIST"] = {
 	timeout = 0,
 	whileDead = true,
 	hideOnEscape = true,
-	preferredIndex = 3, 
+	preferredIndex = 3,
 };
 
 StaticPopupDialogs["HOUSINGMUSIC_DELETE_PLAYLIST"] = {
@@ -378,8 +379,8 @@ function HM_CopyBoxMixin:OnKeyDown(key)
 	if IsControlKeyDown() and (key == "C" or key == "X") then
 		PlaySound(SOUNDKIT.TUTORIAL_POPUP)
 		
-		C_Timer.After(0.1, function() 
-			self:ClearFocus() 
+		C_Timer.After(0.1, function()
+			self:ClearFocus()
 		end)
 	end
 end
@@ -466,7 +467,7 @@ MainFrame.Header = Header
 MainFrame.favButton = CreateFrame("Button", nil, MainFrame)
 MainFrame.favButton:SetSize(30, 30)
 MainFrame.favButton:SetPoint("LEFT", Header, "LEFT", 20, 0)
-MainFrame.favButton:SetHighlightTexture(favtex) 
+MainFrame.favButton:SetHighlightTexture(favtex)
 MainFrame.favButton:GetHighlightTexture():SetAlpha(0.5)
 MainFrame.favButton:SetNormalTexture(nofavtex)
 MainFrame.favButton:Hide()
@@ -491,9 +492,9 @@ Footer:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 0, 0)
 MainFrame.Footer = Footer
 
 -- Because if the setting is turned off, the addon breaks
-local BlockerFrame = CreateFrame("Frame", nil, MainFrame)
-BlockerFrame:SetAllPoints(MainFrame)
-BlockerFrame:SetFrameLevel(500)
+local BlockerFrame = CreateFrame("Frame", nil, MainFrame.Backframe)
+BlockerFrame:SetAllPoints(MainFrame.Backframe)
+BlockerFrame:SetFrameLevel(600)
 BlockerFrame:EnableMouse(true)
 BlockerFrame:SetScript("OnMouseWheel", function() end)
 BlockerFrame:Hide()
@@ -538,38 +539,59 @@ end)
 --end)
 
 local function UpdateCVarBlocker()
+	local selectedTab = PanelTemplates_GetSelectedTab(MainFrame) or 1
 	local reason = nil
+	local extraReason = ""
 	local cvarToFix = nil
 	local fixValue = "1"
 	local btnText = "Fix Setting"
 
 	if C_CVar.GetCVar("Sound_EnableAllSound") == "0" then
 		reason = L["BlockerFrame_AllSound"]
-		extraReason = ""
 		cvarToFix = "Sound_EnableAllSound"
 		btnText = L["BlockerFrame_EnableSound"]
 	elseif C_CVar.GetCVar("Sound_MasterVolume") == "0" then
 		reason = L["BlockerFrame_MasterVolume"]
-		extraReason = ""
 		cvarToFix = "Sound_MasterVolume"
 		fixValue = "0.2"
 		btnText = L["BlockerFrame_EnableMasterVolume"]
-	elseif C_CVar.GetCVar("Sound_EnableMusic") == "0" then
-		reason = L["BlockerFrame_EnableMusic"]
-		extraReason = ""
-		cvarToFix = "Sound_EnableMusic"
-		btnText = L["BlockerFrame_EnableEnableMusic"]
-	elseif C_CVar.GetCVar("Sound_MusicVolume") == "0" then
-		reason = L["BlockerFrame_MusicVolume"]
-		extraReason = ""
-		cvarToFix = "Sound_MusicVolume"
-		fixValue = "0.5"
-		btnText = L["BlockerFrame_EnableMusicVolume"]
 	elseif C_CVar.GetCVar("Sound_EnableSoundWhenGameIsInBG") == "0" then
 		reason = L["BlockerFrameText"]
-		extraReason = L["BlockerFrameSubtext"]
+		extraReason = L["BlockerFrameText"] or ""
 		cvarToFix = "Sound_EnableSoundWhenGameIsInBG"
 		btnText = L["BlockerFrame_EnableSoundInBackground"]
+	end
+
+	if not reason then
+		if selectedTab == 1 then
+			if C_CVar.GetCVar("Sound_EnableMusic") == "0" then
+				reason = L["BlockerFrame_EnableMusic"]
+				cvarToFix = "Sound_EnableMusic"
+				btnText = L["BlockerFrame_EnableEnableMusic"]
+			elseif C_CVar.GetCVar("Sound_MusicVolume") == "0" then
+				reason = L["BlockerFrame_MusicVolume"]
+				cvarToFix = "Sound_MusicVolume"
+				fixValue = "0.5"
+				btnText = L["BlockerFrame_EnableMusicVolume"]
+			end
+		elseif selectedTab == 2 then -- Sound_EnableSFX also counts as Ambience
+			if C_CVar.GetCVar("Sound_EnableAmbience") == "0" then
+				reason = L["BlockerFrame_EnableAmbience"]
+				cvarToFix = "Sound_EnableAmbience"
+				fixValue = "1"
+				btnText = L["BlockerFrame_EnableEnableAmbience"]
+			elseif C_CVar.GetCVar("Sound_EnableSFX") == "0" then
+				reason = L["BlockerFrame_EnableAmbience"]
+				cvarToFix = "Sound_EnableSFX"
+				fixValue = "1"
+				btnText = L["BlockerFrame_EnableEnableAmbience"]
+			elseif C_CVar.GetCVar("Sound_AmbienceVolume") == "0" then
+				reason = L["BlockerFrame_AmbienceVolume"]
+				cvarToFix = "Sound_AmbienceVolume"
+				fixValue = "0.5"
+				btnText = L["BlockerFrame_EnableAmbienceVolume"]
+			end
+		end
 	end
 
 	if reason then
@@ -588,11 +610,14 @@ end
 local CVarListener = CreateFrame("Frame")
 CVarListener:RegisterEvent("CVAR_UPDATE")
 CVarListener:SetScript("OnEvent", function(self, event, arg1)
-	if arg1 == "Sound_EnableSoundWhenGameIsInBG" 
-	or arg1 == "Sound_EnableAllSound" 
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG"
+	or arg1 == "Sound_EnableAllSound"
 	or arg1 == "Sound_MasterVolume"
 	or arg1 == "Sound_EnableMusic"
-	or arg1 == "Sound_MusicVolume" then
+	or arg1 == "Sound_MusicVolume"
+	or arg1 == "Sound_EnableAmbience"
+	or arg1 == "Sound_EnableSFX"
+	or arg1 == "Sound_AmbienceVolume" then
 		UpdateCVarBlocker()
 	end
 end)
@@ -766,7 +791,7 @@ local B_SectionLeft = CreateFrame("Frame", nil, B_Backframe)
 B_SectionLeft:SetPoint("TOPLEFT", B_Backframe, "TOPLEFT", 0, 0)
 B_SectionLeft:SetPoint("BOTTOMRIGHT", B_Backframe, "BOTTOM", 0, 50)
 B_SectionLeft.tex = B_SectionLeft:CreateTexture(nil, "BACKGROUND", nil, 0);
-B_SectionLeft.tex:SetAtlas("catalog-list-preview-bg") 
+B_SectionLeft.tex:SetAtlas("catalog-list-preview-bg")
 B_SectionLeft.tex:SetVertexColor(1,1,1,1)
 B_SectionLeft.tex:SetAllPoints(B_SectionLeft)
 
@@ -1269,14 +1294,14 @@ local function InitializeDropdownSetting(button, data)
 	local function GeneratorFunction(dropdown, rootDescription)
 		rootDescription:SetScrollMode(300)
 		for _, option in ipairs(data.options) do
-			rootDescription:CreateRadio(option.text, function() return GetCurrentValue() == option.value end, function() 
+			rootDescription:CreateRadio(option.text, function() return GetCurrentValue() == option.value end, function()
 				
-				if data.set then 
-					data.set(option.value) 
-				else 
-					HousingMusic_DB[data.key] = option.value 
+				if data.set then
+					data.set(option.value)
+				else
+					HousingMusic_DB[data.key] = option.value
 				end
-				UpdateDropdownText() 
+				UpdateDropdownText()
 			end, option.value)
 		end
 	end
@@ -1358,22 +1383,22 @@ local function SettingsRowInitializer(button, data)
 	if button.sliderLabel then button.sliderLabel:Hide() end
 
 	if data.type == "checkbox" then
-		if button.checkbox then 
+		if button.checkbox then
 			button.checkbox:Show()
 			if button.checkboxLabel then button.checkboxLabel:Show() end
 		end
-		if button.dropdown then 
+		if button.dropdown then
 			button.dropdown:Hide()
 			if button.dropdownLabel then button.dropdownLabel:Hide() end
 		end
 		
 		InitializeCheckboxSetting(button, data)
 	elseif data.type == "dropdown" then
-		if button.dropdown then 
+		if button.dropdown then
 			button.dropdown:Show()
 			if button.dropdownLabel then button.dropdownLabel:Show() end
 		end
-		if button.checkbox then 
+		if button.checkbox then
 			button.checkbox:Hide()
 			if button.checkboxLabel then button.checkboxLabel:Hide() end
 		end
@@ -1618,15 +1643,15 @@ function SettingsButton.LoadSettings(self, event, addOnName, containsBindings)
 			type = "checkbox",
 			key = "reduceCameraMovement",
 			label = L["Setting_ReduceCameraMovement"],
-			tooltip = L["Setting_ReduceCameraMovementTT"] or "Disables character centering and enables reduced camera movement while inside the house.",
+			tooltip = L["Setting_ReduceCameraMovementTT"],
 			searchText = (L["Setting_ReduceCameraMovement"] .. " " .. L["Setting_ReduceCameraMovementTT"]):lower(),
 			get = function()
 				return HousingMusic_DB.reduceCameraMovement
 			end,
 			set = function(value)
 				HousingMusic_DB.reduceCameraMovement = value
-				if HM.UpdateCameraCVars then 
-					HM.UpdateCameraCVars(value) 
+				if HM.UpdateCameraCVars then
+					HM.UpdateCameraCVars(value)
 				end
 			end
 		})
@@ -1890,6 +1915,7 @@ MainFrame:SetScript("OnShow", function()MainframeToggleButton:SetNormalTexture(D
 		RefreshUILists()
 	end
 	UpdateSavedMusicList()
+	if HM.UpdateAmbienceRightPanel then HM.UpdateAmbienceRightPanel() end
 	UpdateCVarBlocker()
 end)
 MainFrame:SetScript("OnHide", function()
@@ -1897,20 +1923,509 @@ MainFrame:SetScript("OnHide", function()
 	PlaySound(305110)
 end)
 
--------------------------------------------------------------------------------
--- MAIN FRAME - Left Scroll Box
--------------------------------------------------------------------------------
 
-ScrollBoxLeft = CreateFrame("Frame", nil, MainFrame, "WowScrollBoxList")
+local TabMusic = CreateFrame("Button", "HousingMusic_MainFrameTab1", MainFrame, "PanelTabButtonTemplate")
+TabMusic:SetID(1)
+TabMusic:SetPoint("TOPLEFT", MainFrame, "BOTTOMLEFT", 15, 0)
+TabMusic:SetText(L["Music"])
+PanelTemplates_TabResize(TabMusic, 0)
+
+local TabAmbience = CreateFrame("Button", "HousingMusic_MainFrameTab2", MainFrame, "PanelTabButtonTemplate")
+TabAmbience:SetID(2)
+TabAmbience:SetPoint("LEFT", TabMusic, "RIGHT", 0, 0)
+TabAmbience:SetText(L["Ambience"])
+PanelTemplates_TabResize(TabAmbience, 0)
+
+local AmbiencePanel = CreateFrame("Frame", nil, MainFrame.Backframe)
+AmbiencePanel:SetPoint("TOPLEFT", MainFrame.Backframe, "TOPLEFT", 0, 0)
+AmbiencePanel:SetPoint("BOTTOMRIGHT", MainFrame.Backframe, "BOTTOM", 0, 50)
+AmbiencePanel.tex = AmbiencePanel:CreateTexture(nil, "BACKGROUND", nil, 0)
+AmbiencePanel.tex:SetAtlas("catalog-list-preview-bg")
+AmbiencePanel.tex:SetVertexColor(1, 1, 1, 1)
+AmbiencePanel.tex:SetAllPoints()
+AmbiencePanel:Hide()
+
+local function SelectTab(tabID)
+	PanelTemplates_SetTab(MainFrame, tabID);
+	
+	if tabID == 1 then
+		if SectionLeft then
+			SectionLeft:Show();
+		end
+		if SectionRight then
+			SectionRight:Show();
+		end
+		if MainFrame.DividerSections then
+			MainFrame.DividerSections:Show();
+		end
+		
+		if ScrollBoxLeft then
+			ScrollBoxLeft:Show();
+		end
+		if ScrollBoxRight then
+			ScrollBoxRight:Show();
+		end
+		if SearchBoxLeft then
+			SearchBoxLeft:Show();
+		end
+		if SearchBoxRight then
+			SearchBoxRight:Show();
+		end
+		
+		AmbiencePanel:Hide();
+		if AmbSectionRight then
+			AmbSectionRight:Hide();
+		end
+	else
+		if SectionLeft then
+			SectionLeft:Hide();
+		end
+		if SectionRight then
+			SectionRight:Hide();
+		end
+		if MainFrame.DividerSections then
+			MainFrame.DividerSections:Show();
+		end
+		
+		if ScrollBoxLeft then
+			ScrollBoxLeft:Hide()
+		end
+		if ScrollBoxRight then
+			ScrollBoxRight:Hide();
+		end
+		if SearchBoxLeft then
+			SearchBoxLeft:Hide();
+		end
+		if SearchBoxRight then
+			SearchBoxRight:Hide();
+		end
+		
+		AmbiencePanel:Show()
+		if AmbSectionRight then
+			AmbSectionRight:Show();
+		end
+		if HM.FilterAmbienceList then
+			HM.FilterAmbienceList();
+		end
+		if HM.UpdateAmbienceRightPanel then
+			HM.UpdateAmbienceRightPanel();
+		end
+	end
+	
+	UpdateCVarBlocker();
+end
+
+TabMusic:SetScript("OnClick", function() SelectTab(1); PlaySound(841); end)
+TabAmbience:SetScript("OnClick", function() SelectTab(2); PlaySound(841); end)
+
+MainFrame.numTabs = 2
+PanelTemplates_SetNumTabs(MainFrame, 2)
+SelectTab(1)
+
+
+local AmbSearchBox = CreateFrame("EditBox", nil, AmbiencePanel, "SearchBoxTemplate")
+AmbSearchBox:SetPoint("TOPLEFT", AmbiencePanel, "TOPLEFT", 10, 0)
+AmbSearchBox:SetPoint("TOPRIGHT", AmbiencePanel, "TOPRIGHT", -20, 0)
+AmbSearchBox:SetHeight(20)
+AmbSearchBox:SetAutoFocus(false)
+
+local AmbScrollBox = CreateFrame("Frame", nil, AmbiencePanel, "WowScrollBoxList")
+AmbScrollBox:SetPoint("TOPLEFT", AmbiencePanel, "TOPLEFT", 5, -20)
+AmbScrollBox:SetPoint("BOTTOMRIGHT", AmbiencePanel, "BOTTOMRIGHT", -20, 0)
+AmbScrollBox:SetFrameLevel(500)
+
+local AmbScrollBar = CreateFrame("EventFrame", nil, AmbiencePanel, "MinimalScrollBar")
+AmbScrollBar:SetPoint("TOPLEFT", AmbScrollBox, "TOPRIGHT", 5, 0)
+AmbScrollBar:SetPoint("BOTTOMLEFT", AmbScrollBox, "BOTTOMRIGHT", 5, 0)
+
+local AmbScrollView = CreateScrollBoxListLinearView()
+ScrollUtil.InitScrollBoxListWithScrollBar(AmbScrollBox, AmbScrollBar, AmbScrollView)
+
+local ambienceDataCleaned = false;
+
+function HM.FilterAmbienceList()
+	local text = CleanString(AmbSearchBox:GetText() or "");
+	local matches = {};
+
+	if not ambienceDataCleaned and HM.AmbienceData then
+		for _, data in ipairs(HM.AmbienceData) do
+			if data.name then
+				data.originalName = data.name;
+				data.name = data.name:gsub("^[Aa][Mm][Bb]_", ""):gsub("_", " ");
+			end
+		end
+		ambienceDataCleaned = true;
+	end
+
+	for _, data in ipairs(HM.AmbienceData or {}) do
+		if text == "" 
+		or CleanString(data.name):find(text, 1, true) 
+		or tostring(data.path):find(text, 1, true) then
+			table.insert(matches, data);
+		end
+	end
+
+	table.sort(matches, function(a, b)
+		return (a.name or "") < (b.name or "");
+	end)
+
+	local dataProvider = CreateDataProvider(matches);
+	AmbScrollView:SetDataProvider(dataProvider);
+end
+
+AmbSearchBox:HookScript("OnTextChanged", function(self)
+	self.t = 0;
+	self:SetScript("OnUpdate", function(self, elapsed)
+		self.t = self.t + elapsed;
+		if self.t >= 0.2 then
+			self.t = 0;
+			self:SetScript("OnUpdate", nil);
+			HM.FilterAmbienceList();
+		end
+	end)
+end)
+
+local function GetCurrentHouseAmbience()
+	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+		local key = GetCurrentHouseKey();
+		if not key or not HousingMusic_DB.AmbienceAssignments then return nil; end
+		return HousingMusic_DB.AmbienceAssignments[key];
+	else
+		local info = C_Housing.GetCurrentHouseInfo and C_Housing.GetCurrentHouseInfo();
+		if not info or not info.neighborhoodGUID or not info.plotID then return nil; end
+		local locationKey = string.format("%s_%d", info.neighborhoodGUID, info.plotID);
+
+		if HM_CachedAmbience_DB and HM_CachedAmbience_DB[locationKey] then
+			local preferredSender = HousingMusic_DB.VisitorPreferences and HousingMusic_DB.VisitorPreferences[locationKey];
+			local selectedSender = nil;
+
+			if preferredSender and HM_CachedAmbience_DB[locationKey][preferredSender] then
+				selectedSender = preferredSender;
+			else
+				local ownerName = info.ownerName or L["Unknown"];
+				for senderName, _ in pairs(HM_CachedAmbience_DB[locationKey]) do
+					if string.find(senderName, ownerName) then
+						selectedSender = senderName;
+						break;
+					end
+				end
+				if not selectedSender then
+					selectedSender = next(HM_CachedAmbience_DB[locationKey]);
+				end
+			end
+
+			if selectedSender then
+				local path = HM_CachedAmbience_DB[locationKey][selectedSender];
+				return tonumber(path) or path;
+			end
+		end
+		return nil;
+	end
+end
+
+local function SetCurrentHouseAmbience(path, duration)
+	local key = GetCurrentHouseKey();
+	if key then
+		HousingMusic_DB.AmbienceAssignments = HousingMusic_DB.AmbienceAssignments or {};
+		HousingMusic_DB.AmbienceAssignments[key] = path;
+		HM.PlayAmbience(path, duration);
+	end
+end
+
+local function IsAmbienceMuted(path)
+	return HM.IsAmbienceMuted and HM.IsAmbienceMuted(path) or false;
+end
+
+local function OpenAmbienceContextMenu(owner, data)
+	MenuUtil.CreateContextMenu(owner, function(owner, rootDescription)
+		rootDescription:CreateTitle(data.name or L["Unknown"]);
+
+		local isMuted = IsAmbienceMuted(data.path);
+		local muteText = isMuted and L["UnmuteSong"] or L["MuteSong"];
+
+		rootDescription:CreateButton(muteText, function()
+			if HM.SetAmbienceMuted then
+				HM.SetAmbienceMuted(data.path, not isMuted);
+			end
+			
+			if HM.CheckConditions then
+				HM.CheckConditions();
+			end
+			
+			if HM.FilterAmbienceList then
+				HM.FilterAmbienceList();
+			end
+			if HM.UpdateAmbienceRightPanel then
+				HM.UpdateAmbienceRightPanel();
+			end
+		end)
+	end)
+end
+
+local function AmbienceInitializer(button, data)
+	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
+	button.tex:SetAllPoints(button)
+	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+
+	button.mutedTex = button.mutedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.mutedTex:SetAllPoints(button)
+	button.mutedTex:SetAtlas("ClickCastList-ButtonHighlight")
+	button.mutedTex:SetVertexColor(1, 0, 0, 1.00)
+	button.mutedTex:SetShown(IsAmbienceMuted(data.path))
+
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
+	button.selectedTex:SetAllPoints(button)
+	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
+	button.selectedTex:SetShown(GetCurrentHouseAmbience() == data.path)
+
+	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
+	button.texHL:SetAllPoints(button)
+	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
+	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
+	button.texHL:Hide()
+
+	button.text = button.text or button:CreateFontString(nil, "OVERLAY")
+	button.text:SetFontObject("GameTooltipTextSmall")
+	button.text:SetPoint("LEFT", 15, 0)
+	button.text:SetJustifyH("LEFT")
+	button.text:SetTextColor(1, 1, 1, 1)
+	button.text:SetText(data.name)
+
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "RightButton" then
+			OpenAmbienceContextMenu(self, data);
+			return;
+		end
+
+		if not C_Housing.IsInsideOwnHouse() then return; end
+
+		if GetCurrentHouseAmbience() == data.path then
+			SetCurrentHouseAmbience(nil, nil);
+			HM.StopAmbience();
+		else
+			SetCurrentHouseAmbience(data.path, data.duration);
+		end
+
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+
+		AmbScrollView:ForEachFrame(function(frame)
+			local d = frame:GetElementData();
+			if d then
+				frame.selectedTex:SetShown(GetCurrentHouseAmbience() == d.path);
+			end
+		end)
+
+		if HM.UpdateAmbienceRightPanel then
+			HM.UpdateAmbienceRightPanel();
+		end
+	end)
+
+	button:SetScript("OnEnter", function(self)
+		if C_Housing.IsInsideOwnHouse() then
+			self.texHL:Show();
+		end
+		
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		GameTooltip:AddLine(data.originalName or data.name, 1, 1, 1);
+		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8);
+		
+		if IsAmbienceMuted(data.path) then
+			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00);
+		end
+		
+		if not C_Housing.IsInsideOwnHouse() then
+			GameTooltip:AddLine(L["AmbienceShareError"], 1.0, 0.2, 0.2);
+		end
+		
+		GameTooltip:Show();
+	end)
+
+	button:SetScript("OnLeave", function(self)
+		self.texHL:Hide();
+		GameTooltip:Hide();
+	end)
+end
+
+AmbScrollView:SetElementInitializer("Button", AmbienceInitializer)
+AmbScrollView:SetElementExtent(36)
+
+AmbSectionRight = CreateFrame("Frame", nil, MainFrame.Backframe)
+AmbSectionRight:SetPoint("TOPLEFT", MainFrame.Backframe, "TOP", 0, 0)
+AmbSectionRight:SetPoint("BOTTOMRIGHT", MainFrame.Backframe, "BOTTOMRIGHT", 0, 50)
+AmbSectionRight.tex = AmbSectionRight:CreateTexture(nil, "BACKGROUND", nil, 0)
+AmbSectionRight.tex:SetAtlas("catalog-list-preview-bg")
+AmbSectionRight.tex:SetVertexColor(1, 1, 1, 1)
+AmbSectionRight.tex:SetAllPoints(AmbSectionRight)
+AmbSectionRight:Hide()
+
+local AmbRightHeader = AmbSectionRight:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+AmbRightHeader:SetPoint("TOPLEFT", AmbSectionRight, "TOPLEFT", 10, -4)
+AmbRightHeader:SetJustifyH("LEFT")
+AmbRightHeader:SetTextColor(1, 0.82, 0)
+
+local AmbScrollBoxRight = CreateFrame("Frame", nil, AmbSectionRight, "WowScrollBoxList")
+AmbScrollBoxRight:SetPoint("TOPLEFT", AmbSectionRight, "TOPLEFT", 5, -20)
+AmbScrollBoxRight:SetPoint("BOTTOMRIGHT", AmbSectionRight, "BOTTOMRIGHT", -20, 0)
+AmbScrollBoxRight:SetFrameLevel(500)
+
+local AmbScrollBarRight = CreateFrame("EventFrame", nil, AmbSectionRight, "MinimalScrollBar")
+AmbScrollBarRight:SetPoint("TOPLEFT", AmbScrollBoxRight, "TOPRIGHT", 5, 0)
+AmbScrollBarRight:SetPoint("BOTTOMLEFT", AmbScrollBoxRight, "BOTTOMRIGHT", 5, 0)
+
+local AmbScrollViewRight = CreateScrollBoxListLinearView()
+ScrollUtil.InitScrollBoxListWithScrollBar(AmbScrollBoxRight, AmbScrollBarRight, AmbScrollViewRight)
+
+local function AmbCurrentInitializer(button, data)
+	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
+	button.tex:SetAllPoints(button)
+	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+
+	button.mutedTex = button.mutedTex or button:CreateTexture(nil, "ARTWORK", nil, 1)
+	button.mutedTex:SetAllPoints(button)
+	button.mutedTex:SetAtlas("ClickCastList-ButtonHighlight")
+	button.mutedTex:SetVertexColor(1, 0, 0, 1.00)
+	button.mutedTex:SetShown(IsAmbienceMuted(data.path))
+
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
+	button.selectedTex:SetAllPoints(button)
+	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
+	button.selectedTex:SetShown(true)
+
+	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
+	button.texHL:SetAllPoints(button)
+	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
+	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
+	button.texHL:Hide()
+
+	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
+	button.textFont:SetFontObject("GameTooltipTextSmall")
+	button.textFont:SetPoint("TOPLEFT", button, "TOPLEFT", 15, 0)
+	button.textFont:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -55, 0)
+	button.textFont:SetJustifyH("LEFT")
+	button.textFont:SetJustifyV("MIDDLE")
+	button.textFont:SetTextColor(1, 1, 1, 1)
+	button.textFont:SetText(data.name)
+
+	local removeButton = button.removeButton
+	if not removeButton then
+		removeButton = CreateFrame("Button", nil, button)
+		removeButton:SetSize(20, 20)
+		removeButton:SetPoint("RIGHT", button, "RIGHT", -10, 0)
+		removeButton:SetNormalAtlas("common-icon-minus")
+		removeButton:SetHighlightAtlas("common-icon-minus")
+		removeButton:GetHighlightTexture():SetAlpha(0.5)
+		button.removeButton = removeButton
+	end
+	removeButton:Hide()
+
+	removeButton:SetScript("OnClick", function()
+		if not C_Housing.IsInsideOwnHouse() then return; end
+		SetCurrentHouseAmbience(nil, nil);
+		HM.StopAmbience();
+		if HM.UpdateAmbienceRightPanel then
+			HM.UpdateAmbienceRightPanel();
+		end
+		if HM.FilterAmbienceList then
+			HM.FilterAmbienceList();
+		end
+		PlaySound(316562);
+	end)
+
+	local function HideButtonElements(self)
+		if self:IsMouseOver() then
+			self.texHL:Show();
+			if self.removeButton and C_Housing.IsInsideOwnHouse() then
+				self.removeButton:Show();
+			end
+		else
+			self.texHL:Hide()
+			if self.removeButton then
+				self.removeButton:Hide();
+			end
+		end
+	end
+
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnClick", function(self, btn)
+		if btn == "RightButton" then
+			OpenAmbienceContextMenu(self, data);
+		end
+	end)
+
+	button:SetScript("OnEnter", function(self)
+		HideButtonElements(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine(data.name, 1, 1, 1)
+		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8)
+		if IsAmbienceMuted(data.path) then
+			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00);
+		end
+		GameTooltip:Show()
+	end)
+	button:SetScript("OnLeave", function(self)
+		GameTooltip:Hide()
+		HideButtonElements(self)
+	end)
+
+	removeButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1)
+		GameTooltip:Show()
+		HideButtonElements(button)
+	end)
+	removeButton:SetScript("OnLeave", function(self)
+		GameTooltip:Hide()
+		HideButtonElements(button)
+	end)
+end
+
+AmbScrollViewRight:SetElementInitializer("Button", AmbCurrentInitializer)
+AmbScrollViewRight:SetElementExtent(36)
+
+local AmbRightEmptyText = AmbSectionRight:CreateFontString(nil, "OVERLAY", "GameFontDisable")
+AmbRightEmptyText:SetPoint("CENTER", AmbSectionRight, "CENTER", 0, 0)
+AmbRightEmptyText:SetText(L["NoAmbienceSelected"])
+
+function HM.UpdateAmbienceRightPanel()
+	local isOwner = C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse();
+	local currentPath = GetCurrentHouseAmbience();
+
+	AmbRightHeader:SetText(L["CurrentAmbience"]);
+
+	local entries = {};
+	if currentPath and HM.AmbienceData then
+		for _, data in ipairs(HM.AmbienceData) do
+			if data.path == currentPath then
+				table.insert(entries, data);
+				break;
+			end
+		end
+	end
+
+	local dp = CreateDataProvider(entries);
+	AmbScrollViewRight:SetDataProvider(dp);
+
+	if #entries == 0 then
+		local emptyMsg = L["NoAmbienceSelected"];
+		AmbRightEmptyText:SetText(emptyMsg);
+		AmbRightEmptyText:Show();
+	else
+		AmbRightEmptyText:Hide();
+	end
+end
+
+
+ScrollBoxLeft = CreateFrame("Frame", nil, SectionLeft, "WowScrollBoxList")
 ScrollBoxLeft:SetPoint("TOPLEFT", SectionLeft, "TOPLEFT", 5, -20)
 ScrollBoxLeft:SetPoint("BOTTOMRIGHT", SectionLeft, "BOTTOMRIGHT", -20, 0)
 ScrollBoxLeft:SetFrameLevel(500)
 
-local ScrollBarLeft = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollBar")
+local ScrollBarLeft = CreateFrame("EventFrame", nil, SectionLeft, "MinimalScrollBar")
 ScrollBarLeft:SetPoint("TOPLEFT", ScrollBoxLeft, "TOPRIGHT", 5, 0)
 ScrollBarLeft:SetPoint("BOTTOMLEFT", ScrollBoxLeft, "BOTTOMRIGHT", 5, 0)
 
-ScrollViewLeft = CreateScrollBoxListLinearView() 
+ScrollViewLeft = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(ScrollBoxLeft, ScrollBarLeft, ScrollViewLeft)
 
 SearchBoxLeft = CreateFrame("EditBox", nil, SectionLeft, "SearchBoxTemplate")
@@ -1955,7 +2470,7 @@ function FilterAvailableList(editBox)
 		end
 	end
 	
-	local musicDataProvider = CreateDataProvider(matches) 
+	local musicDataProvider = CreateDataProvider(matches)
 	ScrollViewLeft:SetDataProvider(musicDataProvider)
 end
 
@@ -2095,14 +2610,14 @@ local function Initializer(button, musicInfo)
 		local currentList = HM.GetActivePlaylistTable()
 
 		if not currentList[musicInfo.file] then
-			currentList[musicInfo.file] = true 
+			currentList[musicInfo.file] = true
 			local dataProvider = ScrollViewRight:GetDataProvider()
 			if dataProvider then
 				-- Create the data structure exactly as UpdateSavedMusicList does
 				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], musicInfo.file))
-				local newData = { 
-					name = primaryName, 
-					file = musicInfo.file, 
+				local newData = {
+					name = primaryName,
+					file = musicInfo.file,
 					duration = musicInfo.duration,
 					names = musicInfo.names,
 				}
@@ -2219,12 +2734,12 @@ end
 -- MAIN FRAME - Right Scroll Box
 -------------------------------------------------------------------------------
 
-ScrollBoxRight = CreateFrame("Frame", nil, MainFrame, "WowScrollBoxList")
+ScrollBoxRight = CreateFrame("Frame", nil, SectionRight, "WowScrollBoxList")
 ScrollBoxRight:SetPoint("TOPLEFT", SectionRight, "TOPLEFT", 5, -20)
 ScrollBoxRight:SetPoint("BOTTOMRIGHT", SectionRight, "BOTTOMRIGHT", -20, 0)
 ScrollBoxRight:SetFrameLevel(500)
 
-local ScrollBarRight = CreateFrame("EventFrame", nil, MainFrame, "MinimalScrollBar")
+local ScrollBarRight = CreateFrame("EventFrame", nil, SectionRight, "MinimalScrollBar")
 ScrollBarRight:SetPoint("TOPLEFT", ScrollBoxRight, "TOPRIGHT", 5, 0)
 ScrollBarRight:SetPoint("BOTTOMLEFT", ScrollBoxRight, "BOTTOMRIGHT", 5, 0)
 
@@ -2249,7 +2764,7 @@ function FilterSavedList(editBox)
 		else
 			local matchedName = CheckMatch(musicInfo, query)
 			
-			if matchedName then 
+			if matchedName then
 				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], (musicInfo.file or L["Unknown"])))
 
 				local displayItem = {
@@ -2404,7 +2919,7 @@ local function GeneratorFunction(dropdown, rootDescription)
 		local locationKey = GetCurrentLocationKey()
 		if not locationKey or not HM_CachedMusic_DB or not HM_CachedMusic_DB[locationKey] then
 			rootDescription:CreateTitle(L["NoPlaylistsReceived"])
-			return 
+			return
 		end
 
 		rootDescription:CreateTitle(L["SelectSource"])
@@ -2887,14 +3402,14 @@ function RefreshBrowserPlaylists()
 		end
 	end
 	
-	table.sort(rawBrowserPlaylists, function(a, b) 
+	table.sort(rawBrowserPlaylists, function(a, b)
 		if a.isFavorite ~= b.isFavorite then
 			return a.isFavorite
 		end
-		return a.sender < b.sender 
+		return a.sender < b.sender
 	end)
 	
-	FilterBrowserPlaylists() 
+	FilterBrowserPlaylists()
 end
 
 local function BrowserPlaylist_Initializer(button, data)
@@ -2907,7 +3422,7 @@ local function BrowserPlaylist_Initializer(button, data)
 		button.favButton:SetSize(20, 20)
 		button.favButton:SetPoint("LEFT", button, "LEFT", 5, 0)
 		
-		button.favButton:SetHighlightTexture(favtex) 
+		button.favButton:SetHighlightTexture(favtex)
 		button.favButton:GetHighlightTexture():SetAlpha(0.5)
 	end
 
@@ -3153,9 +3668,9 @@ function UpdateSavedMusicList()
 
 			local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], safeFile))
 			
-			local listItem = { 
-				name = primaryName, 
-				file = musicInfo.file, 
+			local listItem = {
+				name = primaryName,
+				file = musicInfo.file,
 				duration = musicInfo.duration,
 				names = musicInfo.names,
 			}

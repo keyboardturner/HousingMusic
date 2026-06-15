@@ -10,6 +10,7 @@ HM.CommPrefix = "HousingMusic"
 -- "HEADER:LocationKey:FileID,FileID,FileID..."
 -- "H"- House Data
 local MSG_TYPE_HOUSE = "H"
+local MSG_TYPE_AMBIENCE = "A"
 
 local MAX_MSG_BYTES = 250
 
@@ -177,7 +178,7 @@ local function SendData(channel, target, locationKey, playlistTable)
 	
 	if #ids == 0 then return end
 	
-	local SAFE_BYTES = MAX_MSG_BYTES - 20 
+	local SAFE_BYTES = MAX_MSG_BYTES - 20
 	
 	local headerBase = string.format("%s:%s", MSG_TYPE_HOUSE, locationKey)
 	local availableBytes = SAFE_BYTES - #headerBase
@@ -213,55 +214,80 @@ local function SendData(channel, target, locationKey, playlistTable)
 	--print(channel, target, locationKey, playlistTable)
 end
 
-function HM.SharePlaylist(context)
-	local playlistTable = HM.GetActivePlaylistTable()
-	if not playlistTable then return end
+local function ProcessReceivedAmbience(sender, receivedLocationKey, ambienceData)
+	if not sender or not receivedLocationKey or not ambienceData then return; end
+	
+	local myCurrentKey = GetCurrentLocationKey();
 
-	local locationKey = GetCurrentLocationKey()
-	if not locationKey then
-		--Print(L["InsideHouseToShare"])
-		return
+	if not myCurrentKey or myCurrentKey ~= receivedLocationKey then
+		return;
 	end
 
-	local channel = "WHISPER"
-	local target = nil
+	HM_CachedAmbience_DB = HM_CachedAmbience_DB or {};
+	HM_CachedAmbience_DB[receivedLocationKey] = HM_CachedAmbience_DB[receivedLocationKey] or {};
+	
+	HM_CachedAmbience_DB[receivedLocationKey][sender] = ambienceData;
+end
+
+local function SendAmbienceData(channel, target, locationKey, ambienceData)
+	if not ChatThrottleLib then
+		return;
+	end
+
+	local payload = string.format("%s:%s:%s", MSG_TYPE_AMBIENCE, locationKey, ambienceData);
+	ChatThrottleLib:SendAddonMessage("NORMAL", HM.CommPrefix, payload, channel, target);
+end
+
+function HM.SharePlaylist(context)
+	local playlistTable = HM.GetActivePlaylistTable();
+	if not playlistTable then return; end
+
+	local locationKey = GetCurrentLocationKey();
+	if not locationKey then
+		return;
+	end
+
+	local channel = "WHISPER";
+	local target = nil;
 
 	if context == "party" then
 		if IsInGroup() then
-			channel = IsInRaid() and "RAID" or "PARTY"
+			channel = IsInRaid() and "RAID" or "PARTY";
 		else
-			--print("|cffd7ad32HousingMusic:|r You are not in a group.")
-			return
+			return;
 		end
 	elseif context == "say" then
-		channel = "SAY" 
+		channel = "SAY";
 	elseif context == "yell" then
-		channel = "YELL" 
+		channel = "YELL";
 	elseif context == "mouseover" then
 		if UnitExists("mouseover") and UnitIsPlayer("mouseover") then
-			target = GetUnitName("mouseover", true)
-			if not target then return end
+			target = GetUnitName("mouseover", true);
+			if not target then return; end
 		else
-			return 
+			return;
 		end
 	elseif context == "target" then
 		if UnitExists("target") and UnitIsPlayer("target") then
-			target = GetUnitName("target", true)
+			target = GetUnitName("target", true);
 		else
-			--print("|cffd7ad32HousingMusic:|r Invalid target.")
-			return
+			return;
 		end
 	else
-		target = context
+		target = context;
 	end
-	
-	--if target then
-	--	Print(string.format(L["SendingHouseMusicToTarget"], target))
-	--else
-	--	Print(string.format(L["BroadcastingHouseMusicDataViaChannel"], channel))
-	--end
 
-	SendData(channel, target, locationKey, playlistTable)
+	SendData(channel, target, locationKey, playlistTable);
+
+	local info = C_Housing.GetCurrentHouseInfo();
+	if info and info.ownerName and info.neighborhoodGUID and info.plotID then
+		local ownerKey = string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID);
+		local activeAmbience = HousingMusic_DB.AmbienceAssignments and HousingMusic_DB.AmbienceAssignments[ownerKey];
+
+		if activeAmbience then
+			SendAmbienceData(channel, target, locationKey, tostring(activeAmbience));
+		end
+	end
 end
 
 local TriggerFrame = CreateFrame("Frame")
@@ -282,7 +308,7 @@ local function TryAutoShare(unitID)
 	local default = (DefaultsTable and DefaultsTable.autosharePlaylist) or 1
 	local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or default
 	
-	if setting == 4 then 
+	if setting == 4 then
 		--Print("Refusing to export all comms based on export settings 4.")
 		return
 	elseif setting == 2 then
@@ -310,7 +336,7 @@ local function TryAutoShare(unitID)
 
 	if HM.IsPlayerIgnored(targetName) then
 		--Print(string.format(L["PreventingSendingDataToTarget"], targetName))
-		return 
+		return
 	end
 
 	local now = GetTime()
@@ -380,7 +406,7 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 	sender = Ambiguate(sender, "none")
 
 	if target and not target == "" and HM.IsPlayerIgnored(target) then
-		return 
+		return
 	end
 	
 	if sender == UnitName("player") then return end
@@ -408,10 +434,15 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 		end
 	end
 
-	-- example: H:LocationKey:Index:Total:Data
-	local msgType, locationKey, idx, total, data = strsplit(":", text, 5)
+	-- example: H:LocationKey:Index:Total:Data OR A:LocationKey:AmbienceData
+	local msgType, locationKey, param3, param4, param5 = strsplit(":", text, 5);
 	
-	if msgType == MSG_TYPE_HOUSE and locationKey and idx and total and data then
-		ProcessReceivedPlaylist(sender, locationKey, tonumber(idx), tonumber(total), data)
+	if msgType == MSG_TYPE_HOUSE and locationKey and param3 and param4 and param5 then
+		-- param3 = index, param4 = total chunks, param5 = chunk data
+		ProcessReceivedPlaylist(sender, locationKey, tonumber(param3), tonumber(param4), param5);
+		
+	elseif msgType == MSG_TYPE_AMBIENCE and locationKey and param3 then
+		-- param3 = the isolated ambience track
+		ProcessReceivedAmbience(sender, locationKey, tonumber(param3) or param3);
 	end
 end
