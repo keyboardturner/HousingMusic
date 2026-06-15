@@ -177,6 +177,13 @@ if LOCALE == "enUS" then
 	L["BlockerFrame_EnableEnableMusic"] = "Enable Music"
 	L["BlockerFrame_MusicVolume"] = "Music Volume is set to 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Enable Music Volume"
+	L["BlockerFrame_EnableAmbience"] = "Ambience is currently disabled."
+	L["BlockerFrame_EnableEnableAmbience"] = "Enable Ambience"
+	L["BlockerFrame_AmbienceVolume"] = "Ambience Volume is set to 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Enable Ambience Volume"
+	L["CurrentAmbience"] = "Current Ambience"
+	L["NoAmbienceSelected"] = "No Ambience Selected"
+	L["AmbienceShareError"] = "You must be inside your own house to select ambience."
 	L["BlockerFrame_EnableSoundInBackground"] = "Enable Sound in Background"
 	L["OutlineModeTT"] = "Modifies the graphics outline mode while inside the house. Does not function in Edit Mode."
 	L["Musician"] = "Musician"
@@ -184,6 +191,8 @@ if LOCALE == "enUS" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -349,6 +358,14 @@ if LOCALE == "esMX" then
 	L["BlockerFrame_EnableEnableMusic"] = "Activar música"
 	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
+	L["BlockerFrame_EnableAmbience"] = "El ambiente está desactivado."
+	L["BlockerFrame_EnableEnableAmbience"] = "Activar ambiente"
+	L["BlockerFrame_AmbienceVolume"] = "El volumen del ambiente está configurado al 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Activar volumen del ambiente"
+	L["CurrentAmbience"] = "Ambiente actual"
+	L["NoAmbienceSelected"] = "No se ha seleccionado ningún ambiente"
+	L["AmbienceShareError"] = "Debes estar dentro de tu propia casa para seleccionar un ambiente."
+	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
 	L["OutlineModeTT"] = "Modifica el modo de contorno gráfico dentro de la casa. No funciona en el modo Edición."
 	L["Musician"] = "Musician"
@@ -356,6 +373,8 @@ if LOCALE == "esMX" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -521,6 +540,14 @@ if LOCALE == "esES" then
 	L["BlockerFrame_EnableEnableMusic"] = "Activar música"
 	L["BlockerFrame_MusicVolume"] = "El volumen de la música está configurado al 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
+	L["BlockerFrame_EnableAmbience"] = "El ambiente está desactivado."
+	L["BlockerFrame_EnableEnableAmbience"] = "Activar ambiente"
+	L["BlockerFrame_AmbienceVolume"] = "El volumen del ambiente está configurado al 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Activar volumen del ambiente"
+	L["CurrentAmbience"] = "Ambiente actual"
+	L["NoAmbienceSelected"] = "No hay ningún ambiente seleccionado"
+	L["AmbienceShareError"] = "Debes estar dentro de tu propia casa para seleccionar un ambiente."
+	L["BlockerFrame_EnableMusicVolume"] = "Activar volumen de música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activar sonido en segundo plano"
 	L["OutlineModeTT"] = "Modifica el modo de contorno gráfico dentro de la casa. No funciona en el modo Edición."
 	L["Musician"] = "Musician"
@@ -528,6 +555,8 @@ if LOCALE == "esES" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -693,6 +722,14 @@ if LOCALE == "deDE" then
 	L["BlockerFrame_EnableEnableMusic"] = "Musik aktivieren"
 	L["BlockerFrame_MusicVolume"] = "Die Musiklautstärke ist auf 0 % eingestellt."
 	L["BlockerFrame_EnableMusicVolume"] = "Musiklautstärke aktivieren"
+	L["BlockerFrame_EnableAmbience"] = "Umgebungsgeräusche sind derzeit deaktiviert."
+	L["BlockerFrame_EnableEnableAmbience"] = "Umgebungsgeräusche aktivieren"
+	L["BlockerFrame_AmbienceVolume"] = "Die Lautstärke der Umgebungsgeräusche ist auf 0 % eingestellt."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Lautstärke der Umgebungsgeräusche aktivieren"
+	L["CurrentAmbience"] = "Aktuelle Umgebungsgeräusche"
+	L["NoAmbienceSelected"] = "Keine Umgebungsgeräusche ausgewählt"
+	L["AmbienceShareError"] = "Du musst dich in deinem eigenen Haus befinden, um Umgebungsgeräusche auszuwählen."
+	L["BlockerFrame_EnableMusicVolume"] = "Musiklautstärke aktivieren"
 	L["BlockerFrame_EnableSoundInBackground"] = "Sound im Hintergrund aktivieren"
 	L["OutlineModeTT"] = "Ändert den Grafik-Umrissmodus innerhalb des Hauses. Funktioniert nicht im Bearbeitungsmodus."
 	L["Musician"] = "Musician"
@@ -700,6 +737,8 @@ if LOCALE == "deDE" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -865,6 +904,14 @@ if LOCALE == "frFR" then
 	L["BlockerFrame_EnableEnableMusic"] = "Activer la musique"
 	L["BlockerFrame_MusicVolume"] = "Le volume de la musique est réglé sur 0 %."
 	L["BlockerFrame_EnableMusicVolume"] = "Activer le volume de la musique"
+	L["BlockerFrame_EnableAmbience"] = "L'ambiance est actuellement désactivée."
+	L["BlockerFrame_EnableEnableAmbience"] = "Activer l'ambiance"
+	L["BlockerFrame_AmbienceVolume"] = "Le volume de l'ambiance est réglé à 0 %."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Activer le volume de l'ambiance"
+	L["CurrentAmbience"] = "Ambiance actuelle"
+	L["NoAmbienceSelected"] = "Aucune ambiance sélectionnée"
+	L["AmbienceShareError"] = "Vous devez être dans votre propre maison pour sélectionner une ambiance."
+	L["BlockerFrame_EnableMusicVolume"] = "Activer le volume de la musique"
 	L["BlockerFrame_EnableSoundInBackground"] = "Activer le son en arrière-plan"
 	L["OutlineModeTT"] = "Modifie le mode de contour graphique à l’intérieur de la maison. Ne fonctionne pas en mode Édition."
 	L["Musician"] = "Musician"
@@ -872,6 +919,8 @@ if LOCALE == "frFR" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -1037,6 +1086,14 @@ if LOCALE == "itIT" then
 	L["BlockerFrame_EnableEnableMusic"] = "Abilita musica"
 	L["BlockerFrame_MusicVolume"] = "Il volume della musica è impostato allo 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Abilita volume della musica"
+	L["BlockerFrame_EnableAmbience"] = "L'ambiente è attualmente disattivato."
+	L["BlockerFrame_EnableEnableAmbience"] = "Abilita ambiente"
+	L["BlockerFrame_AmbienceVolume"] = "Il volume dell'ambiente è impostato allo 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Abilita volume dell'ambiente"
+	L["CurrentAmbience"] = "Ambiente attuale"
+	L["NoAmbienceSelected"] = "Nessun ambiente selezionato"
+	L["AmbienceShareError"] = "Devi essere nella tua casa per selezionare un ambiente."
+	L["BlockerFrame_EnableMusicVolume"] = "Abilita volume della musica"
 	L["BlockerFrame_EnableSoundInBackground"] = "Abilita suoni in background"
 	L["OutlineModeTT"] = "Modifica la modalità contorno grafico all’interno della casa. Non funziona in modalità Modifica."
 	L["Musician"] = "Musician"
@@ -1044,6 +1101,8 @@ if LOCALE == "itIT" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -1209,6 +1268,14 @@ if LOCALE == "ptBR" then
 	L["BlockerFrame_EnableEnableMusic"] = "Ativar música"
 	L["BlockerFrame_MusicVolume"] = "O volume da música está definido em 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Ativar volume da música"
+	L["BlockerFrame_EnableAmbience"] = "A ambiência está desativada no momento."
+	L["BlockerFrame_EnableEnableAmbience"] = "Ativar ambiência"
+	L["BlockerFrame_AmbienceVolume"] = "O volume da ambiência está definido como 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Ativar volume da ambiência"
+	L["CurrentAmbience"] = "Ambiência atual"
+	L["NoAmbienceSelected"] = "Nenhuma ambiência selecionada"
+	L["AmbienceShareError"] = "Você deve estar dentro da sua própria casa para selecionar uma ambiência."
+	L["BlockerFrame_EnableMusicVolume"] = "Ativar volume da música"
 	L["BlockerFrame_EnableSoundInBackground"] = "Ativar som em segundo plano"
 	L["OutlineModeTT"] = "Modifica o modo de contorno gráfico dentro da casa. Não funciona no Modo de Edição."
 	L["Musician"] = "Musician"
@@ -1216,6 +1283,8 @@ if LOCALE == "ptBR" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -1383,6 +1452,14 @@ if LOCALE == "ruRU" then
 	L["BlockerFrame_EnableEnableMusic"] = "Включить музыку"
 	L["BlockerFrame_MusicVolume"] = "Громкость музыки установлена на 0%."
 	L["BlockerFrame_EnableMusicVolume"] = "Включить громкость музыки"
+	L["BlockerFrame_EnableAmbience"] = "Фоновая атмосфера в данный момент отключена."
+	L["BlockerFrame_EnableEnableAmbience"] = "Включить атмосферу"
+	L["BlockerFrame_AmbienceVolume"] = "Громкость атмосферы установлена на 0%."
+	L["BlockerFrame_EnableAmbienceVolume"] = "Включить громкость атмосферы"
+	L["CurrentAmbience"] = "Текущая атмосфера"
+	L["NoAmbienceSelected"] = "Атмосфера не выбрана"
+	L["AmbienceShareError"] = "Чтобы выбрать атмосферу, вы должны находиться в собственном доме."
+	L["BlockerFrame_EnableMusicVolume"] = "Включить громкость музыки"
 	L["BlockerFrame_EnableSoundInBackground"] = "Включить звук в фоновом режиме"
 	L["OutlineModeTT"] = "Изменяет режим графической обводки внутри дома. Не работает в режиме редактирования."
 	L["Musician"] = "Musician"
@@ -1390,6 +1467,8 @@ if LOCALE == "ruRU" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -1554,6 +1633,14 @@ if LOCALE == "koKR" then
 	L["BlockerFrame_EnableMusic"] = "현재 음악이 비활성화되어 있습니다."
 	L["BlockerFrame_EnableEnableMusic"] = "음악 활성화"
 	L["BlockerFrame_MusicVolume"] = "음악 음량이 0%로 설정되어 있습니다."
+	L["BlockerFrame_EnableMusicVolume"] = "음악 볼륨 활성화"
+	L["BlockerFrame_EnableAmbience"] = "환경음이 현재 비활성화되어 있습니다."
+	L["BlockerFrame_EnableEnableAmbience"] = "환경음 활성화"
+	L["BlockerFrame_AmbienceVolume"] = "환경음 볼륨이 0%로 설정되어 있습니다."
+	L["BlockerFrame_EnableAmbienceVolume"] = "환경음 볼륨 활성화"
+	L["CurrentAmbience"] = "현재 환경음"
+	L["NoAmbienceSelected"] = "선택된 환경음 없음"
+	L["AmbienceShareError"] = "환경음을 선택하려면 자신의 집 안에 있어야 합니다."
 	L["BlockerFrame_EnableMusicVolume"] = "음악 음량 활성화"
 	L["BlockerFrame_EnableSoundInBackground"] = "백그라운드 사운드 활성화"
 	L["OutlineModeTT"] = "집 내부에서 그래픽 외곽선 모드를 변경합니다. 편집 모드에서는 작동하지 않습니다."
@@ -1562,6 +1649,8 @@ if LOCALE == "koKR" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -1727,6 +1816,14 @@ if LOCALE == "zhCN" then
 	L["BlockerFrame_EnableEnableMusic"] = "启用音乐"
 	L["BlockerFrame_MusicVolume"] = "音乐音量已设置为 0%。"
 	L["BlockerFrame_EnableMusicVolume"] = "启用音乐音量"
+	L["BlockerFrame_EnableAmbience"] = "环境音当前已禁用。"
+	L["BlockerFrame_EnableEnableAmbience"] = "启用环境音"
+	L["BlockerFrame_AmbienceVolume"] = "环境音音量当前设置为 0%。"
+	L["BlockerFrame_EnableAmbienceVolume"] = "启用环境音音量"
+	L["CurrentAmbience"] = "当前环境音"
+	L["NoAmbienceSelected"] = "未选择环境音"
+	L["AmbienceShareError"] = "你必须位于自己的房屋内才能选择环境音。"
+	L["BlockerFrame_EnableMusicVolume"] = "启用音乐音量"
 	L["BlockerFrame_EnableSoundInBackground"] = "启用后台声音"
 	L["OutlineModeTT"] = "在房屋内修改图形描边模式。在编辑模式下无效。"
 	L["Musician"] = "Musician"
@@ -1734,6 +1831,8 @@ if LOCALE == "zhCN" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end
 
@@ -1899,6 +1998,14 @@ if LOCALE == "zhTW" then
 	L["BlockerFrame_EnableEnableMusic"] = "啟用音樂"
 	L["BlockerFrame_MusicVolume"] = "音樂音量已設為 0%。"
 	L["BlockerFrame_EnableMusicVolume"] = "啟用音樂音量"
+	L["BlockerFrame_EnableAmbience"] = "環境音目前已停用。"
+	L["BlockerFrame_EnableEnableAmbience"] = "啟用環境音"
+	L["BlockerFrame_AmbienceVolume"] = "環境音音量目前設為 0%。"
+	L["BlockerFrame_EnableAmbienceVolume"] = "啟用環境音音量"
+	L["CurrentAmbience"] = "目前環境音"
+	L["NoAmbienceSelected"] = "未選擇環境音"
+	L["AmbienceShareError"] = "您必須位於自己的房屋內才能選擇環境音。"
+	L["BlockerFrame_EnableMusicVolume"] = "啟用音樂音量"
 	L["BlockerFrame_EnableSoundInBackground"] = "啟用背景音效"
 	L["OutlineModeTT"] = "在房屋內修改圖形外框模式。在編輯模式下無效。"
 	L["Musician"] = "Musician"
@@ -1906,5 +2013,7 @@ if LOCALE == "zhTW" then
 	L["OutlineMode_Disabled"] = VIDEO_OPTIONS_DISABLED
 	L["OutlineMode_Good"] = VIDEO_OPTIONS_MEDIUM
 	L["OutlineMode_High"] = VIDEO_OPTIONS_HIGH
+	L["Music"] = MUSIC_VOLUME
+	L["Ambience"] = AMBIENCE_VOLUME
 
 return end

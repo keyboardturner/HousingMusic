@@ -7,35 +7,35 @@ local function Print(...)
 	DEFAULT_CHAT_FRAME:AddMessage(string.join(" ", prefix, ...));
 end
 
-HM.Print = Print
+HM.Print = Print;
 
 function HM.IsBNetFriend(name)
-	if not name then return false end
+	if not name then return false; end
 	
 	local checkName = name
 	if not string.find(checkName, "-") and GetNormalizedRealmName() then
 		checkName = checkName .. "-" .. GetNormalizedRealmName();
 	end
-	checkName = checkName:gsub("%s+", "")
+	checkName = checkName:gsub("%s+", "");
 
-	local numFriends = BNGetNumFriends()
+	local numFriends = BNGetNumFriends();
 	for i = 1, numFriends do
-		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+		local accountInfo = C_BattleNet.GetFriendAccountInfo(i);
 		if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
-			local charName = accountInfo.gameAccountInfo.characterName
-			local realmName = accountInfo.gameAccountInfo.realmName
+			local charName = accountInfo.gameAccountInfo.characterName;
+			local realmName = accountInfo.gameAccountInfo.realmName;
 			
 			if charName and realmName then
 				local fullName = charName .. "-" .. realmName
-				fullName = fullName:gsub("%s+", "")
+				fullName = fullName:gsub("%s+", "");
 				
 				if string.lower(checkName) == string.lower(fullName) then
-					return true
+					return true;
 				end
 			end
 		end
 	end
-	return false
+	return false;
 end
 
 local DefaultsTable = { -- HousingMusic_DB
@@ -86,18 +86,18 @@ local DefaultsTable = { -- HousingMusic_DB
 
 HM.DefaultsTable = DefaultsTable;
 
-local f = CreateFrame("Frame")
-f:RegisterEvent("ADDON_LOADED")
-f:RegisterEvent("HOUSE_PLOT_ENTERED")
-f:RegisterEvent("HOUSE_PLOT_EXITED")
-f:RegisterEvent("PLAYER_LOGOUT")
-f:RegisterEvent("CURRENT_HOUSE_INFO_UPDATED")
+local f = CreateFrame("Frame");
+f:RegisterEvent("ADDON_LOADED");
+f:RegisterEvent("HOUSE_PLOT_ENTERED");
+f:RegisterEvent("HOUSE_PLOT_EXITED");
+f:RegisterEvent("PLAYER_LOGOUT");
+f:RegisterEvent("CURRENT_HOUSE_INFO_UPDATED");
 
-local LRPM = LibStub:GetLibrary("LibRPMedia-1.2")
+local LRPM = LibStub:GetLibrary("LibRPMedia-1.2");
 
-local silentMusicPath = "Interface\\AddOns\\HousingMusic\\Assets\\Sound\\silenttrack.mp3"
-local silentMusicActive = false
-HM.MAX_PLAYLIST_SIZE = 50
+local silentMusicPath = "Interface\\AddOns\\HousingMusic\\Assets\\Sound\\silenttrack.mp3";
+local silentMusicActive = false;
+HM.MAX_PLAYLIST_SIZE = 50;
 
 --EventRegistry:RegisterFrameEventAndCallback("CURRENT_HOUSE_INFO_RECIEVED", function(...) DevTools_Dump({...}) end) -- test function for querying housing
 -- another similar event - CURRENT_HOUSE_INFO_UPDATED
@@ -164,96 +164,98 @@ local CameraCVars = {
 	"CameraReduceUnexpectedMovement",
 };
 
-HM.isHouseEditingActive = false
+HM.isHouseEditingActive = false;
 
 EventRegistry:RegisterCallback("HouseEditor.StateUpdated", function(_, isEditing)
-	HM.isHouseEditingActive = isEditing
+	HM.isHouseEditingActive = isEditing;
 	
 	if not C_Housing.IsInsideHouse() then return end
-	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return end
+	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return; end
 	
 	if isEditing then
-		local originalOutline = HousingMusic_DB.restoreVolumes["graphicsOutlineMode"]
+		local originalOutline = HousingMusic_DB.restoreVolumes["graphicsOutlineMode"];
 		if originalOutline then
-			C_CVar.SetCVar("graphicsOutlineMode", originalOutline)
+			C_CVar.SetCVar("graphicsOutlineMode", originalOutline);
 		end
 	else
-		local customOutline = HousingMusic_DB.graphicsOutlineMode
+		local customOutline = HousingMusic_DB.graphicsOutlineMode;
 		if customOutline ~= nil then
-			C_CVar.SetCVar("graphicsOutlineMode", customOutline)
+			C_CVar.SetCVar("graphicsOutlineMode", customOutline);
 		end
 	end
 end)
 
 function HM.StoreVolumeSettings()
-	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {}
+	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {};
 	
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = C_CVar.GetCVar(cvar)
-			HousingMusic_DB.restoreVolumes[cvar] = currentVal
+			local currentVal = C_CVar.GetCVar(cvar);
+			HousingMusic_DB.restoreVolumes[cvar] = currentVal;
 		end
 	end
 
 	for _, cvar in ipairs(CameraCVars) do
 		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = C_CVar.GetCVar(cvar)
-			HousingMusic_DB.restoreVolumes[cvar] = currentVal
+			local currentVal = C_CVar.GetCVar(cvar);
+			HousingMusic_DB.restoreVolumes[cvar] = currentVal;
 		end
 	end
 	
 	if HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] == nil then
-		HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] = C_CVar.GetCVar("graphicsOutlineMode")
+		HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] = C_CVar.GetCVar("graphicsOutlineMode");
 	end
 end
 
 function HM.UpdateCameraCVars(enabled)
-	if not C_Housing.IsInsideHouse() then return end
+	if not C_Housing.IsInsideHouse() then return; end
 
 	if enabled then
-		C_CVar.SetCVar("CameraKeepCharacterCentered", "0")
-		C_CVar.SetCVar("CameraReduceUnexpectedMovement", "1")
+		C_CVar.SetCVar("CameraKeepCharacterCentered", "0");
+		C_CVar.SetCVar("CameraReduceUnexpectedMovement", "1");
 	else
 		if HousingMusic_DB.restoreVolumes then
 			for _, cvar in ipairs(CameraCVars) do
-				local val = HousingMusic_DB.restoreVolumes[cvar]
-				if val then C_CVar.SetCVar(cvar, val) end
+				local val = HousingMusic_DB.restoreVolumes[cvar];
+				if val then
+					C_CVar.SetCVar(cvar, val);
+				end
 			end
 		end
 	end
 end
 
 function HM.RestoreVolumeSettings()
-	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return end
+	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return; end
 	
 	for cvar, val in pairs(HousingMusic_DB.restoreVolumes) do
-		C_CVar.SetCVar(cvar, val)
+		C_CVar.SetCVar(cvar, val);
 	end
 	
-	HousingMusic_DB.restoreVolumes = nil
+	HousingMusic_DB.restoreVolumes = nil;
 end
 
 function HM.ApplyHouseVolumeSettings()
-	if not HousingMusic_DB or not HousingMusic_DB.volumeControls then return end
+	if not HousingMusic_DB or not HousingMusic_DB.volumeControls then return; end
 	
 	for _, cvar in ipairs(VolumeCVars) do
-		local val = HousingMusic_DB.volumeControls[cvar]
+		local val = HousingMusic_DB.volumeControls[cvar];
 		if val then
-			C_CVar.SetCVar(cvar, val)
+			C_CVar.SetCVar(cvar, val);
 		end
 	end
 
 	if HousingMusic_DB.reduceCameraMovement ~= nil then
-		HM.UpdateCameraCVars(HousingMusic_DB.reduceCameraMovement)
+		HM.UpdateCameraCVars(HousingMusic_DB.reduceCameraMovement);
 	end
 
 	if HousingMusic_DB.graphicsOutlineMode ~= nil then
 		if HM.isHouseEditingActive then
 			if HousingMusic_DB.restoreVolumes and HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] then
-				C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.restoreVolumes["graphicsOutlineMode"])
+				C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.restoreVolumes["graphicsOutlineMode"]);
 			end
 		else
-			C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.graphicsOutlineMode)
+			C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.graphicsOutlineMode);
 		end
 	end
 end
@@ -261,10 +263,10 @@ end
 function HM.UpdateVolumeCVar(cvar, value)
 	if C_Housing.IsInsideHouse() then
 		if cvar == "graphicsOutlineMode" and HM.isHouseEditingActive then
-			return
+			return;
 		end
 		
-		C_CVar.SetCVar(cvar, value)
+		C_CVar.SetCVar(cvar, value);
 	end
 end
 
@@ -273,27 +275,27 @@ end
 ----------------------------------------------------------
 
 function HM.PurgeOldPlaylists()
-	if not HM_CachedMusic_DB then return end
+	if not HM_CachedMusic_DB then return; end
 	
-	HM_CachedMusic_Metadata = HM_CachedMusic_Metadata or {}
+	HM_CachedMusic_Metadata = HM_CachedMusic_Metadata or {};
 
-	local setting = (HousingMusic_DB and HousingMusic_DB.clearCache) or 2
-	local days = 14
+	local setting = (HousingMusic_DB and HousingMusic_DB.clearCache) or 2;
+	local days = 14;
 
-	if setting == 1 then days = 7
-	elseif setting == 2 then days = 14
-	elseif setting == 3 then days = 30
-	elseif setting == 4 then days = 60
+	if setting == 1 then days = 7;
+	elseif setting == 2 then days = 14;
+	elseif setting == 3 then days = 30;
+	elseif setting == 4 then days = 60;
 	end
 
-	local secondsLimit = days * 24 * 60 * 60
-	local now = GetServerTime()
+	local secondsLimit = days * 24 * 60 * 60;
+	local now = GetServerTime();
 
-	local cleanedCount = 0
+	local cleanedCount = 0;
 
 	for locationKey, senders in pairs(HM_CachedMusic_DB) do
 		
-		HM_CachedMusic_Metadata[locationKey] = HM_CachedMusic_Metadata[locationKey] or {}
+		HM_CachedMusic_Metadata[locationKey] = HM_CachedMusic_Metadata[locationKey] or {};
 
 		for senderName, _ in pairs(senders) do
 			
@@ -301,299 +303,302 @@ function HM.PurgeOldPlaylists()
 				HM_CachedMusic_Metadata[locationKey][senderName] = {
 					lastSeen = now,
 					isFavorite = false
-				}
+				};
 			end
 
-			local meta = HM_CachedMusic_Metadata[locationKey][senderName]
+			local meta = HM_CachedMusic_Metadata[locationKey][senderName];
 			
-			local timeDiff = now - (meta.lastSeen or 0)
+			local timeDiff = now - (meta.lastSeen or 0);
 			
 			if timeDiff > secondsLimit then
-				local isFriend = C_FriendList.GetFriendInfo(senderName)
-				local isGuild = C_GuildInfo.MemberExistsByName(senderName)
-				local isBNetFriend = HM.IsBNetFriend(senderName)
+				local isFriend = C_FriendList.GetFriendInfo(senderName);
+				local isGuild = C_GuildInfo.MemberExistsByName(senderName);
+				local isBNetFriend = HM.IsBNetFriend(senderName);
 				
-				local wasFriend = meta.wasFriend
-				local wasGuild = meta.wasGuild
-				local wasBNet = meta.wasBNetFriend
+				local wasFriend = meta.wasFriend;
+				local wasGuild = meta.wasGuild;
+				local wasBNet = meta.wasBNetFriend;
 
 				if meta.isFavorite or isFriend or isGuild or isBNetFriend or wasFriend or wasGuild or wasBNet then
 					-- keep data
 				else
-					HM_CachedMusic_DB[locationKey][senderName] = nil
-					HM_CachedMusic_Metadata[locationKey][senderName] = nil
-					cleanedCount = cleanedCount + 1
+					HM_CachedMusic_DB[locationKey][senderName] = nil;
+					HM_CachedMusic_Metadata[locationKey][senderName] = nil;
+					cleanedCount = cleanedCount + 1;
 				end
 			end
 		end
 
 		if next(HM_CachedMusic_DB[locationKey]) == nil then
-			HM_CachedMusic_DB[locationKey] = nil
-			HM_CachedMusic_Metadata[locationKey] = nil
+			HM_CachedMusic_DB[locationKey] = nil;
+			HM_CachedMusic_Metadata[locationKey] = nil;
 		end
 	end
 
 	--if cleanedCount > 0 then
-	--	Print(string.format(L["PurgedOldPlaylists"], cleanedCount, days))
+	--	Print(string.format(L["PurgedOldPlaylists"], cleanedCount, days));
 	--end
 end
 
 function HM.SetCachedPlaylistFavorite(locationKey, senderName, isFavorite)
 	if HM_CachedMusic_Metadata and HM_CachedMusic_Metadata[locationKey] and HM_CachedMusic_Metadata[locationKey][senderName] then
-		HM_CachedMusic_Metadata[locationKey][senderName].isFavorite = isFavorite
-		return true
+		HM_CachedMusic_Metadata[locationKey][senderName].isFavorite = isFavorite;
+		return true;
 	end
-	return false
+	return false;
 end
 
 function HM.InitializeDB()
-	HousingMusic_DB = HousingMusic_DB or {}
+	HousingMusic_DB = HousingMusic_DB or {};
 	
 	if HM.DefaultsTable then
 		for key, value in pairs(HM.DefaultsTable) do
 			if HousingMusic_DB[key] == nil then
-				HousingMusic_DB[key] = value
+				HousingMusic_DB[key] = value;
 			end
 		end
 	end
 
-	HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {}
+	HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {};
 	
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.volumeControls[cvar] == nil then
-			local currentVal = tonumber(C_CVar.GetCVar(cvar))
+			local currentVal = tonumber(C_CVar.GetCVar(cvar));
 			if currentVal then
-				HousingMusic_DB.volumeControls[cvar] = currentVal
+				HousingMusic_DB.volumeControls[cvar] = currentVal;
 			else
-				HousingMusic_DB.volumeControls[cvar] = 0.5 
+				HousingMusic_DB.volumeControls[cvar] = 0.5;
 			end
 		end
 	end
 
 	if HousingMusic_DB.reduceCameraMovement == nil then
 		if C_CVar.GetCVar("CameraReduceUnexpectedMovement") == "1" and C_CVar.GetCVar("CameraKeepCharacterCentered") == "0" then
-			HousingMusic_DB.reduceCameraMovement = true
+			HousingMusic_DB.reduceCameraMovement = true;
 		else
-			HousingMusic_DB.reduceCameraMovement = false
+			HousingMusic_DB.reduceCameraMovement = false;
 		end
 	end
 
 	if HousingMusic_DB.graphicsOutlineMode == nil then
-		HousingMusic_DB.graphicsOutlineMode = tonumber(C_CVar.GetCVar("graphicsOutlineMode")) or 2
+		HousingMusic_DB.graphicsOutlineMode = tonumber(C_CVar.GetCVar("graphicsOutlineMode")) or 2;
 	end
 
-	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {}
-	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
-	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
+	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {};
+	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {};
+	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {};
 
-	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {}
-	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or L["Default"]
-	HousingMusic_DB.HouseAssignments = HousingMusic_DB.HouseAssignments or {}
-	
-	HousingMusic_DB.VisitorPreferences = HousingMusic_DB.VisitorPreferences or {}
+	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {};
+	HousingMusic_DB.ActivePlaylist = HousingMusic_DB.ActivePlaylist or L["Default"];
+	HousingMusic_DB.HouseAssignments = HousingMusic_DB.HouseAssignments or {};
+	HousingMusic_DB.AmbienceAssignments = HousingMusic_DB.AmbienceAssignments or {};
+
+	HousingMusic_DB.VisitorPreferences = HousingMusic_DB.VisitorPreferences or {};
 
 	if not HousingMusic_DB.Playlists[L["Default"]] then
-		HousingMusic_DB.Playlists[L["Default"]] = {}
+		HousingMusic_DB.Playlists[L["Default"]] = {};
 	end
 
-	HM.PurgeOldPlaylists()
+	HM.PurgeOldPlaylists();
 end
 
 local function GetOwnerHouseKey()
-	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil; end
 	
-	local info = C_Housing.GetCurrentHouseInfo()
+	local info = C_Housing.GetCurrentHouseInfo();
 	
-	if not info or not info.ownerName or info.ownerName == "" then return nil end
-	if not info.neighborhoodGUID or not info.plotID then return nil end
+	if not info or not info.ownerName or info.ownerName == "" then return nil; end
+	if not info.neighborhoodGUID or not info.plotID then return nil; end
 
 	-- ownerName_NeighborhoodGUID_plotID
-	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID)
+	return string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID);
 end
 
 local function GetLocationKey()
-	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil end
-	local info = C_Housing.GetCurrentHouseInfo()
-	if not info or not info.neighborhoodGUID or not info.plotID then return nil end
-	return string.format("%s_%d", info.neighborhoodGUID, info.plotID)
+	if not C_Housing or not C_Housing.GetCurrentHouseInfo then return nil; end
+	local info = C_Housing.GetCurrentHouseInfo();
+	if not info or not info.neighborhoodGUID or not info.plotID then return nil; end
+	return string.format("%s_%d", info.neighborhoodGUID, info.plotID);
 end
 
-function HM.GetActivePlaylistName() return HousingMusic_DB and HousingMusic_DB.ActivePlaylist or L["Default"] end
+function HM.GetActivePlaylistName()
+	return HousingMusic_DB and HousingMusic_DB.ActivePlaylist or L["Default"];
+end
 
 function HM.GetActivePlaylistTable()
-	local name = HM.GetActivePlaylistName()
-	local DB = HousingMusic_DB and HousingMusic_DB.Playlists
-	if not DB then return end
+	local name = HM.GetActivePlaylistName();
+	local DB = HousingMusic_DB and HousingMusic_DB.Playlists;
+	if not DB then return; end
 	if DB and not HousingMusic_DB.Playlists[name] then
-		HousingMusic_DB.Playlists[name] = {}
+		HousingMusic_DB.Playlists[name] = {};
 	end
-	return HousingMusic_DB.Playlists[name]
+	return HousingMusic_DB.Playlists[name];
 end
 
 function HM.IsSongIgnored(fileID)
-	if not fileID then return false end
-	return HousingMusic_DB and HousingMusic_DB.IgnoredSongs and HousingMusic_DB.IgnoredSongs[fileID]
+	if not fileID then return false; end
+	return HousingMusic_DB and HousingMusic_DB.IgnoredSongs and HousingMusic_DB.IgnoredSongs[fileID];
 end
 
 function HM.SetSongIgnored(fileID, ignored)
-	if not fileID then return end
-	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {}
+	if not fileID then return; end
+	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {};
 	
 	if ignored then
-		HousingMusic_DB.IgnoredSongs[fileID] = true
+		HousingMusic_DB.IgnoredSongs[fileID] = true;
 	else
-		HousingMusic_DB.IgnoredSongs[fileID] = nil
+		HousingMusic_DB.IgnoredSongs[fileID] = nil;
 	end
 end
 
 function HM.IsSongFavorited(fileID)
-	if not fileID then return false end
-	return HousingMusic_DB and HousingMusic_DB.FavoritedSongs and HousingMusic_DB.FavoritedSongs[fileID]
+	if not fileID then return false; end
+	return HousingMusic_DB and HousingMusic_DB.FavoritedSongs and HousingMusic_DB.FavoritedSongs[fileID];
 end
 
 function HM.SetSongFavorited(fileID, favorited)
-	if not fileID then return end
-	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {}
+	if not fileID then return; end
+	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {};
 	
 	if favorited then
-		HousingMusic_DB.FavoritedSongs[fileID] = true
+		HousingMusic_DB.FavoritedSongs[fileID] = true;
 	else
-		HousingMusic_DB.FavoritedSongs[fileID] = nil
+		HousingMusic_DB.FavoritedSongs[fileID] = nil;
 	end
 end
 
 function HM.SetActivePlaylist(playlistName)
 	if HousingMusic_DB.Playlists[playlistName] then
-		HousingMusic_DB.ActivePlaylist = playlistName
+		HousingMusic_DB.ActivePlaylist = playlistName;
 		
 		if C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
-			local houseKey = GetOwnerHouseKey()
+			local houseKey = GetOwnerHouseKey();
 			if houseKey then
-				HousingMusic_DB.HouseAssignments[houseKey] = playlistName
+				HousingMusic_DB.HouseAssignments[houseKey] = playlistName;
 			end
 		end
-		if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
+		if HM.BroadcastToNameplates then HM.BroadcastToNameplates(); end
 
-		return true
+		return true;
 	end
-	return false
+	return false;
 end
 
 function HM.CreatePlaylist(playlistName)
-	if not playlistName or playlistName == "" then return false end
-	if HousingMusic_DB.Playlists[playlistName] then return false end
+	if not playlistName or playlistName == "" then return false; end
+	if HousingMusic_DB.Playlists[playlistName] then return false; end
 	
-	HousingMusic_DB.Playlists[playlistName] = {}
-	HousingMusic_DB.ActivePlaylist = playlistName
-	return true
+	HousingMusic_DB.Playlists[playlistName] = {};
+	HousingMusic_DB.ActivePlaylist = playlistName;
+	return true;
 end
 
 function HM.DeletePlaylist(playlistName)
-	if playlistName == L["Default"] then 
-		Print(L["CantDeleteDefault"])
-		return false 
+	if playlistName == L["Default"] then
+		Print(L["CantDeleteDefault"]);
+		return false;
 	end
 	
 	HousingMusic_DB.Playlists[playlistName] = nil
 	
 	if HousingMusic_DB.ActivePlaylist == playlistName then
-		HousingMusic_DB.ActivePlaylist = L["Default"]
+		HousingMusic_DB.ActivePlaylist = L["Default"];
 		if not HousingMusic_DB.Playlists[L["Default"]] then
-			HousingMusic_DB.Playlists[L["Default"]] = {}
+			HousingMusic_DB.Playlists[L["Default"]] = {};
 		end
 	end
-	return true
+	return true;
 end
 
 function HM.GetPlaylistNames()
-	local names = {}
-	if not HousingMusic_DB then return end
+	local names = {};
+	if not HousingMusic_DB then return; end
 	for k, v in pairs(HousingMusic_DB.Playlists) do
-		table.insert(names, k)
+		table.insert(names, k);
 	end
-	table.sort(names)
-	return names
+	table.sort(names);
+	return names;
 end
 
 function HM.RenamePlaylist(oldName, newName)
-	if not oldName or not newName or newName == "" then return false end
-	if oldName == newName then return true end
-	if HousingMusic_DB.Playlists[newName] then 
-		Print(L["PlaylistExists"])
-		return false 
+	if not oldName or not newName or newName == "" then return false; end
+	if oldName == newName then return true; end
+	if HousingMusic_DB.Playlists[newName] then
+		Print(L["PlaylistExists"]);
+		return false;
 	end
-	if not HousingMusic_DB.Playlists[oldName] then return false end
+	if not HousingMusic_DB.Playlists[oldName] then return false; end
 	
-	HousingMusic_DB.Playlists[newName] = HousingMusic_DB.Playlists[oldName]
-	HousingMusic_DB.Playlists[oldName] = nil
+	HousingMusic_DB.Playlists[newName] = HousingMusic_DB.Playlists[oldName];
+	HousingMusic_DB.Playlists[oldName] = nil;
 	
 	if HousingMusic_DB.ActivePlaylist == oldName then
-		HousingMusic_DB.ActivePlaylist = newName
+		HousingMusic_DB.ActivePlaylist = newName;
 	end
 	
 	for houseKey, assignedPlaylist in pairs(HousingMusic_DB.HouseAssignments) do
 		if assignedPlaylist == oldName then
-			HousingMusic_DB.HouseAssignments[houseKey] = newName
+			HousingMusic_DB.HouseAssignments[houseKey] = newName;
 		end
 	end
-	Print(string.format(L["PlaylistRenamed"], WrapTextInColorCode(newName, "ff91cbfa")))
-	return true
+	Print(string.format(L["PlaylistRenamed"], WrapTextInColorCode(newName, "ff91cbfa")));
+	return true;
 end
 
 function HM.IsAutoplayEnabled()
 	if HousingMusic_DB and HousingMusic_DB.autoplayMusic ~= nil then
-		return HousingMusic_DB.autoplayMusic
+		return HousingMusic_DB.autoplayMusic;
 	end
 	
 	if DefaultsTable and DefaultsTable.autoplayMusic ~= nil then
-		return DefaultsTable.autoplayMusic
+		return DefaultsTable.autoplayMusic;
 	end
 	
-	return true
+	return true;
 end
 
 function HM.IsControlIconEnabled()
 	if HousingMusic_DB and HousingMusic_DB.showControlFrameIcon ~= nil then
-		return HousingMusic_DB.showControlFrameIcon
+		return HousingMusic_DB.showControlFrameIcon;
 	end
 	
 	-- Fallback to Defaults
 	if DefaultsTable and DefaultsTable.showControlFrameIcon ~= nil then
-		return DefaultsTable.showControlFrameIcon
+		return DefaultsTable.showControlFrameIcon;
 	end
 	
-	return true 
+	return true;
 end
 
 function HM.GetAutoSharePlaylistSettings()
 	if HousingMusic_DB and HousingMusic_DB.autosharePlaylist then
-		return HousingMusic_DB.autosharePlaylist
+		return HousingMusic_DB.autosharePlaylist;
 	end
 	
 	if HM.DefaultsTable and HM.DefaultsTable.autosharePlaylist then
-		return HM.DefaultsTable.autosharePlaylist
+		return HM.DefaultsTable.autosharePlaylist;
 	end
 	
-	return 1 
+	return 1;
 end
 
 function HM.GetAutoImportPlaylistSettings()
 	if HousingMusic_DB and HousingMusic_DB.autoImportPlaylist then
-		return HousingMusic_DB.autoImportPlaylist
+		return HousingMusic_DB.autoImportPlaylist;
 	end
 	
 	if HM.DefaultsTable and HM.DefaultsTable.autoImportPlaylist then
-		return HM.DefaultsTable.autoImportPlaylist
+		return HM.DefaultsTable.autoImportPlaylist;
 	end
 	
-	return 1
+	return 1;
 end
 
 function HM.GetCustomImportPlaylistSettings()
 	if HousingMusic_DB and HousingMusic_DB.customImportPlaylist then
-		return HousingMusic_DB.customImportPlaylist
+		return HousingMusic_DB.customImportPlaylist;
 	end
-	return 2
+	return 2;
 end
 
 ----------------------------------------------------------
@@ -601,224 +606,223 @@ end
 ----------------------------------------------------------
 
  -- not needed for now, remnant of older playlist creation
---local DAY_START_HOUR = 6 -- 6:00 AM
---local NIGHT_START_HOUR = 18 -- 6:00 PM
+--local DAY_START_HOUR = 6; -- 6:00 AM
+--local NIGHT_START_HOUR = 18; -- 6:00 PM
 
 --local function IsDay()
---	local hour = GetGameTime()
---	return hour >= DAY_START_HOUR and hour < NIGHT_START_HOUR
+--	local hour = GetGameTime();
+--	return hour >= DAY_START_HOUR and hour < NIGHT_START_HOUR;
 --end
 
 --local function IsNight()
---	return not IsDay()
+--	return not IsDay();
 --end
 
 local function StartSilentMusic()
 	--if silentMusicActive then return end -- there's no need to check this
-	PlayMusic(silentMusicPath)
-	silentMusicActive = true
+	PlayMusic(silentMusicPath);
+	silentMusicActive = true;
 end
 
 local function StopSilentMusic()
 	if silentMusicActive then
-		StopMusic()
-		silentMusicActive = false
+		StopMusic();
+		silentMusicActive = false;
 	end
 end
 
 -- the ones on top will be called first down the list in priority
 -- these probably won't be added to the final version
-local zones = {
-};
+local zones = {};
 
-local currentTrackIndex = 1
-local musicPlaying = false
-local musicTimer = 0
-local timerElapsed = 0
-local checkInterval = 1
-local lastCheck = 0
-local soundHandle = nil
-local fadeoutTime = 5000
-local lastTrackIndex = nil
-local manualStop = false
-local manualPlayback = false
-local activeZone = nil -- previously removed
-local currentTrackName = nil
+local currentTrackIndex = 1;
+local musicPlaying = false;
+local musicTimer = 0;
+local timerElapsed = 0;
+local checkInterval = 1;
+local lastCheck = 0;
+local soundHandle = nil;
+local fadeoutTime = 5000;
+local lastTrackIndex = nil;
+local manualStop = false;
+local manualPlayback = false;
+local activeZone = nil; -- previously removed
+local currentTrackName = nil;
 
 local function GetPlayerHouseZone()
 	if not (C_Housing and C_Housing.IsInsideHouse and C_Housing.IsInsideHouse()) then
-		return nil
+		return nil;
 	end
 	
-	local dynamicPlaylist = {}
-	local displayZoneName = L["HousingPlot"]
+	local dynamicPlaylist = {};
+	local displayZoneName = L["HousingPlot"];
 
 	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
-		if not HousingMusic_DB or not HousingMusic_DB.Playlists then return nil end
+		if not HousingMusic_DB or not HousingMusic_DB.Playlists then return nil; end
 
-		local ownerKey = GetOwnerHouseKey()
-		local targetPlaylistName = L["Default"]
+		local ownerKey = GetOwnerHouseKey();
+		local targetPlaylistName = L["Default"];
 		
 		if ownerKey then
 			if HousingMusic_DB.HouseAssignments[ownerKey] then
-				targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey]
+				targetPlaylistName = HousingMusic_DB.HouseAssignments[ownerKey];
 			else
-				targetPlaylistName = L["Default"]
+				targetPlaylistName = L["Default"];
 			end
 			
 			if HousingMusic_DB.ActivePlaylist ~= targetPlaylistName then
-				 HousingMusic_DB.ActivePlaylist = targetPlaylistName
+				 HousingMusic_DB.ActivePlaylist = targetPlaylistName;
 			end
 		else
-			targetPlaylistName = HM.GetActivePlaylistName()
+			targetPlaylistName = HM.GetActivePlaylistName();
 		end
 
-		local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {}
+		local activeList = HousingMusic_DB.Playlists[targetPlaylistName] or {};
 		
 		for fileID, enabled in pairs(activeList) do
-			if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
+			if enabled then table.insert(dynamicPlaylist, { fileID = fileID }); end
 		end
 
-		displayZoneName = string.format(L["MyHouse"], targetPlaylistName)
+		displayZoneName = string.format(L["MyHouse"], targetPlaylistName);
 
 	else
 		local locationKey = GetLocationKey()
-		if not locationKey then return nil end
+		if not locationKey then return nil; end
 
 		if HM_CachedMusic_DB and HM_CachedMusic_DB[locationKey] then
 			
-			local houseInfo = C_Housing.GetCurrentHouseInfo()
-			local ownerName = houseInfo and houseInfo.ownerName or L["Unknown"]
+			local houseInfo = C_Housing.GetCurrentHouseInfo();
+			local ownerName = houseInfo and houseInfo.ownerName or L["Unknown"];
 			
-			local preferredSender = HousingMusic_DB.VisitorPreferences[locationKey]
-			local selectedSender = nil
-			local senders = HM_CachedMusic_DB[locationKey]
+			local preferredSender = HousingMusic_DB.VisitorPreferences[locationKey];
+			local selectedSender = nil;
+			local senders = HM_CachedMusic_DB[locationKey];
 
 			if preferredSender and senders[preferredSender] then
-				selectedSender = preferredSender
+				selectedSender = preferredSender;
 			else
 				-- Try matching owner
 				for senderName, _ in pairs(senders) do
 					if string.find(senderName, ownerName) then
-						selectedSender = senderName
-						break
+						selectedSender = senderName;
+						break;
 					end
 				end
 				if not selectedSender then
-					selectedSender = next(senders)
+					selectedSender = next(senders);
 				end
 			end
 
 			if selectedSender then
 				local cachedList = senders[selectedSender]
 				for fileID, enabled in pairs(cachedList) do
-					if enabled then table.insert(dynamicPlaylist, { fileID = fileID }) end
+					if enabled then table.insert(dynamicPlaylist, { fileID = fileID }); end
 				end
 
-				displayZoneName = string.format(L["OwnersHouse"], ownerName, selectedSender)
+				displayZoneName = string.format(L["OwnersHouse"], ownerName, selectedSender);
 				
-				HousingMusic_DB.VisitorPreferences[locationKey] = selectedSender
+				HousingMusic_DB.VisitorPreferences[locationKey] = selectedSender;
 			end
 		end
 	end
 
 	if #dynamicPlaylist == 0 then
-		return nil
+		return nil;
 	end
 	
 	return {
 		name = displayZoneName,
 		playlist = dynamicPlaylist,
-	}
+	};
 end
 
 local function IsInZone(zone)
-	local mapID = C_Map.GetBestMapForUnit("player")
-	if not mapID then return false end
-	if mapID ~= zone.mapID then return false end
+	local mapID = C_Map.GetBestMapForUnit("player");
+	if not mapID then return false; end
+	if mapID ~= zone.mapID then return false; end
 
 	if not zone.subzone and not zone.minX then
-		return true
+		return true;
 	end
 
 	if zone.subzone then
-		local currentSubzone = GetSubZoneText()
+		local currentSubzone = GetSubZoneText();
 		if currentSubzone ~= zone.subzone then
-			return false 
+			return false;
 		else
-			return true
+			return true;
 		end
 	end
 
 	if zone.minX and zone.maxX and zone.minY and zone.maxY then
-		local pos = C_Map.GetPlayerMapPosition(mapID, "player")
-		if not pos then return false end
+		local pos = C_Map.GetPlayerMapPosition(mapID, "player");
+		if not pos then return false; end
 
-		local x, y = pos:GetXY()
+		local x, y = pos:GetXY();
 		if x and y then
 			return x >= zone.minX and x <= zone.maxX and
-				   y >= zone.minY and y <= zone.maxY
+				   y >= zone.minY and y <= zone.maxY;
 		end
 	end
-	return false
+	return false;
 end
 
 
 local function FindActiveZone()
-	local houseZone = GetPlayerHouseZone()
-	if houseZone then 
-		return houseZone 
+	local houseZone = GetPlayerHouseZone();
+	if houseZone then
+		return houseZone;
 	end
 
-	local mapID = C_Map.GetBestMapForUnit("player")
-	if not mapID then return nil end
+	local mapID = C_Map.GetBestMapForUnit("player");
+	if not mapID then return nil; end
 
 	if zones then
 		for _, zone in ipairs(zones) do
 			if zone.mapID == mapID and IsInZone(zone) then
 				if zone.conditions then
-					local valid = true
+					local valid = true;
 					for _, cond in ipairs(zone.conditions) do
 						if not cond() then
-							valid = false
-							break
+							valid = false;
+							break;
 						end
 					end
 					if valid then
-						return zone
+						return zone;
 					end
 				else
-					return zone
+					return zone;
 				end
 			end
 		end
 	end
 
-	return nil
+	return nil;
 end
 
-HM.SongHistory = {}
-local MAX_HISTORY_SIZE = 20
+HM.SongHistory = {};
+local MAX_HISTORY_SIZE = 20;
 
 function HM.PushToHistory(fileID)
-	if not fileID then return end
+	if not fileID then return; end
 	
 	if #HM.SongHistory > 0 and HM.SongHistory[#HM.SongHistory] == fileID then
-		return
+		return;
 	end
 	
-	table.insert(HM.SongHistory, fileID)
+	table.insert(HM.SongHistory, fileID);
 	
 	if #HM.SongHistory > MAX_HISTORY_SIZE then
-		table.remove(HM.SongHistory, 1)
+		table.remove(HM.SongHistory, 1);
 	end
 end
 
 function HM.GetPreviousSongName()
-	if #HM.SongHistory == 0 then return nil end
-	local id = HM.SongHistory[#HM.SongHistory]
-	local info = LRPM:GetMusicInfoByID(id)
-	return info and (info.names and info.names[1] or tostring(id)) or tostring(id)
+	if #HM.SongHistory == 0 then return nil; end
+	local id = HM.SongHistory[#HM.SongHistory];
+	local info = LRPM:GetMusicInfoByID(id);
+	return info and (info.names and info.names[1] or tostring(id)) or tostring(id);
 end
 
 
@@ -835,15 +839,15 @@ local function StopCurrentMusic()
 		soundHandle = nil;
 	end
 	
-	local blockStopMusic = false
+	local blockStopMusic = false;
 	
 	if HousingMusic_DB and HousingMusic_DB.addonCompatibilities then
 		if HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic and C_AddOns.IsAddOnLoaded("totalRP3") then
 			for _, handler in pairs(TRP3_API.utils.music.getHandlers()) do
 				if handler.channel == "Music" then
 					-- A music is currently playing
-					blockStopMusic = true
-					break
+					blockStopMusic = true;
+					break;
 				end
 			end
 		end
@@ -852,8 +856,8 @@ local function StopCurrentMusic()
 			if Musician and Musician.songs then
 				for _, song in pairs(Musician.songs) do
 					if song:IsPlaying() then
-						blockStopMusic = true
-						break
+						blockStopMusic = true;
+						break;
 					end
 				end
 			end
@@ -861,58 +865,58 @@ local function StopCurrentMusic()
 	end
 
 	if not blockStopMusic then
-		StopMusic()
+		StopMusic();
 	end
 end
 
 function HM.PlaySpecificMusic(fileID, context)
-	manualStop = false
+	manualStop = false;
 	
-	local isHistoryAction = context and context.isHistory
+	local isHistoryAction = context and context.isHistory;
 	if not isHistoryAction and HM.CurrentPlayingID then
-		HM.PushToHistory(HM.CurrentPlayingID)
+		HM.PushToHistory(HM.CurrentPlayingID);
 	end
-	StopCurrentMusic()
-	manualPlayback = true
-	StartSilentMusic()
+	StopCurrentMusic();
+	manualPlayback = true;
+	StartSilentMusic();
 
-	local musicInfo = LRPM:GetMusicInfoByID(fileID)
+	local musicInfo = LRPM:GetMusicInfoByID(fileID);
 	if not musicInfo or not musicInfo.duration then
-		--Print(string.format(L["CannotRetrieveInfo"], fileID))
-		manualPlayback = false
-		return
+		--Print(string.format(L["CannotRetrieveInfo"], fileID));
+		manualPlayback = false;
+		return;
 	end
 
-	local willPlay, handle = PlaySoundFile(fileID, "Music")
+	local willPlay, handle = PlaySoundFile(fileID, "Music");
 	if willPlay then
-		soundHandle = handle
-		musicTimer = musicInfo.duration
-		timerElapsed = 0
-		musicPlaying = true
-		currentTrackName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], fileID))
-		HM.CurrentPlayingID = fileID 
+		soundHandle = handle;
+		musicTimer = musicInfo.duration;
+		timerElapsed = 0;
+		musicPlaying = true;
+		currentTrackName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], fileID));
+		HM.CurrentPlayingID = fileID;
 		if HM.TriggerPulseAnimation then
-			HM.TriggerPulseAnimation()
+			HM.TriggerPulseAnimation();
 		end
 	else
-		soundHandle = nil
-		manualPlayback = false
+		soundHandle = nil;
+		manualPlayback = false;
 	end
 end
 
 function HM.PlayPreviousTrack()
 	if #HM.SongHistory > 0 then
-		local prevID = table.remove(HM.SongHistory)
-		HM.PlaySpecificMusic(prevID, { isHistory = true })
+		local prevID = table.remove(HM.SongHistory);
+		HM.PlaySpecificMusic(prevID, { isHistory = true });
 	end
 end
 
 function HM.StopManualMusic()
-	manualStop = true
-	manualPlayback = false
+	manualStop = true;
+	manualPlayback = false;
 	
-	StopCurrentMusic()
-	HM.CurrentPlayingID = nil
+	StopCurrentMusic();
+	HM.CurrentPlayingID = nil;
 end
 
 function HM.GetPlaybackState()
@@ -922,181 +926,291 @@ function HM.GetPlaybackState()
 		duration = musicTimer,
 		fileID = HM.CurrentPlayingID,
 		name = currentTrackName,
-	}
+	};
 end
 
 local function PlayNextTrack()
-	if not activeZone then return end
+	if not activeZone then return; end
 
-	local playlist = activeZone.playlist
-	local numTracks = #playlist
-	if numTracks == 0 then return end
+	local playlist = activeZone.playlist;
+	local numTracks = #playlist;
+	if numTracks == 0 then return; end
 
-	local availableTracks = {}
+	local availableTracks = {};
 	for i, track in ipairs(playlist) do
 		if track.fileID then
 			if not HM.IsSongIgnored(track.fileID) then
-				table.insert(availableTracks, i)
+				table.insert(availableTracks, i);
 			end
 		elseif track.fileCustom then
-			table.insert(availableTracks, i)
+			table.insert(availableTracks, i);
 		end
 	end
 
 	if #availableTracks == 0 then
-		StopCurrentMusic()
-		return
+		StopCurrentMusic();
+		return;
 	end
 
 	if HM.CurrentPlayingID then
-		HM.PushToHistory(HM.CurrentPlayingID)
+		HM.PushToHistory(HM.CurrentPlayingID);
 	end
 
 	local nextIndex
 	if #availableTracks == 1 then
-		nextIndex = availableTracks[1]
+		nextIndex = availableTracks[1];
 	else
 		repeat
-			local randomPick = math.random(1, #availableTracks)
-			nextIndex = availableTracks[randomPick]
-		until nextIndex ~= lastTrackIndex or #availableTracks == 1
+			local randomPick = math.random(1, #availableTracks);
+			nextIndex = availableTracks[randomPick];
+		until nextIndex ~= lastTrackIndex or #availableTracks == 1;
 	end
 
-	local track = playlist[nextIndex]
-	if not track then return end
+	local track = playlist[nextIndex];
+	if not track then return; end
 
-	StartSilentMusic()
+	StartSilentMusic();
 
-	local soundFileToPlay
-	local soundDuration
-	local trackNameForDebug
+	local soundFileToPlay;
+	local soundDuration;
+	local trackNameForDebug;
 
 	if track.fileID then
-		local musicInfo = LRPM:GetMusicInfoByID(track.fileID)
+		local musicInfo = LRPM:GetMusicInfoByID(track.fileID);
 		if not musicInfo or not musicInfo.duration then
-			--print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID))
-			return
+			--print("HousingMusic Error: Could not retrieve music info for fileID: " .. tostring(track.fileID));
+			return;
 		end
 		
-		soundFileToPlay = track.fileID
-		soundDuration = musicInfo.duration
-		trackNameForDebug = musicInfo.names and musicInfo.names[1] or (string.format(L["GameMusic"], track.fileID))
+		soundFileToPlay = track.fileID;
+		soundDuration = musicInfo.duration;
+		trackNameForDebug = musicInfo.names and musicInfo.names[1] or (string.format(L["GameMusic"], track.fileID));
 
 	elseif track.fileCustom then
-		local customTrackInfo = HM.customMusic and HM.customMusic[track.fileCustom]
+		local customTrackInfo = HM.customMusic and HM.customMusic[track.fileCustom];
 		if not customTrackInfo then
-			--print("HousingMusic Error: No custom music found for key: " .. tostring(track.fileCustom))
-			return
+			--print("HousingMusic Error: No custom music found for key: " .. tostring(track.fileCustom));
+			return;
 		end
 
-		soundFileToPlay = customTrackInfo.path
-		soundDuration = customTrackInfo.duration
-		trackNameForDebug = customTrackInfo.name
+		soundFileToPlay = customTrackInfo.path;
+		soundDuration = customTrackInfo.duration;
+		trackNameForDebug = customTrackInfo.name;
 
 	else
-		--print("HousingMusic Error: Unknown track type in playlist. Entry must have 'fileID' or 'fileCustom'.")
-		return
+		--print("HousingMusic Error: Unknown track type in playlist. Entry must have 'fileID' or 'fileCustom'.");
+		return;
 	end
 
 	if soundFileToPlay then
-		local willPlay, handle = PlaySoundFile(soundFileToPlay, "Music")
+		local willPlay, handle = PlaySoundFile(soundFileToPlay, "Music");
 		if willPlay then
-			-- print("HousingMusic: Now playing '".. trackNameForDebug .."'")
-			soundHandle = handle
-			musicTimer = soundDuration
-			timerElapsed = 0
-			musicPlaying = true
-			HM.CurrentPlayingID = soundFileToPlay
-			currentTrackName = trackNameForDebug
-			lastTrackIndex = nextIndex
+			-- print("HousingMusic: Now playing '".. trackNameForDebug .."'");
+			soundHandle = handle;
+			musicTimer = soundDuration;
+			timerElapsed = 0;
+			musicPlaying = true;
+			HM.CurrentPlayingID = soundFileToPlay;
+			currentTrackName = trackNameForDebug;
+			lastTrackIndex = nextIndex;
 			if HM.TriggerPulseAnimation then
-				HM.TriggerPulseAnimation()
+				HM.TriggerPulseAnimation();
 			end
 		else
-			soundHandle = nil
+			soundHandle = nil;
 		end
 	end
 end
 
 function HM.SkipTrack()
-	StopCurrentMusic()
-	PlayNextTrack()
+	StopCurrentMusic();
+	PlayNextTrack();
 end
+
+local currentAmbienceHandle = nil;
+local ambienceTimer = 0;
+local ambienceDuration = 0;
+local ambiencePlayingPath = nil;
+
+local AmbienceLoopFrame = CreateFrame("Frame");
+AmbienceLoopFrame:Hide();
+
+function HM.StopAmbience()
+	if currentAmbienceHandle then
+		StopSound(currentAmbienceHandle, 2000);
+		currentAmbienceHandle = nil;
+	end
+	ambiencePlayingPath = nil;
+	AmbienceLoopFrame:Hide();
+end
+
+function HM.PlayAmbience(path, duration)
+	HM.StopAmbience();
+	if not path or not duration then return; end
+
+	local willPlay, handle = PlaySoundFile(path, "Ambience");
+	if willPlay then
+		currentAmbienceHandle = handle;
+		ambiencePlayingPath = path;
+		ambienceDuration = duration;
+		ambienceTimer = 0;
+		AmbienceLoopFrame:Show();
+	end
+end
+
+AmbienceLoopFrame:SetScript("OnUpdate", function(self, elapsed)
+	ambienceTimer = ambienceTimer + elapsed;
+	if ambienceTimer >= ambienceDuration then
+		ambienceTimer = 0;
+		if ambiencePlayingPath then
+			local willPlay, handle = PlaySoundFile(ambiencePlayingPath, "Ambience");
+			if willPlay then
+				currentAmbienceHandle = handle;
+			end
+		end
+	end
+end)
+
+
 local function CheckCVar()
 	local CVar = C_CVar.GetCVar
 	if CVar("Sound_EnableMusic") ~= "1"
 	or CVar("Sound_EnableSoundWhenGameIsInBG") ~= "1"
-	or CVar("Sound_MusicVolume") == "0" 
-	or CVar("Sound_MasterVolume") == "0" 
+	or CVar("Sound_MusicVolume") == "0"
+	or CVar("Sound_MasterVolume") == "0"
 	or CVar("Sound_EnableAllSound") ~= "1" then
-		StopCurrentMusic()
+		StopCurrentMusic();
 	end
 end
 
 local CVarListener = CreateFrame("Frame")
 CVarListener:RegisterEvent("CVAR_UPDATE")
 CVarListener:SetScript("OnEvent", function(self, event, arg1)
-	if arg1 == "Sound_EnableSoundWhenGameIsInBG" 
-	or arg1 == "Sound_EnableMusic" 
-	or arg1 == "Sound_MusicVolume" 
-	or arg1 == "Sound_MasterVolume" 
+	if arg1 == "Sound_EnableSoundWhenGameIsInBG"
+	or arg1 == "Sound_EnableMusic"
+	or arg1 == "Sound_MusicVolume"
+	or arg1 == "Sound_MasterVolume"
 	or arg1 == "Sound_EnableAllSound" then
-		CheckCVar()
+		CheckCVar();
 	end
 end)
 
 local function CheckConditions()
+	if manualPlayback then return; end
 
-	if manualPlayback then return end
+	local zone = FindActiveZone();
 
-	local zone = FindActiveZone()
+	local intendedAmbience = nil;
+	local intendedDuration = 60;
+	
+	if C_Housing.IsInsideHouse() then
+		local info = C_Housing.GetCurrentHouseInfo();
+		
+		if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+			if info and info.ownerName and info.neighborhoodGUID and info.plotID then
+				local key = string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID);
+				if HousingMusic_DB.AmbienceAssignments and HousingMusic_DB.AmbienceAssignments[key] then
+					intendedAmbience = HousingMusic_DB.AmbienceAssignments[key];
+				end
+			end
+		else
+			if info and info.neighborhoodGUID and info.plotID then
+				local locationKey = string.format("%s_%d", info.neighborhoodGUID, info.plotID);
+				
+				if HM_CachedAmbience_DB and HM_CachedAmbience_DB[locationKey] then
+					local preferredSender = HousingMusic_DB.VisitorPreferences and HousingMusic_DB.VisitorPreferences[locationKey];
+					local selectedSender = nil;
+					
+					if preferredSender and HM_CachedAmbience_DB[locationKey][preferredSender] then
+						selectedSender = preferredSender;
+					else
+						local ownerName = info.ownerName or L["Unknown"];
+						for senderName, _ in pairs(HM_CachedAmbience_DB[locationKey]) do
+							if string.find(senderName, ownerName) then
+								selectedSender = senderName;
+								break;
+							end
+						end
+						if not selectedSender then
+							selectedSender = next(HM_CachedAmbience_DB[locationKey]);
+						end
+					end
+					
+					if selectedSender then
+						intendedAmbience = HM_CachedAmbience_DB[locationKey][selectedSender];
+					end
+				end
+			end
+		end
+
+		if intendedAmbience and HM.AmbienceData then
+			for _, data in ipairs(HM.AmbienceData) do
+				if data.path == intendedAmbience then
+					intendedDuration = data.duration;
+					break;
+				end
+			end
+		end
+	end
 
 	if zone then
-		local newZoneName = zone.name or zone.subzone
-		local oldZoneName = activeZone and (activeZone.name or activeZone.subzone)
+		local newZoneName = zone.name or zone.subzone;
+		local oldZoneName = activeZone and (activeZone.name or activeZone.subzone);
 
 		if newZoneName ~= oldZoneName then
-			manualStop = false
+			manualStop = false;
 			
-			StopCurrentMusic()
-			activeZone = zone
-			--Print(string.format(L["EnteredCustomZone"], newZoneName))
+			StopCurrentMusic();
+			HM.StopAmbience();
+			activeZone = zone;
+			--Print(string.format(L["EnteredCustomZone"], newZoneName));
+			
+			if intendedAmbience then
+				HM.PlayAmbience(intendedAmbience, intendedDuration);
+			end
 		else
-			activeZone = zone 
+			activeZone = zone;
+			
+			if intendedAmbience and ambiencePlayingPath ~= intendedAmbience then
+				HM.PlayAmbience(intendedAmbience, intendedDuration);
+			elseif not intendedAmbience and ambiencePlayingPath then
+				HM.StopAmbience();
+			end
 		end
 		
 		if not musicPlaying and not manualStop then
 			if HM.IsAutoplayEnabled() then
-				PlayNextTrack()
+				PlayNextTrack();
 			end
 		end
 	else
 		if musicPlaying then
-			StopCurrentMusic()
+			StopCurrentMusic();
 		end
 
-		activeZone = nil
+		HM.StopAmbience();
+		activeZone = nil;
 	end
 end
 
 f:SetScript("OnUpdate", function(_, elapsed)
-	lastCheck = lastCheck + elapsed
+	lastCheck = lastCheck + elapsed;
 	if lastCheck >= checkInterval then
-		lastCheck = 0
-		CheckConditions()
+		lastCheck = 0;
+		CheckConditions();
 		if musicPlaying then
-			StartSilentMusic()
+			StartSilentMusic();
 		end
 	end
 
 	if musicPlaying then
-		timerElapsed = timerElapsed + elapsed
+		timerElapsed = timerElapsed + elapsed;
 		if timerElapsed >= musicTimer then
 			if manualPlayback then
-				manualPlayback = false
-				StopCurrentMusic()
+				manualPlayback = false;
+				StopCurrentMusic();
 			else
-				PlayNextTrack()
+				PlayNextTrack();
 			end
 		end
 	end
@@ -1120,13 +1234,13 @@ local function SetupTRP3Hook()
 	if TRP3_API and TRP3_API.utils and TRP3_API.utils.music and TRP3_API.utils.music.playMusic then
 		hooksecurefunc(TRP3_API.utils.music, "playMusic", function()
 			if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic then
-				HM.StopManualMusic()
+				HM.StopManualMusic();
 			end
 		end)
 		hooksecurefunc(TRP3_API.utils.music, "stopMusic", function()
 			if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.TotalRP3_StopMusic then
-				manualStop = false
-				CheckConditions()
+				manualStop = false;
+				CheckConditions();
 			end
 		end)
 	end
@@ -1134,19 +1248,19 @@ end
 
 local function SetupMusicianHook()
 	if Musician and Musician.Events then
-		local AceEvent = LibStub("AceEvent-3.0", true)
+		local AceEvent = LibStub("AceEvent-3.0", true);
 		if AceEvent then
-			local hmCompatTarget = {}
+			local hmCompatTarget = {};
 			AceEvent.RegisterMessage(hmCompatTarget, Musician.Events.SongPlay, function()
 				if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.Musician_StopMusic then
-					HM.StopManualMusic()
+					HM.StopManualMusic();
 				end
 			end)
 			
 			AceEvent.RegisterMessage(hmCompatTarget, Musician.Events.SongStop, function()
 				if HousingMusic_DB and HousingMusic_DB.addonCompatibilities and HousingMusic_DB.addonCompatibilities.Musician_StopMusic then
-					manualStop = false
-					CheckConditions()
+					manualStop = false;
+					CheckConditions();
 				end
 			end)
 		end
@@ -1156,51 +1270,52 @@ end
 f:SetScript("OnEvent", function(_, event, arg1)
 	if event == "ADDON_LOADED" then
 		if arg1 == "HousingMusic" then
-			f:RegisterEvent("ZONE_CHANGED")
-			f:RegisterEvent("PLAYER_ENTERING_WORLD")
-			f:RegisterEvent("PLAYER_STARTED_MOVING")
-			f:RegisterEvent("NEW_WMO_CHUNK")
-			f:RegisterEvent("PLAYER_LEAVING_WORLD")
-			f:RegisterEvent("ZONE_CHANGED_INDOORS")
-			f:RegisterEvent("AREA_POIS_UPDATED")
-			f:RegisterEvent("FOG_OF_WAR_UPDATED")
-			f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
-			HM.InitializeDB()
+			f:RegisterEvent("ZONE_CHANGED");
+			f:RegisterEvent("PLAYER_ENTERING_WORLD");
+			f:RegisterEvent("PLAYER_STARTED_MOVING");
+			f:RegisterEvent("NEW_WMO_CHUNK");
+			f:RegisterEvent("PLAYER_LEAVING_WORLD");
+			f:RegisterEvent("ZONE_CHANGED_INDOORS");
+			f:RegisterEvent("AREA_POIS_UPDATED");
+			f:RegisterEvent("FOG_OF_WAR_UPDATED");
+			f:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED");
+			HM.InitializeDB();
 
 			if C_Housing.IsInsideHouse() then
-				HM.StoreVolumeSettings()
-				HM.ApplyHouseVolumeSettings()
+				HM.StoreVolumeSettings();
+				HM.ApplyHouseVolumeSettings();
 			end
 			
 			if C_AddOns.IsAddOnLoaded("TotalRP3") then
-				SetupTRP3Hook()
+				SetupTRP3Hook();
 			end
 			if C_AddOns.IsAddOnLoaded("Musician") then
-				SetupMusicianHook()
+				SetupMusicianHook();
 			end
 		elseif arg1 == "TotalRP3" then
-			SetupTRP3Hook()
+			SetupTRP3Hook();
 		elseif arg1 == "Musician" then
-			SetupMusicianHook()
+			SetupMusicianHook();
 		end
 
 	elseif event == "HOUSE_PLOT_ENTERED" then
-		CheckConditions()
+		CheckConditions();
 
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		if C_Housing.IsInsideHouse() then
-			HM.StoreVolumeSettings()
-			HM.ApplyHouseVolumeSettings()
+			HM.StoreVolumeSettings();
+			HM.ApplyHouseVolumeSettings();
 		end
-		CheckConditions()
+		CheckConditions();
 
 	elseif event == "HOUSE_PLOT_EXITED" or event == "PLAYER_LOGOUT" then
-		HM.RestoreVolumeSettings()
+		HM.RestoreVolumeSettings();
 		if event == "HOUSE_PLOT_EXITED" then CheckConditions() end
 
 	elseif event == "PLAYER_LEAVING_WORLD" then
-		StopCurrentMusic()
+		StopCurrentMusic();
+		HM.StopAmbience();
 	else
-		CheckConditions()
+		CheckConditions();
 	end
 end)
