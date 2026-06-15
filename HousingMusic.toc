@@ -53,6 +53,7 @@ Libs/LibRPMedia/lib.xml
 Libs/ChatThrottleLib/ChatThrottleLib.xml
 
 Localization.lua
+AmbienceDB.lua
 CustomAssets.lua
 HousingMusic.lua
 HousingMusicUI.lua
