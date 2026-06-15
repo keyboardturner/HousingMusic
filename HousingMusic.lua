@@ -386,6 +386,7 @@ function HM.InitializeDB()
 
 	HousingMusic_DB.IgnoredPlayers = HousingMusic_DB.IgnoredPlayers or {};
 	HousingMusic_DB.IgnoredSongs = HousingMusic_DB.IgnoredSongs or {};
+	HousingMusic_DB.IgnoredAmbience = HousingMusic_DB.IgnoredAmbience or {};
 	HousingMusic_DB.FavoritedSongs = HousingMusic_DB.FavoritedSongs or {};
 
 	HousingMusic_DB.Playlists = HousingMusic_DB.Playlists or {};
@@ -464,6 +465,22 @@ function HM.SetSongFavorited(fileID, favorited)
 		HousingMusic_DB.FavoritedSongs[fileID] = true;
 	else
 		HousingMusic_DB.FavoritedSongs[fileID] = nil;
+	end
+end
+
+function HM.IsAmbienceMuted(path)
+	if not path then return false; end
+	return HousingMusic_DB and HousingMusic_DB.IgnoredAmbience and HousingMusic_DB.IgnoredAmbience[path];
+end
+
+function HM.SetAmbienceMuted(path, muted)
+	if not path then return; end
+	HousingMusic_DB.IgnoredAmbience = HousingMusic_DB.IgnoredAmbience or {};
+	
+	if muted then
+		HousingMusic_DB.IgnoredAmbience[path] = true;
+	else
+		HousingMusic_DB.IgnoredAmbience[path] = nil;
 	end
 end
 
@@ -1063,6 +1080,10 @@ AmbienceLoopFrame:SetScript("OnUpdate", function(self, elapsed)
 	if ambienceTimer >= ambienceDuration then
 		ambienceTimer = 0;
 		if ambiencePlayingPath then
+			if currentAmbienceHandle then
+				StopSound(currentAmbienceHandle, 0);
+			end
+			
 			local willPlay, handle = PlaySoundFile(ambiencePlayingPath, "Ambience");
 			if willPlay then
 				currentAmbienceHandle = handle;
@@ -1138,6 +1159,7 @@ local function CheckConditions()
 					
 					if selectedSender then
 						intendedAmbience = HM_CachedAmbience_DB[locationKey][selectedSender];
+						intendedAmbience = tonumber(intendedAmbience) or intendedAmbience;
 					end
 				end
 			end
@@ -1151,6 +1173,10 @@ local function CheckConditions()
 				end
 			end
 		end
+	end
+
+	if intendedAmbience and HM.IsAmbienceMuted(intendedAmbience) then
+		intendedAmbience = nil;
 	end
 
 	if zone then
@@ -1192,6 +1218,8 @@ local function CheckConditions()
 		activeZone = nil;
 	end
 end
+
+HM.CheckConditions = CheckConditions;
 
 f:SetScript("OnUpdate", function(_, elapsed)
 	lastCheck = lastCheck + elapsed;

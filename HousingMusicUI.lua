@@ -2041,15 +2041,33 @@ AmbScrollBar:SetPoint("BOTTOMLEFT", AmbScrollBox, "BOTTOMRIGHT", 5, 0)
 local AmbScrollView = CreateScrollBoxListLinearView()
 ScrollUtil.InitScrollBoxListWithScrollBar(AmbScrollBox, AmbScrollBar, AmbScrollView)
 
+local ambienceDataCleaned = false;
+
 function HM.FilterAmbienceList()
 	local text = CleanString(AmbSearchBox:GetText() or "");
 	local matches = {};
 
+	if not ambienceDataCleaned and HM.AmbienceData then
+		for _, data in ipairs(HM.AmbienceData) do
+			if data.name then
+				data.originalName = data.name;
+				data.name = data.name:gsub("^[Aa][Mm][Bb]_", ""):gsub("_", " ");
+			end
+		end
+		ambienceDataCleaned = true;
+	end
+
 	for _, data in ipairs(HM.AmbienceData or {}) do
-		if text == "" or CleanString(data.name):find(text, 1, true) then
+		if text == "" 
+		or CleanString(data.name):find(text, 1, true) 
+		or tostring(data.path):find(text, 1, true) then
 			table.insert(matches, data);
 		end
 	end
+
+	table.sort(matches, function(a, b)
+		return (a.name or "") < (b.name or "");
+	end)
 
 	local dataProvider = CreateDataProvider(matches);
 	AmbScrollView:SetDataProvider(dataProvider);
@@ -2097,7 +2115,8 @@ local function GetCurrentHouseAmbience()
 			end
 
 			if selectedSender then
-				return HM_CachedAmbience_DB[locationKey][selectedSender];
+				local path = HM_CachedAmbience_DB[locationKey][selectedSender];
+				return tonumber(path) or path;
 			end
 		end
 		return nil;
@@ -2128,11 +2147,11 @@ local function OpenAmbienceContextMenu(owner, data)
 			if HM.SetAmbienceMuted then
 				HM.SetAmbienceMuted(data.path, not isMuted);
 			end
-			if not isMuted and HM.CheckConditions then
-				HM.CheckConditions();
-			elseif isMuted and HM.CheckConditions then
+			
+			if HM.CheckConditions then
 				HM.CheckConditions();
 			end
+			
 			if HM.FilterAmbienceList then
 				HM.FilterAmbienceList();
 			end
@@ -2208,7 +2227,7 @@ local function AmbienceInitializer(button, data)
 		end
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-		GameTooltip:AddLine(data.name, 1, 1, 1);
+		GameTooltip:AddLine(data.originalName or data.name, 1, 1, 1);
 		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8);
 		
 		if IsAmbienceMuted(data.path) then
