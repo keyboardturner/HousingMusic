@@ -443,6 +443,6 @@ function HM.OnCommReceived(prefix, text, channel, sender, target, zoneChannelID,
 		
 	elseif msgType == MSG_TYPE_AMBIENCE and locationKey and param3 then
 		-- param3 = the isolated ambience track
-		ProcessReceivedAmbience(sender, locationKey, param3);
+		ProcessReceivedAmbience(sender, locationKey, tonumber(param3) or param3);
 	end
 end
