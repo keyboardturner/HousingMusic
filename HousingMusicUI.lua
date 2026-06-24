@@ -3363,6 +3363,18 @@ local function BrowserPlaylist_Initializer(button, data)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		RefreshBrowserPlaylists();
 	end)
+	button.favButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP");
+		if data.isFavorite then
+			GameTooltip:AddLine(L["Unfavorite"], 1, 1, 1);
+		else
+			GameTooltip:AddLine(L["Favorite"], 1, 1, 1);
+		end
+		GameTooltip:Show();
+	end)
+	button.favButton:SetScript("OnLeave", function()
+		GameTooltip:Hide();
+	end)
 
 	if not button.deleteButton then
 		button.deleteButton = CreateFrame("Button", nil, button);
@@ -3440,11 +3452,6 @@ local function BrowserPlaylist_Initializer(button, data)
 	button:SetScript("OnEnter", function(self)
 		button.tex:SetAlpha(1);
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-		
-		if data.isFavorite then
-			 GameTooltip:AddLine(L["Favorite"], 1, 0.8, 0);
-		end
-
 		GameTooltip:AddLine(data.sender, 1, 1, 1, true);
 		GameTooltip:AddLine(displayLoc, 0.8, 0.8, 0.8, true);
 		GameTooltip:AddLine(string.format(L["AmountSongs"], data.count), 0.8, 0.8, 0.8, true);
