@@ -345,6 +345,39 @@ StaticPopupDialogs["HOUSINGMUSIC_IMPORT_NAME"] = {
 	preferredIndex = 3,
 };
 
+StaticPopupDialogs["HOUSINGMUSIC_DELETE_CACHED_PLAYLIST"] = {
+	text = L["DeletePlaylist"],
+	button1 = L["Yes"],
+	button2 = L["No"],
+	OnAccept = function(self, data)
+		if HM_CachedMusic_DB[data.locationKey] then
+			HM_CachedMusic_DB[data.locationKey][data.sender] = nil;
+		end
+		if HM_CachedMusic_Metadata[data.locationKey] then
+			HM_CachedMusic_Metadata[data.locationKey][data.sender] = nil;
+		end
+		
+		if HM_CachedMusic_DB[data.locationKey] and next(HM_CachedMusic_DB[data.locationKey]) == nil then
+			HM_CachedMusic_DB[data.locationKey] = nil;
+			HM_CachedMusic_Metadata[data.locationKey] = nil;
+		end
+		
+		if selectedBrowserKey == data.key then
+			selectedBrowserKey = nil;
+			B_ScrollBoxRight:RemoveDataProvider();
+		end
+		
+		RefreshBrowserPlaylists();
+		if HM.CheckConditions then
+			HM.CheckConditions();
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+};
+
 
 local HM_CopyBoxMixin = {}
 
@@ -753,190 +786,42 @@ end)
 -- PLAYLIST BROWSER FRAME (Cached Music)
 -------------------------------------------------------------------------------
 
-local BrowserFrame = CreateFrame("Frame", "HousingMusic_BrowserFrame", UIParent)
-BrowserFrame:SetSize(620, 470)
-BrowserFrame:SetPoint("CENTER")
-BrowserFrame:EnableMouse(true)
+local BrowserFrame = CreateFrame("Frame", nil, MainFrame.Backframe)
+BrowserFrame:SetPoint("TOPLEFT", MainFrame.Backframe, "TOPLEFT", 0, 0)
+BrowserFrame:SetPoint("BOTTOMRIGHT", MainFrame.Backframe, "BOTTOMRIGHT", 0, 0)
 BrowserFrame:Hide()
 HM.BrowserFrame = BrowserFrame;
-tinsert(UISpecialFrames, BrowserFrame:GetName())
 
-local B_Border = BrowserFrame:CreateTexture(nil, "BORDER", nil, 1);
-B_Border:SetPoint("TOPLEFT", -6, 6);
-B_Border:SetPoint("BOTTOMRIGHT", 6, -6);
-B_Border:SetAtlas("housing-basic-container");
-B_Border:SetTextureSliceMargins(20, 20, 20, 20);
-B_Border:SetTextureSliceMode(Enum.UITextureSliceMode.Stretched);
-
-local B_Header = BrowserFrame:CreateTexture(nil, "BORDER", nil, 2);
-B_Header:SetPoint("TOPLEFT", BrowserFrame, "TOPLEFT", 0, 0);
-B_Header:SetPoint("BOTTOMRIGHT", BrowserFrame, "TOPRIGHT", 0, -36);
-B_Header:SetAtlas("housing-basic-container-woodheader");
-
-local B_HeaderTitle = BrowserFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-B_HeaderTitle:SetPoint("CENTER", B_Header, "CENTER", 0, 0)
-B_HeaderTitle:SetFont(GameFontNormal:GetFont(), 17, "")
-B_HeaderTitle:SetTextColor(1, 1, 1)
-B_HeaderTitle:SetText(L["CachedPlaylists"])
-
-local B_CloseButton = CreateFrame("Button", nil, BrowserFrame, "UIPanelCloseButtonNoScripts");
-B_CloseButton:SetPoint("TOPRIGHT", 0, 0);
-B_CloseButton:SetScript("OnClick", function() BrowserFrame:Hide() end);
-
-local B_Backframe = CreateFrame("Frame", nil, BrowserFrame)
-B_Backframe:SetPoint("TOPLEFT", BrowserFrame, "TOPLEFT", 0, -36)
-B_Backframe:SetPoint("BOTTOMRIGHT", BrowserFrame, "BOTTOMRIGHT", 0, 0)
-
-local B_SectionLeft = CreateFrame("Frame", nil, B_Backframe)
-B_SectionLeft:SetPoint("TOPLEFT", B_Backframe, "TOPLEFT", 0, 0)
-B_SectionLeft:SetPoint("BOTTOMRIGHT", B_Backframe, "BOTTOM", 0, 50)
+local B_SectionLeft = CreateFrame("Frame", nil, BrowserFrame)
+B_SectionLeft:SetPoint("TOPLEFT", BrowserFrame, "TOPLEFT", 0, 0)
+B_SectionLeft:SetPoint("BOTTOMRIGHT", BrowserFrame, "BOTTOM", 0, 50)
 B_SectionLeft.tex = B_SectionLeft:CreateTexture(nil, "BACKGROUND", nil, 0);
 B_SectionLeft.tex:SetAtlas("catalog-list-preview-bg")
 B_SectionLeft.tex:SetVertexColor(1,1,1,1)
 B_SectionLeft.tex:SetAllPoints(B_SectionLeft)
 
-local B_SectionRight = CreateFrame("Frame", nil, B_Backframe)
-B_SectionRight:SetPoint("TOPLEFT", B_Backframe, "TOP", 0, 0)
-B_SectionRight:SetPoint("BOTTOMRIGHT", B_Backframe, "BOTTOMRIGHT", 0, 50)
+local B_SectionRight = CreateFrame("Frame", nil, BrowserFrame)
+B_SectionRight:SetPoint("TOPLEFT", BrowserFrame, "TOP", 0, 0)
+B_SectionRight:SetPoint("BOTTOMRIGHT", BrowserFrame, "BOTTOMRIGHT", 0, 50)
 B_SectionRight.tex = B_SectionRight:CreateTexture(nil, "BACKGROUND", nil, 0);
 B_SectionRight.tex:SetAtlas("catalog-list-preview-bg")
 B_SectionRight.tex:SetAllPoints(B_SectionRight)
 B_SectionRight.tex:SetVertexColor(1,1,1,1)
 
-local B_Divider = CreateFrame("Frame", nil, B_Backframe)
+local B_Divider = CreateFrame("Frame", nil, BrowserFrame)
 B_Divider:SetPoint("TOPLEFT", B_SectionLeft, "TOPRIGHT", -5, 0);
 B_Divider:SetPoint("BOTTOMRIGHT", B_SectionRight, "BOTTOMLEFT", 5, 0);
 B_Divider.tex = B_Divider:CreateTexture(nil, "BACKGROUND", nil, 1);
 B_Divider.tex:SetAtlas("CovenantSanctum-Divider-Necrolord");
 B_Divider.tex:SetAllPoints(B_Divider)
 
-local B_DividerFooter = CreateFrame("Frame", nil, B_Backframe)
+local B_DividerFooter = CreateFrame("Frame", nil, BrowserFrame)
 B_DividerFooter:SetPoint("TOPLEFT", B_SectionLeft, "BOTTOMLEFT", 0, 10);
 B_DividerFooter:SetPoint("BOTTOMRIGHT", B_SectionRight, "BOTTOMRIGHT", 0, -10);
 B_DividerFooter.tex = B_DividerFooter:CreateTexture(nil, "BACKGROUND", nil, 1);
 B_DividerFooter.tex:SetAtlas("CovenantSanctum-Renown-Divider-Necrolord");
 B_DividerFooter.tex:SetAllPoints(B_DividerFooter)
 
-local B_Footer = CreateFrame("Frame", nil, BrowserFrame)
-B_Footer:SetPoint("TOPLEFT", B_Backframe, "BOTTOMLEFT", 0, 0)
-B_Footer:SetPoint("BOTTOMRIGHT", BrowserFrame, "BOTTOMRIGHT", 0, 0)
-
-local B_ProgressBar = CreateFrame("StatusBar", nil, B_Footer)
-B_ProgressBar:SetPoint("TOPLEFT", B_Footer, "BOTTOMLEFT", 75, 18)
-B_ProgressBar:SetPoint("BOTTOMRIGHT", B_Footer, "BOTTOMRIGHT", -20, 15)
-B_ProgressBar:SetHeight(8)
-B_ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-B_ProgressBar:SetStatusBarColor(1, 0.7, 0)
-B_ProgressBar.bg = B_ProgressBar:CreateTexture(nil, "BACKGROUND")
-B_ProgressBar.bg:SetAllPoints()
-B_ProgressBar.bg:SetColorTexture(0.2, 0.2, 0.2, 0.5)
-
-local B_PlayerToggleBtn = CreateFrame("Button", nil, B_ProgressBar)
-B_PlayerToggleBtn:SetSize(25, 25)
-B_PlayerToggleBtn:SetPoint("RIGHT", B_ProgressBar, "LEFT", -25, 9)
-B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
-B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
-B_PlayerToggleBtn:GetHighlightTexture():SetAlpha(0.5)
-
-local B_PlayerNextBtn = CreateFrame("Button", nil, B_ProgressBar)
-B_PlayerNextBtn:SetSize(20, 20)
-B_PlayerNextBtn:SetPoint("LEFT", B_PlayerToggleBtn, "RIGHT", 0, 0)
-B_PlayerNextBtn:SetNormalTexture(NextTexture)
-B_PlayerNextBtn:SetHighlightTexture(NextTexture)
-
-local B_PlayerPrevBtn = CreateFrame("Button", nil, B_ProgressBar)
-B_PlayerPrevBtn:SetSize(20, 20)
-B_PlayerPrevBtn:SetPoint("RIGHT", B_PlayerToggleBtn, "LEFT", 0, 0)
-B_PlayerPrevBtn:SetNormalTexture(PreviousTexture)
-B_PlayerPrevBtn:SetHighlightTexture(PreviousTexture)
-
-local B_PlayerTitle = B_ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-B_PlayerTitle:SetPoint("BOTTOMLEFT", B_ProgressBar, "TOPLEFT", 0, 5)
-B_PlayerTitle:SetJustifyH("LEFT")
-B_PlayerTitle:SetText(L["NoMusicPlaying"])
-B_PlayerTitle:SetTextColor(1, 1, 1)
-
-local B_TimerText = B_ProgressBar:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-B_TimerText:SetPoint("BOTTOMRIGHT", B_ProgressBar, "TOPRIGHT", 0, 5)
-B_TimerText:SetJustifyH("RIGHT")
-B_TimerText:SetText("0:00 / 0:00")
-B_TimerText:SetTextColor(1, 1, 1)
-
-B_PlayerToggleBtn:SetScript("OnClick", function()
-	local state = HM.GetPlaybackState()
-	if state.isPlaying then
-		HM.StopManualMusic()
-		B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
-		B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
-		B_PlayerTitle:SetText(L["NoMusicPlaying"])
-	end
-end)
-
-B_PlayerPrevBtn:SetScript("OnClick", function(self)
-	if HM.PlayPreviousTrack then
-		HM.PlayPreviousTrack()
-		PlayerPrevBtn.PreviousSongTT(self)
-	end
-end)
-
-B_PlayerPrevBtn:SetScript("OnEnter", function(self)
-	PlayerPrevBtn.PreviousSongTT(self)
-end)
-
-B_PlayerPrevBtn:SetScript("OnLeave", function()
-	GameTooltip:Hide()
-end)
-
-B_PlayerNextBtn:SetScript("OnClick", function()
-	if HM.SkipTrack then
-		HM.SkipTrack()
-	end
-end)
-
-B_PlayerNextBtn:SetScript("OnEnter", function(self)
-	GameTooltip:SetOwner(self, "ANCHOR_TOP")
-	GameTooltip:AddLine(L["NextSong"], 1, 1, 1)
-	GameTooltip:Show()
-end)
-B_PlayerNextBtn:SetScript("OnLeave", function()
-	GameTooltip:Hide()
-end)
-
-B_ProgressBar:SetScript("OnUpdate", function(self, elapsed)
-	if not BrowserFrame:IsVisible() then return end
-
-	local state = HM.GetPlaybackState()
-
-	if state.isPlaying and state.duration > 0 then
-		self:SetMinMaxValues(0, state.duration)
-		self:SetValue(state.elapsed)
-		
-		B_TimerText:SetText(FormatDuration(state.elapsed) .. " / " .. FormatDuration(state.duration))
-		B_PlayerTitle:SetText(state.name or L["Unknown"])
-		
-		B_PlayerToggleBtn:SetNormalTexture(StopTexture)
-		B_PlayerToggleBtn:SetHighlightTexture(StopTexture)
-	else
-		self:SetValue(0)
-		B_TimerText:SetText("0:00 / 0:00")
-		B_PlayerTitle:SetText(L["NoMusicPlaying"])
-		
-		B_PlayerToggleBtn:SetNormalTexture(PlayTexture)
-		B_PlayerToggleBtn:SetHighlightTexture(PlayTexture)
-	end
-end)
-
--------------------------------------------------------------------------------
--- BROWSER EVENTS
--------------------------------------------------------------------------------
-BrowserFrame:SetScript("OnShow", function()
-	RefreshBrowserPlaylists()
-	PlaySound(305110)
-end)
-
-BrowserFrame:SetScript("OnHide", function()
-	PlaySound(305110)
-end)
 
 
 -------------------------------------------------------------------------------
@@ -953,7 +838,6 @@ MainframeToggleButton:SetScript("OnClick", function(self, button, down)
 		MainFrame:Hide()
 	else
 		MainFrame:Show()
-		if BrowserFrame and BrowserFrame:IsShown() then BrowserFrame:Hide() end
 	end
 end)
 MainframeToggleButton:RegisterForClicks("AnyDown", "AnyUp")
@@ -992,13 +876,10 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		MainFrame:ClearAllPoints()
 		MainFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
 		MainFrame.favButton:Show()
-		BrowserFrame:ClearAllPoints()
-		BrowserFrame:SetPoint("TOP", HousingControlsFrame, "BOTTOM", 0, -40)
 	else
 		MainframeToggleButton:Hide()
 		MainFrame:Hide()
 		MainFrame.favButton:Hide()
-		BrowserFrame:Hide()
 	end
 end)
 
@@ -1945,6 +1826,12 @@ AmbiencePanel.tex:SetVertexColor(1, 1, 1, 1)
 AmbiencePanel.tex:SetAllPoints()
 AmbiencePanel:Hide()
 
+local TabBrowse = CreateFrame("Button", "HousingMusic_MainFrameTab3", MainFrame, "PanelTabButtonTemplate");
+TabBrowse:SetID(3);
+TabBrowse:SetPoint("LEFT", TabAmbience, "RIGHT", 0, 0);
+TabBrowse:SetText(L["CachedPlaylists"]);
+PanelTemplates_TabResize(TabBrowse, 0);
+
 local function SelectTab(tabID)
 	PanelTemplates_SetTab(MainFrame, tabID);
 	
@@ -1976,7 +1863,9 @@ local function SelectTab(tabID)
 		if AmbSectionRight then
 			AmbSectionRight:Hide();
 		end
-	else
+		
+		BrowserFrame:Hide();
+	elseif tabID == 2 then
 		if SectionLeft then
 			SectionLeft:Hide();
 		end
@@ -2010,17 +1899,53 @@ local function SelectTab(tabID)
 		if HM.UpdateAmbienceRightPanel then
 			HM.UpdateAmbienceRightPanel();
 		end
+		
+		BrowserFrame:Hide();
+	else
+		if SectionLeft then
+			SectionLeft:Hide();
+		end
+		if SectionRight then
+			SectionRight:Hide();
+		end
+		if MainFrame.DividerSections then
+			MainFrame.DividerSections:Hide();
+		end
+		
+		if ScrollBoxLeft then
+			ScrollBoxLeft:Hide()
+		end
+		if ScrollBoxRight then
+			ScrollBoxRight:Hide();
+		end
+		if SearchBoxLeft then
+			SearchBoxLeft:Hide();
+		end
+		if SearchBoxRight then
+			SearchBoxRight:Hide();
+		end
+		
+		AmbiencePanel:Hide();
+		if AmbSectionRight then
+			AmbSectionRight:Hide();
+		end
+		
+		BrowserFrame:Show();
+		if RefreshBrowserPlaylists then
+			RefreshBrowserPlaylists();
+		end
 	end
 	
 	UpdateCVarBlocker();
 end
 
-TabMusic:SetScript("OnClick", function() SelectTab(1); PlaySound(841); end)
-TabAmbience:SetScript("OnClick", function() SelectTab(2); PlaySound(841); end)
+TabMusic:SetScript("OnClick", function() SelectTab(1); PlaySound(841); end);
+TabAmbience:SetScript("OnClick", function() SelectTab(2); PlaySound(841); end);
+TabBrowse:SetScript("OnClick", function() SelectTab(3); PlaySound(841); end);
 
-MainFrame.numTabs = 2
-PanelTemplates_SetNumTabs(MainFrame, 2)
-SelectTab(1)
+MainFrame.numTabs = 3;
+PanelTemplates_SetNumTabs(MainFrame, 3);
+SelectTab(1);
 
 
 local AmbSearchBox = CreateFrame("EditBox", nil, AmbiencePanel, "SearchBoxTemplate")
@@ -3413,119 +3338,127 @@ function RefreshBrowserPlaylists()
 end
 
 local function BrowserPlaylist_Initializer(button, data)
-	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
-	button.tex:SetAllPoints(button)
-	button.tex:SetAtlas("ClickCastList-ButtonBackground")
+	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0);
+	button.tex:SetAllPoints(button);
+	button.tex:SetAtlas("ClickCastList-ButtonBackground");
 
 	if not button.favButton then
-		button.favButton = CreateFrame("Button", nil, button)
-		button.favButton:SetSize(20, 20)
-		button.favButton:SetPoint("LEFT", button, "LEFT", 5, 0)
+		button.favButton = CreateFrame("Button", nil, button);
+		button.favButton:SetSize(20, 20);
+		button.favButton:SetPoint("LEFT", button, "LEFT", 5, 0);
 		
-		button.favButton:SetHighlightTexture(favtex)
-		button.favButton:GetHighlightTexture():SetAlpha(0.5)
+		button.favButton:SetHighlightTexture(favtex);
+		button.favButton:GetHighlightTexture():SetAlpha(0.5);
 	end
 
 	if data.isFavorite then
-		button.favButton:SetNormalTexture(favtex)
+		button.favButton:SetNormalTexture(favtex);
 	else
-		button.favButton:SetNormalTexture(nofavtex)
+		button.favButton:SetNormalTexture(nofavtex);
 	end
 
 	button.favButton:SetScript("OnClick", function()
-		local newStatus = not data.isFavorite
-		HM.SetCachedPlaylistFavorite(data.locationKey, data.sender, newStatus)
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		RefreshBrowserPlaylists()
+		local newStatus = not data.isFavorite;
+		HM.SetCachedPlaylistFavorite(data.locationKey, data.sender, newStatus);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+		RefreshBrowserPlaylists();
+	end)
+
+	if not button.deleteButton then
+		button.deleteButton = CreateFrame("Button", nil, button);
+		button.deleteButton:SetSize(16, 16);
+		button.deleteButton:SetPoint("RIGHT", button, "RIGHT", -10, 0);
+		button.deleteButton:SetNormalAtlas("common-icon-redx");
+		button.deleteButton:SetHighlightAtlas("common-icon-redx");
+	end
+
+	button.deleteButton:SetScript("OnClick", function()
+		local payload = {
+			locationKey = data.locationKey,
+			sender = data.sender,
+			key = data.locationKey .. "_" .. data.sender,
+		};
+		StaticPopup_Show("HOUSINGMUSIC_DELETE_CACHED_PLAYLIST", string.join(" - ", data.sender, data.houseName), nil, payload);
+	end)
+
+	button.deleteButton:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_TOP");
+		GameTooltip:AddLine(L["Delete"], 1, 1, 1);
+		GameTooltip:Show();
+	end)
+	button.deleteButton:SetScript("OnLeave", function()
+		GameTooltip:Hide();
 	end)
 
 
-	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
-	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
-	button.texHL:Hide()
+	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3);
+	button.texHL:SetAllPoints(button);
+	button.texHL:SetAtlas("ClickCastList-ButtonHighlight");
+	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00);
+	button.texHL:Hide();
 
-	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2)
-	button.selectedTex:SetAllPoints(button)
-	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
+	button.selectedTex = button.selectedTex or button:CreateTexture(nil, "ARTWORK", nil, 2);
+	button.selectedTex:SetAllPoints(button);
+	button.selectedTex:SetAtlas("ReportList-ButtonSelect");
 	
-	local compositeKey = data.locationKey .. "_" .. data.sender
-	button.selectedTex:SetShown(selectedBrowserKey == compositeKey)
+	local compositeKey = data.locationKey .. "_" .. data.sender;
+	button.selectedTex:SetShown(selectedBrowserKey == compositeKey);
 
-	button.text = button.text or button:CreateFontString(nil, "OVERLAY")
-	button.text:SetFontObject("GameTooltipTextSmall")
-	button.text:SetPoint("LEFT", 30, 0)
-	button.text:SetPoint("RIGHT", -10, 0)
-	button.text:SetJustifyH("LEFT")
-	button.text:SetTextColor(1, 1, 1)
+	button.text = button.text or button:CreateFontString(nil, "OVERLAY");
+	button.text:SetFontObject("GameTooltipTextSmall");
+	button.text:SetPoint("LEFT", 30, 0);
+	button.text:SetPoint("RIGHT", -32, 0);
+	button.text:SetJustifyH("LEFT");
+	button.text:SetTextColor(1, 1, 1);
 
-	local displayLoc = ""
+	local displayLoc = "";
 	if data.houseName and data.houseName ~= "" and data.houseName ~= L["Unknown"] then
-		displayLoc = WrapTextInColorCode(data.houseName, "ffdac9a6")
+		displayLoc = WrapTextInColorCode(data.houseName, "ffdac9a6");
 	else
-		local locationParts = { strsplit("_", data.locationKey) }
-		local plotID = locationParts[#locationParts] or ""
-		if plotID ~= "" then displayLoc = " [#ID" .. plotID .. "]" end
+		local locationParts = { strsplit("_", data.locationKey) };
+		local plotID = locationParts[#locationParts] or "";
+		if plotID ~= "" then
+			displayLoc = " [#ID" .. plotID .. "]";
+		end
 	end
 
-	local splitName
+	local splitName;
 	if data.sender then
-		splitName = string.split("-",data.sender)
+		splitName = string.split("-",data.sender);
 	end
 	
-	button.text:SetText(splitName .. " - " .. displayLoc .. " (" .. data.count .. ")")
+	button.text:SetText(splitName .. " - " .. displayLoc .. " (" .. data.count .. ")");
 
-	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	button:SetScript("OnClick", function(self, btn)
-		if btn == "RightButton" then
-			MenuUtil.CreateContextMenu(self, function(owner, rootDescription)
-				rootDescription:CreateTitle(data.sender)
-				
-				rootDescription:CreateButton(L["Mute"], function()
-					HM.IgnorePlayer(data.sender)
-					
-					if HM_CachedMusic_DB then
-						for k, v in pairs(HM_CachedMusic_DB) do
-							if v[data.sender] then
-								v[data.sender] = nil
-							end
-						end
-					end
-					
-					RefreshBrowserPlaylists()
-				end)
-			end)
-		else
-			selectedBrowserKey = compositeKey
-			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-			UpdateSelectionHighlights()
-			UpdateBrowserSongs(data.locationKey, data.sender)
-		end
-	end)
+	button:RegisterForClicks("LeftButtonUp");
+	button:SetScript("OnClick", function(self)
+		selectedBrowserKey = compositeKey;
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+		UpdateSelectionHighlights();
+		UpdateBrowserSongs(data.locationKey, data.sender);
+	end);
 	
 	button:SetScript("OnEnter", function(self)
-		button.tex:SetAlpha(1)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		button.tex:SetAlpha(1);
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 		
 		if data.isFavorite then
-			 GameTooltip:AddLine(L["Favorite"], 1, 0.8, 0)
+			 GameTooltip:AddLine(L["Favorite"], 1, 0.8, 0);
 		end
 
-		GameTooltip:AddLine(data.sender, 1, 1, 1, true)
-		GameTooltip:AddLine(displayLoc, 0.8, 0.8, 0.8, true)
-		GameTooltip:AddLine(string.format(L["AmountSongs"], data.count), 0.8, 0.8, 0.8, true)
+		GameTooltip:AddLine(data.sender, 1, 1, 1, true);
+		GameTooltip:AddLine(displayLoc, 0.8, 0.8, 0.8, true);
+		GameTooltip:AddLine(string.format(L["AmountSongs"], data.count), 0.8, 0.8, 0.8, true);
 
 		
-		GameTooltip:Show()
-	end)
+		GameTooltip:Show();
+	end);
 	button:SetScript("OnLeave", function()
-		button.tex:SetAlpha(1)
-		GameTooltip:Hide()
-	end)
+		button.tex:SetAlpha(1);
+		GameTooltip:Hide();
+	end);
 end
 
-B_ScrollViewLeft:SetElementInitializer("Button", BrowserPlaylist_Initializer)
+B_ScrollViewLeft:SetElementInitializer("Button", BrowserPlaylist_Initializer);
 B_ScrollViewLeft:SetElementExtent(36);
 
 
