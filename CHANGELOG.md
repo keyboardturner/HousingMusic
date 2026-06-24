@@ -1,5 +1,13 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.4
+
+Added Cached Playlist tab
+ - Allows viewing cached playlists
+ - Functions to favorite and delete playlists
+
+Added Dropdown menu entry to copy track File ID
+
 # 0.1.3
 
 Added Ambience selection feature

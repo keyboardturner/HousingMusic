@@ -203,6 +203,9 @@ local function OpenSongContextMenu(owner, musicInfo)
 			if HM.UpdateCachedMusicUI then HM.UpdateCachedMusicUI() end
 			HM.RefreshButtonForMusic(musicInfo)
 		end)
+		rootDescription:CreateButton(L["CopyFileID"], function()
+			HM.ShowExportWindow(fileID);
+		end)
 	end)
 end
 
@@ -2067,6 +2070,7 @@ local function OpenAmbienceContextMenu(owner, data)
 
 		local isMuted = IsAmbienceMuted(data.path);
 		local muteText = isMuted and L["UnmuteSong"] or L["MuteSong"];
+		local fileID = data.path;
 
 		rootDescription:CreateButton(muteText, function()
 			if HM.SetAmbienceMuted then
@@ -2083,6 +2087,9 @@ local function OpenAmbienceContextMenu(owner, data)
 			if HM.UpdateAmbienceRightPanel then
 				HM.UpdateAmbienceRightPanel();
 			end
+		end)
+		rootDescription:CreateButton(L["CopyFileID"], function()
+			HM.ShowExportWindow(fileID);
 		end)
 	end)
 end
