@@ -6,6 +6,12 @@ Regen LibRPMedia database
 
 12.1.0 toc update
 
+Fixed the in-house volume sliders overwriting the game's sound settings upon entering a house
+ - The slider values were only ever copied from the game once, so any volume changed afterwards in the game's own sound options was pushed back to that old copy on every house entry (usually upwards, which made everything sound maxed out)
+ - The sliders now follow the current game volumes again, and only the ones deliberately moved are applied inside the house
+ - Slider values are clamped before being applied, so a bad saved value can no longer force a channel to maximum
+ - Leaving the house now only reverts the settings the addon changed itself, instead of everything it had copied
+
 # 0.1.4
 
 Added Cached Playlist tab
