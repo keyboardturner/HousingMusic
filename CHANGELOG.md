@@ -1,5 +1,11 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.5
+
+Regen LibRPMedia database
+
+12.1.0 toc update
+
 # 0.1.4
 
 Added Cached Playlist tab
