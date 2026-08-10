@@ -164,6 +164,50 @@ local CameraCVars = {
 	"CameraReduceUnexpectedMovement",
 };
 
+-- entries of VolumeCVars that hold a normalized 0-1 volume, the remaining ones are 0/1 toggles
+local NormalizedVolumeCVars = {
+	Sound_MasterVolume = true,
+	Sound_MusicVolume = true,
+	Sound_SFXVolume = true,
+	Sound_AmbienceVolume = true,
+	Sound_DialogVolume = true,
+};
+
+-- true once the house settings were pushed to the client, reset when they are restored,
+-- so the player's own values are never re-captured on top of the ones we applied ourselves
+local houseVolumesApplied = false;
+
+-- CVars this addon actually changed, so leaving the house only reverts our own writes
+local appliedCVars = {};
+
+local function SanitizeCVarValue(cvar, value)
+	local num = tonumber(value);
+	if not num then return nil; end
+	
+	if NormalizedVolumeCVars[cvar] then
+		if num < 0 then
+			num = 0;
+		elseif num > 1 then
+			num = 1;
+		end
+		return num;
+	end
+	
+	return num ~= 0 and 1 or 0;
+end
+
+-- a volume is only forced onto the client when the player set it on this addon's own sliders
+function HM.IsVolumeOverridden(cvar)
+	return HousingMusic_DB and HousingMusic_DB.volumeOverrides and HousingMusic_DB.volumeOverrides[cvar] == true;
+end
+
+function HM.SetVolumeOverridden(cvar)
+	if not HousingMusic_DB then return; end
+	
+	HousingMusic_DB.volumeOverrides = HousingMusic_DB.volumeOverrides or {};
+	HousingMusic_DB.volumeOverrides[cvar] = true;
+end
+
 HM.isHouseEditingActive = false;
 
 EventRegistry:RegisterCallback("HouseEditor.StateUpdated", function(_, isEditing)
@@ -186,31 +230,41 @@ EventRegistry:RegisterCallback("HouseEditor.StateUpdated", function(_, isEditing
 end)
 
 function HM.StoreVolumeSettings()
-	HousingMusic_DB.restoreVolumes = HousingMusic_DB.restoreVolumes or {};
+	if not HousingMusic_DB then return; end
+	
+	-- our own values are still live, re-capturing now would store them as the player's own
+	if houseVolumesApplied then return; end
+	
+	HousingMusic_DB.restoreVolumes = {};
+	HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {};
 	
 	for _, cvar in ipairs(VolumeCVars) do
-		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = C_CVar.GetCVar(cvar);
-			HousingMusic_DB.restoreVolumes[cvar] = currentVal;
+		local currentVal = C_CVar.GetCVar(cvar);
+		HousingMusic_DB.restoreVolumes[cvar] = currentVal;
+		
+		-- keep the in-house sliders in sync with whatever the player uses outside,
+		-- except for the ones they deliberately changed on our sliders
+		if not HM.IsVolumeOverridden(cvar) then
+			local liveVal = SanitizeCVarValue(cvar, currentVal);
+			if liveVal then
+				HousingMusic_DB.volumeControls[cvar] = liveVal;
+			end
 		end
 	end
 
 	for _, cvar in ipairs(CameraCVars) do
-		if HousingMusic_DB.restoreVolumes[cvar] == nil then
-			local currentVal = C_CVar.GetCVar(cvar);
-			HousingMusic_DB.restoreVolumes[cvar] = currentVal;
-		end
+		HousingMusic_DB.restoreVolumes[cvar] = C_CVar.GetCVar(cvar);
 	end
 	
-	if HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] == nil then
-		HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] = C_CVar.GetCVar("graphicsOutlineMode");
-	end
+	HousingMusic_DB.restoreVolumes["graphicsOutlineMode"] = C_CVar.GetCVar("graphicsOutlineMode");
 end
 
 function HM.UpdateCameraCVars(enabled)
 	if not C_Housing.IsInsideHouse() then return; end
 
 	if enabled then
+		appliedCVars["CameraKeepCharacterCentered"] = true;
+		appliedCVars["CameraReduceUnexpectedMovement"] = true;
 		C_CVar.SetCVar("CameraKeepCharacterCentered", "0");
 		C_CVar.SetCVar("CameraReduceUnexpectedMovement", "1");
 	else
@@ -226,22 +280,37 @@ function HM.UpdateCameraCVars(enabled)
 end
 
 function HM.RestoreVolumeSettings()
-	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then return; end
+	houseVolumesApplied = false;
 	
-	for cvar, val in pairs(HousingMusic_DB.restoreVolumes) do
-		C_CVar.SetCVar(cvar, val);
+	if not HousingMusic_DB or not HousingMusic_DB.restoreVolumes then
+		appliedCVars = {};
+		return;
 	end
 	
+	-- only revert what we changed ourselves, anything else is the player's own setting
+	for cvar, val in pairs(HousingMusic_DB.restoreVolumes) do
+		if appliedCVars[cvar] then
+			C_CVar.SetCVar(cvar, val);
+		end
+	end
+	
+	appliedCVars = {};
 	HousingMusic_DB.restoreVolumes = nil;
 end
 
 function HM.ApplyHouseVolumeSettings()
 	if not HousingMusic_DB or not HousingMusic_DB.volumeControls then return; end
 	
+	houseVolumesApplied = true;
+	
 	for _, cvar in ipairs(VolumeCVars) do
-		local val = HousingMusic_DB.volumeControls[cvar];
-		if val then
-			C_CVar.SetCVar(cvar, val);
+		if HM.IsVolumeOverridden(cvar) then
+			local val = SanitizeCVarValue(cvar, HousingMusic_DB.volumeControls[cvar]);
+			if val then
+				HousingMusic_DB.volumeControls[cvar] = val;
+				appliedCVars[cvar] = true;
+				C_CVar.SetCVar(cvar, val);
+			end
 		end
 	end
 
@@ -255,17 +324,24 @@ function HM.ApplyHouseVolumeSettings()
 				C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.restoreVolumes["graphicsOutlineMode"]);
 			end
 		else
+			appliedCVars["graphicsOutlineMode"] = true;
 			C_CVar.SetCVar("graphicsOutlineMode", HousingMusic_DB.graphicsOutlineMode);
 		end
 	end
 end
 
 function HM.UpdateVolumeCVar(cvar, value)
+	if cvar ~= "graphicsOutlineMode" then
+		-- the player moved one of our own sliders, from now on we may force this CVar
+		HM.SetVolumeOverridden(cvar);
+	end
+	
 	if C_Housing.IsInsideHouse() then
 		if cvar == "graphicsOutlineMode" and HM.isHouseEditingActive then
 			return;
 		end
 		
+		appliedCVars[cvar] = true;
 		C_CVar.SetCVar(cvar, value);
 	end
 end
@@ -354,20 +430,30 @@ function HM.InitializeDB()
 	if HM.DefaultsTable then
 		for key, value in pairs(HM.DefaultsTable) do
 			if HousingMusic_DB[key] == nil then
-				HousingMusic_DB[key] = value;
+				if type(value) == "table" then
+					-- copy, otherwise the saved profile and the defaults are the same table
+					local copy = {};
+					for subKey, subValue in pairs(value) do
+						copy[subKey] = subValue;
+					end
+					HousingMusic_DB[key] = copy;
+				else
+					HousingMusic_DB[key] = value;
+				end
 			end
 		end
 	end
 
 	HousingMusic_DB.volumeControls = HousingMusic_DB.volumeControls or {};
+	HousingMusic_DB.volumeOverrides = HousingMusic_DB.volumeOverrides or {};
 	
 	for _, cvar in ipairs(VolumeCVars) do
 		if HousingMusic_DB.volumeControls[cvar] == nil then
-			local currentVal = tonumber(C_CVar.GetCVar(cvar));
+			local currentVal = SanitizeCVarValue(cvar, C_CVar.GetCVar(cvar));
 			if currentVal then
 				HousingMusic_DB.volumeControls[cvar] = currentVal;
 			else
-				HousingMusic_DB.volumeControls[cvar] = 0.5;
+				HousingMusic_DB.volumeControls[cvar] = NormalizedVolumeCVars[cvar] and 0.5 or 0;
 			end
 		end
 	end
