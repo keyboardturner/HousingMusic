@@ -142,8 +142,8 @@ local function GetCurrentHouseKey()
 end
 
 local function IsEditingAllowed()
-	if C_Housing and C_Housing.IsInsideOwnHouse then
-		return C_Housing.IsInsideOwnHouse()
+	if C_Housing and C_Housing.IsInsideOwnedHouse then
+		return C_Housing.IsInsideOwnedHouse()
 	end
 	return false
 end
@@ -863,7 +863,7 @@ MainframeToggleButton:SetScript("OnEvent", function()
 
 	local HousingFrame
 	local isVisitor = false
-	if C_Housing.IsInsideOwnHouse() then
+	if C_Housing.IsInsideOwnedHouse() then
 		HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
 		isVisitor = false
 	elseif C_Housing.IsInsideHouse() then
@@ -2014,7 +2014,7 @@ AmbSearchBox:HookScript("OnTextChanged", function(self)
 end)
 
 local function GetCurrentHouseAmbience()
-	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+	if C_Housing.IsInsideOwnedHouse and C_Housing.IsInsideOwnedHouse() then
 		local key = GetCurrentHouseKey();
 		if not key or not HousingMusic_DB.AmbienceAssignments then return nil; end
 		return HousingMusic_DB.AmbienceAssignments[key];
@@ -2130,7 +2130,7 @@ local function AmbienceInitializer(button, data)
 			return;
 		end
 
-		if not C_Housing.IsInsideOwnHouse() then return; end
+		if not C_Housing.IsInsideOwnedHouse() then return; end
 
 		if GetCurrentHouseAmbience() == data.path then
 			SetCurrentHouseAmbience(nil, nil);
@@ -2154,7 +2154,7 @@ local function AmbienceInitializer(button, data)
 	end)
 
 	button:SetScript("OnEnter", function(self)
-		if C_Housing.IsInsideOwnHouse() then
+		if C_Housing.IsInsideOwnedHouse() then
 			self.texHL:Show();
 		end
 		
@@ -2166,7 +2166,7 @@ local function AmbienceInitializer(button, data)
 			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00);
 		end
 		
-		if not C_Housing.IsInsideOwnHouse() then
+		if not C_Housing.IsInsideOwnedHouse() then
 			GameTooltip:AddLine(L["AmbienceShareError"], 1.0, 0.2, 0.2);
 		end
 		
@@ -2252,7 +2252,7 @@ local function AmbCurrentInitializer(button, data)
 	removeButton:Hide()
 
 	removeButton:SetScript("OnClick", function()
-		if not C_Housing.IsInsideOwnHouse() then return; end
+		if not C_Housing.IsInsideOwnedHouse() then return; end
 		SetCurrentHouseAmbience(nil, nil);
 		HM.StopAmbience();
 		if HM.UpdateAmbienceRightPanel then
@@ -2267,7 +2267,7 @@ local function AmbCurrentInitializer(button, data)
 	local function HideButtonElements(self)
 		if self:IsMouseOver() then
 			self.texHL:Show();
-			if self.removeButton and C_Housing.IsInsideOwnHouse() then
+			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
 				self.removeButton:Show();
 			end
 		else
@@ -2320,7 +2320,7 @@ AmbRightEmptyText:SetPoint("CENTER", AmbSectionRight, "CENTER", 0, 0)
 AmbRightEmptyText:SetText(L["NoAmbienceSelected"])
 
 function HM.UpdateAmbienceRightPanel()
-	local isOwner = C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse();
+	local isOwner = C_Housing.IsInsideOwnedHouse and C_Housing.IsInsideOwnedHouse();
 	local currentPath = GetCurrentHouseAmbience();
 
 	AmbRightHeader:SetText(L["CurrentAmbience"]);
@@ -2573,7 +2573,7 @@ local function Initializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Show()
 			end
-			if not isSaved and self.addButton and C_Housing.IsInsideOwnHouse() then
+			if not isSaved and self.addButton and C_Housing.IsInsideOwnedHouse() then
 				self.addButton:Show()
 			end
 		else
@@ -2581,7 +2581,7 @@ local function Initializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Hide()
 			end
-			if self.addButton and C_Housing.IsInsideOwnHouse() then
+			if self.addButton and C_Housing.IsInsideOwnedHouse() then
 				self.addButton:Hide()
 			end
 		end
@@ -2767,7 +2767,7 @@ local MapIcons = {
 local function GeneratorFunction(dropdown, rootDescription)
 	rootDescription:SetScrollMode(300)
 
-	local isOwner = C_Housing.IsInsideOwnHouse()
+	local isOwner = C_Housing.IsInsideOwnedHouse()
 	
 	if isOwner then
 		local active = HM.GetActivePlaylistName()
@@ -2984,7 +2984,7 @@ local function SavedInitializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Show()
 			end
-			if self.removeButton and C_Housing.IsInsideOwnHouse() then
+			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
 				self.removeButton:Show()
 			end
 		else
@@ -2992,7 +2992,7 @@ local function SavedInitializer(button, musicInfo)
 			if self.playButton then
 				self.playButton:Hide()
 			end
-			if self.removeButton and C_Housing.IsInsideOwnHouse() then
+			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
 				self.removeButton:Hide()
 			end
 		end

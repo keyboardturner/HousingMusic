@@ -488,7 +488,7 @@ function HM.SetActivePlaylist(playlistName)
 	if HousingMusic_DB.Playlists[playlistName] then
 		HousingMusic_DB.ActivePlaylist = playlistName;
 		
-		if C_Housing and C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+		if C_Housing and C_Housing.IsInsideOwnedHouse and C_Housing.IsInsideOwnedHouse() then
 			local houseKey = GetOwnerHouseKey();
 			if houseKey then
 				HousingMusic_DB.HouseAssignments[houseKey] = playlistName;
@@ -674,7 +674,7 @@ local function GetPlayerHouseZone()
 	local dynamicPlaylist = {};
 	local displayZoneName = L["HousingPlot"];
 
-	if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+	if C_Housing.IsInsideOwnedHouse and C_Housing.IsInsideOwnedHouse() then
 		if not HousingMusic_DB or not HousingMusic_DB.Playlists then return nil; end
 
 		local ownerKey = GetOwnerHouseKey();
@@ -1127,7 +1127,7 @@ local function CheckConditions()
 	if C_Housing.IsInsideHouse() then
 		local info = C_Housing.GetCurrentHouseInfo();
 		
-		if C_Housing.IsInsideOwnHouse and C_Housing.IsInsideOwnHouse() then
+		if C_Housing.IsInsideOwnedHouse and C_Housing.IsInsideOwnedHouse() then
 			if info and info.ownerName and info.neighborhoodGUID and info.plotID then
 				local key = string.format("%s_%s_%d", info.ownerName, info.neighborhoodGUID, info.plotID);
 				if HousingMusic_DB.AmbienceAssignments and HousingMusic_DB.AmbienceAssignments[key] then

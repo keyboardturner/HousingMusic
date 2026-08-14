@@ -299,7 +299,7 @@ TriggerFrame:RegisterEvent("HOUSE_PLOT_EXITED")
 
 local function TryAutoShare(unitID)
 	if not C_Housing.IsInsideHouse() then return end
-	if not C_Housing.IsInsideOwnHouse() then return end
+	if not C_Housing.IsInsideOwnedHouse() then return end
 
 	if not UnitExists(unitID) or not UnitIsPlayer(unitID) then return end
 	if UnitIsUnit(unitID, "player") then return end
@@ -369,7 +369,7 @@ BroadcastFrame:SetScript("OnUpdate", function(self, elapsed)
 	if AutoBroadcastTimer >= BROADCAST_INTERVAL then
 		AutoBroadcastTimer = 0
 		
-		if C_Housing and C_Housing.IsInsideHouse() and C_Housing.IsInsideOwnHouse() then
+		if C_Housing and C_Housing.IsInsideHouse() and C_Housing.IsInsideOwnedHouse() then
 			local default = (DefaultsTable and DefaultsTable.autosharePlaylist) or 1
 			local setting = (HousingMusic_DB and HousingMusic_DB.autosharePlaylist) or default
 
