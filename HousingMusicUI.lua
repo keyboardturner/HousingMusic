@@ -867,7 +867,7 @@ MainframeToggleButton:SetScript("OnEvent", function()
 		HousingFrame = HousingControlsFrame and HousingControlsFrame.OwnerControlFrame and HousingControlsFrame.OwnerControlFrame.InspectorButton
 		isVisitor = false
 	elseif C_Housing.IsInsideHouse() then
-		HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.VisitorInspectorButton
+		HousingFrame = HousingControlsFrame and HousingControlsFrame.VisitorControlFrame and HousingControlsFrame.VisitorControlFrame.ButtonContainer and HousingControlsFrame.VisitorControlFrame.ButtonContainer.VisitorInspectorButton
 		isVisitor = true
 	end
 	local isInHouse = C_Housing.IsInsideHouse()
