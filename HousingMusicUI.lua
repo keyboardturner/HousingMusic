@@ -2094,6 +2094,35 @@ local function OpenAmbienceContextMenu(owner, data)
 	end)
 end
 
+local function CreateSharedRowButton(atlas)
+	local btn = CreateFrame("Button", nil, UIParent);
+	btn:SetSize(20, 20);
+	btn:SetNormalAtlas(atlas);
+	btn:SetHighlightAtlas(atlas);
+	btn:GetHighlightTexture():SetAlpha(0.5);
+	btn:Hide();
+	return btn;
+end
+
+local SharedAddButton = CreateSharedRowButton("common-icon-plus");
+local SharedRemoveButton = CreateSharedRowButton("common-icon-minus");
+local SharedPlayButton = CreateSharedRowButton("common-dropdown-icon-play");
+
+local function ReleaseSharedButton(btn)
+	btn:Hide();
+	btn:ClearAllPoints();
+	btn:SetParent(UIParent);
+	btn:SetScript("OnClick", nil);
+	btn:SetScript("OnEnter", nil);
+	btn:SetScript("OnLeave", nil);
+end
+
+local function ClearRowButtons()
+	ReleaseSharedButton(SharedAddButton);
+	ReleaseSharedButton(SharedRemoveButton);
+	ReleaseSharedButton(SharedPlayButton);
+end
+
 local function AmbienceInitializer(button, data)
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
@@ -2110,11 +2139,16 @@ local function AmbienceInitializer(button, data)
 	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
 	button.selectedTex:SetShown(GetCurrentHouseAmbience() == data.path)
 
-	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
-	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
-	button.texHL:Hide()
+	if C_Housing.IsInsideOwnedHouse() then
+		if not button.texHL then
+			button:SetHighlightAtlas("ClickCastList-ButtonHighlight");
+			button.texHL = button:GetHighlightTexture();
+			button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00);
+		end
+	elseif button.texHL then
+		button:SetHighlightTexture(nil);
+		button.texHL = nil;
+	end
 
 	button.text = button.text or button:CreateFontString(nil, "OVERLAY")
 	button.text:SetFontObject("GameTooltipTextSmall")
@@ -2154,10 +2188,6 @@ local function AmbienceInitializer(button, data)
 	end)
 
 	button:SetScript("OnEnter", function(self)
-		if C_Housing.IsInsideOwnedHouse() then
-			self.texHL:Show();
-		end
-		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 		GameTooltip:AddLine(data.originalName or data.name, 1, 1, 1);
 		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8);
@@ -2174,7 +2204,6 @@ local function AmbienceInitializer(button, data)
 	end)
 
 	button:SetScript("OnLeave", function(self)
-		self.texHL:Hide();
 		GameTooltip:Hide();
 	end)
 end
@@ -2224,11 +2253,11 @@ local function AmbCurrentInitializer(button, data)
 	button.selectedTex:SetAtlas("ReportList-ButtonSelect")
 	button.selectedTex:SetShown(true)
 
-	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
-	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
-	button.texHL:Hide()
+	if not button.texHL then
+		button:SetHighlightAtlas("ClickCastList-ButtonHighlight");
+		button.texHL = button:GetHighlightTexture();
+		button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00);
+	end
 
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
@@ -2239,42 +2268,32 @@ local function AmbCurrentInitializer(button, data)
 	button.textFont:SetTextColor(1, 1, 1, 1)
 	button.textFont:SetText(data.name)
 
-	local removeButton = button.removeButton
-	if not removeButton then
-		removeButton = CreateFrame("Button", nil, button)
-		removeButton:SetSize(20, 20)
-		removeButton:SetPoint("RIGHT", button, "RIGHT", -10, 0)
-		removeButton:SetNormalAtlas("common-icon-minus")
-		removeButton:SetHighlightAtlas("common-icon-minus")
-		removeButton:GetHighlightTexture():SetAlpha(0.5)
-		button.removeButton = removeButton
-	end
-	removeButton:Hide()
-
-	removeButton:SetScript("OnClick", function()
-		if not C_Housing.IsInsideOwnedHouse() then return; end
-		SetCurrentHouseAmbience(nil, nil);
-		HM.StopAmbience();
-		if HM.UpdateAmbienceRightPanel then
-			HM.UpdateAmbienceRightPanel();
-		end
-		if HM.FilterAmbienceList then
-			HM.FilterAmbienceList();
-		end
-		PlaySound(316562);
-	end)
-
-	local function HideButtonElements(self)
-		if self:IsMouseOver() then
-			self.texHL:Show();
-			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
-				self.removeButton:Show();
-			end
-		else
-			self.texHL:Hide()
-			if self.removeButton then
-				self.removeButton:Hide();
-			end
+	local function ShowRowControls(self)
+		if C_Housing.IsInsideOwnedHouse() then
+			SharedRemoveButton:SetParent(self);
+			SharedRemoveButton:ClearAllPoints();
+			SharedRemoveButton:SetPoint("RIGHT", self, "RIGHT", -10, 0);
+			SharedRemoveButton:SetScript("OnClick", function()
+				if not C_Housing.IsInsideOwnedHouse() then return; end
+				SetCurrentHouseAmbience(nil, nil);
+				HM.StopAmbience();
+				if HM.UpdateAmbienceRightPanel then
+					HM.UpdateAmbienceRightPanel();
+				end
+				if HM.FilterAmbienceList then
+					HM.FilterAmbienceList();
+				end
+				PlaySound(316562);
+			end)
+			SharedRemoveButton:SetScript("OnEnter", function(removeSelf)
+				GameTooltip:SetOwner(removeSelf, "ANCHOR_RIGHT");
+				GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1);
+				GameTooltip:Show();
+			end)
+			SharedRemoveButton:SetScript("OnLeave", function()
+				GameTooltip:Hide();
+			end)
+			SharedRemoveButton:Show();
 		end
 	end
 
@@ -2286,30 +2305,32 @@ local function AmbCurrentInitializer(button, data)
 	end)
 
 	button:SetScript("OnEnter", function(self)
-		HideButtonElements(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(data.name, 1, 1, 1)
-		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8)
+		ClearRowButtons();
+		ShowRowControls(self);
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+		GameTooltip:AddLine(data.name, 1, 1, 1);
+		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(data.duration)), 0.8, 0.8, 0.8);
 		if IsAmbienceMuted(data.path) then
 			GameTooltip:AddLine(L["SongIsMuted"], 0.83, 0.00, 0.00);
 		end
-		GameTooltip:Show()
-	end)
+		GameTooltip:Show();
+	end);
 	button:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(self)
-	end)
+		GameTooltip:Hide();
+		if not self:IsMouseOver() then
+			ClearRowButtons();
+		end
+	end);
 
-	removeButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1)
-		GameTooltip:Show()
-		HideButtonElements(button)
-	end)
-	removeButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
+	if not button.hasRowControlsHideHook then
+		button:HookScript("OnHide", ClearRowButtons);
+		button.hasRowControlsHideHook = true;
+	end
+
+	if button:IsMouseOver() then
+		ClearRowButtons();
+		ShowRowControls(button);
+	end
 end
 
 AmbScrollViewRight:SetElementInitializer("Button", AmbCurrentInitializer)
@@ -2429,6 +2450,12 @@ local function Initializer(button, musicInfo)
 	local playlistCount = 0
 	for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
 	local isPlaylistFull = playlistCount >= (HM.MAX_PLAYLIST_SIZE or 50)
+
+	if not button.texHL then
+		button:SetHighlightAtlas("ClickCastList-ButtonHighlight");
+		button.texHL = button:GetHighlightTexture();
+		button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00);
+	end
 	
 	button.tex = button.tex or button:CreateTexture(nil, "BACKGROUND", nil, 0)
 	button.tex:SetAllPoints(button)
@@ -2458,12 +2485,6 @@ local function Initializer(button, musicInfo)
 		end
 	end)
 	
-	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
-	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
-	button.texHL:Hide()
-	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
 	button.textFont:SetPoint("TOPLEFT", button, "TOPLEFT", 15, 0)
@@ -2487,109 +2508,90 @@ local function Initializer(button, musicInfo)
 	end
 	savedIndicator:SetShown(isSaved)
 
-	local addButton = button.addButton
-	if not addButton then
-		addButton = CreateFrame("Button", nil, button)
-		addButton:SetSize(20, 20)
-		addButton:SetPoint("RIGHT", button, "RIGHT", -10, 0)
-		addButton:SetNormalAtlas("common-icon-plus")
-		addButton:SetHighlightAtlas("common-icon-plus")
-		addButton:GetHighlightTexture():SetAlpha(0.5)
+	local function ShowRowControls(self)
+		SharedPlayButton:SetParent(self);
+		SharedPlayButton:ClearAllPoints();
+		SharedPlayButton:SetPoint("RIGHT", self, "RIGHT", -10, 0);
+		SharedPlayButton:SetScript("OnClick", function()
+			HM.PlaySpecificMusic(musicInfo.file);
+			selectedFileID = musicInfo.file;
+			UpdateSelectionHighlights();
+		end);
+		SharedPlayButton:SetScript("OnEnter", function(playSelf)
+			GameTooltip:SetOwner(playSelf, "ANCHOR_RIGHT");
+			GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1);
+			GameTooltip:Show();
+		end);
+		SharedPlayButton:SetScript("OnLeave", function()
+			GameTooltip:Hide();
+		end);
+		SharedPlayButton:Show();
 
-		button.addButton = addButton
-	end
+		if not isSaved and C_Housing.IsInsideOwnedHouse() then
+			local addEnabled = not (isPlaylistFull and not isSaved);
 
-	if isPlaylistFull and not isSaved then
-		addButton:GetNormalTexture():SetDesaturated(true)
-		addButton:GetHighlightTexture():SetDesaturated(true)
-		addButton:SetAlpha(0.5)
-	else
-		addButton:GetNormalTexture():SetDesaturated(false)
-		addButton:GetHighlightTexture():SetDesaturated(false)
-		addButton:SetAlpha(1.0)
-	end
+			SharedAddButton:SetParent(self);
+			SharedAddButton:ClearAllPoints();
+			SharedAddButton:SetPoint("RIGHT", SharedPlayButton, "LEFT", -2, 0);
 
-	addButton:Hide()
-
-	local playButton = button.playButton
-	if not playButton then
-		playButton = CreateFrame("Button", nil, button)
-		playButton:SetSize(20, 20)
-		playButton:SetPoint("RIGHT", addButton, "LEFT", -2, 0)
-		playButton:SetNormalAtlas("common-dropdown-icon-play")
-		playButton:SetHighlightAtlas("common-dropdown-icon-play")
-		playButton:GetHighlightTexture():SetAlpha(0.5)
-
-		button.playButton = playButton
-	end
-	playButton:Hide()
-
-	playButton:SetScript("OnClick", function()
-		HM.PlaySpecificMusic(musicInfo.file)
-		selectedFileID = musicInfo.file
-		UpdateSelectionHighlights()
-	end)
-	
-	addButton:SetScript("OnClick", function()
-		if isPlaylistFull and not isSaved then
-
-			local playlistCount = 0
-			for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
-			--Print(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50))
-			return
-		end
-
-		local currentList = HM.GetActivePlaylistTable()
-
-		if not currentList[musicInfo.file] then
-			currentList[musicInfo.file] = true
-			local dataProvider = ScrollViewRight:GetDataProvider()
-			if dataProvider then
-				-- Create the data structure exactly as UpdateSavedMusicList does
-				local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], musicInfo.file))
-				local newData = {
-					name = primaryName,
-					file = musicInfo.file,
-					duration = musicInfo.duration,
-					names = musicInfo.names,
-				}
-				-- Insert at the end (or Sort if you prefer)
-				dataProvider:Insert(newData)
+			if addEnabled then
+				SharedAddButton:GetNormalTexture():SetDesaturated(false);
+				SharedAddButton:GetHighlightTexture():SetDesaturated(false);
+				SharedAddButton:SetAlpha(1.0);
+			else
+				SharedAddButton:GetNormalTexture():SetDesaturated(true);
+				SharedAddButton:GetHighlightTexture():SetDesaturated(true);
+				SharedAddButton:SetAlpha(0.5);
 			end
 
-			HM.RefreshButtonForMusic(musicInfo)
-			--Print(string.format(L["AddedMusicToPlaylist"], musicInfo.name, HM.GetActivePlaylistName()))
-			PlaySound(316551)
+			SharedAddButton:SetScript("OnClick", function()
+				if not addEnabled then
+					return;
+				end
 
-			if HM.BroadcastToNameplates then HM.BroadcastToNameplates() end
-		--else
-		--	print("|cffffcc00Warning:|r Music already saved.")
-		end
-	end)
+				local currentList = HM.GetActivePlaylistTable();
 
-	local function HideButtonElements(self)
-		if self:IsMouseOver() then
-			self.texHL:Show()
-			if self.playButton then
-				self.playButton:Show()
-			end
-			if not isSaved and self.addButton and C_Housing.IsInsideOwnedHouse() then
-				self.addButton:Show()
-			end
-		else
-			self.texHL:Hide()
-			if self.playButton then
-				self.playButton:Hide()
-			end
-			if self.addButton and C_Housing.IsInsideOwnedHouse() then
-				self.addButton:Hide()
-			end
+				if not currentList[musicInfo.file] then
+					currentList[musicInfo.file] = true;
+					local dataProvider = ScrollViewRight:GetDataProvider();
+					if dataProvider then
+						local primaryName = musicInfo.names and musicInfo.names[1] or (string.format(L["FileID"], musicInfo.file));
+						local newData = {
+							name = primaryName,
+							file = musicInfo.file,
+							duration = musicInfo.duration,
+							names = musicInfo.names,
+						};
+						dataProvider:Insert(newData);
+					end
+
+					HM.RefreshButtonForMusic(musicInfo);
+					PlaySound(316551);
+
+					if HM.BroadcastToNameplates then
+						HM.BroadcastToNameplates();
+					end
+				end
+			end);
+			SharedAddButton:SetScript("OnEnter", function(addSelf)
+				GameTooltip:SetOwner(addSelf, "ANCHOR_RIGHT");
+				if not addEnabled then
+					GameTooltip:AddLine(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50), 1, 0.2, 0.2);
+				else
+					GameTooltip:AddLine(L["AddSongToPlaylist"], 1, 1, 1);
+				end
+				GameTooltip:Show();
+			end);
+			SharedAddButton:SetScript("OnLeave", function()
+				GameTooltip:Hide();
+			end);
+			SharedAddButton:Show();
 		end
 	end
-	
+
 	button:SetScript("OnEnter", function(self)
-		HideButtonElements(button)
-		
+		ClearRowButtons()
+		ShowRowControls(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
 		GameTooltip:AddLine(string.format(L["DurationNumber"], FormatDuration(musicInfo.duration)), 0.8, 0.8, 0.8)
@@ -2615,38 +2617,21 @@ local function Initializer(button, musicInfo)
 	end)
 	
 	button:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
-
-	addButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-
-		local playlistCount = 0
-		for _ in pairs(activePlaylist) do playlistCount = playlistCount + 1 end
-		if isPlaylistFull and not isSaved then
-			GameTooltip:AddLine(string.format(L["PlaylistIsFull"], playlistCount, HM.MAX_PLAYLIST_SIZE or 50), 1, 0.2, 0.2)
-		else
-			GameTooltip:AddLine(L["AddSongToPlaylist"], 1, 1, 1)
+		GameTooltip:Hide();
+		if not self:IsMouseOver() then
+			ClearRowButtons();
 		end
-		GameTooltip:Show()
-		HideButtonElements(button)
-	end)
-	addButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
+	end);
 
-	playButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1)
-		GameTooltip:Show()
-		HideButtonElements(button)
-	end)
-	playButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
+	if not button.hasRowControlsHideHook then
+		button:HookScript("OnHide", ClearRowButtons);
+		button.hasRowControlsHideHook = true;
+	end
+
+	if button:IsMouseOver() then
+		ClearRowButtons();
+		ShowRowControls(button);
+	end
 end
 
 ScrollViewLeft:SetElementInitializer("Button", Initializer)
@@ -2931,11 +2916,11 @@ local function SavedInitializer(button, musicInfo)
 		end
 	end)
 	
-	button.texHL = button.texHL or button:CreateTexture(nil, "OVERLAY", nil, 3)
-	button.texHL:SetAllPoints(button)
-	button.texHL:SetAtlas("ClickCastList-ButtonHighlight")
-	button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00)
-	button.texHL:Hide()
+	if not button.texHL then
+		button:SetHighlightAtlas("ClickCastList-ButtonHighlight");
+		button.texHL = button:GetHighlightTexture();
+		button.texHL:SetVertexColor(0.42, 0.54, 1.00, 1.00);
+	end
 	
 	button.textFont = button.textFont or button:CreateFontString(nil, "OVERLAY")
 	button.textFont:SetFontObject("GameTooltipTextSmall")
@@ -2946,68 +2931,49 @@ local function SavedInitializer(button, musicInfo)
 	button.textFont:SetText(text)
 	button.textFont:SetTextColor(1, 1, 1, 1)
 	
-	local removeButton = button.removeButton
-	if not removeButton then
-		removeButton = CreateFrame("Button", nil, button)
-		removeButton:SetSize(20, 20)
-		removeButton:SetPoint("RIGHT", button, "RIGHT", -10, 0)
-		removeButton:SetNormalAtlas("common-icon-minus")
-		removeButton:SetHighlightAtlas("common-icon-minus")
-		removeButton:GetHighlightTexture():SetAlpha(0.5)
-		
-		button.removeButton = removeButton
-	end
-	removeButton:Hide()
+	local function ShowRowControls(self)
+		SharedPlayButton:SetParent(self);
+		SharedPlayButton:ClearAllPoints();
+		SharedPlayButton:SetPoint("RIGHT", self, "RIGHT", -10, 0);
+		SharedPlayButton:SetScript("OnClick", function()
+			HM.PlaySpecificMusic(musicInfo.file);
+			selectedFileID = musicInfo.file;
+			UpdateSelectionHighlights();
+		end);
+		SharedPlayButton:SetScript("OnEnter", function(playSelf)
+			GameTooltip:SetOwner(playSelf, "ANCHOR_RIGHT");
+			GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1);
+			GameTooltip:Show();
+		end);
+		SharedPlayButton:SetScript("OnLeave", function()
+			GameTooltip:Hide();
+		end);
+		SharedPlayButton:Show();
 
-	local playButton = button.playButton
-	if not playButton then
-		playButton = CreateFrame("Button", nil, button)
-		playButton:SetSize(20, 20)
-		playButton:SetPoint("RIGHT", removeButton, "LEFT", -2, 0)
-		playButton:SetNormalAtlas("common-dropdown-icon-play")
-		playButton:SetHighlightAtlas("common-dropdown-icon-play")
-		playButton:GetHighlightTexture():SetAlpha(0.5)
-
-		button.playButton = playButton
-	end
-	playButton:Hide()
-
-	playButton:SetScript("OnClick", function()
-		HM.PlaySpecificMusic(musicInfo.file)
-		selectedFileID = musicInfo.file
-		UpdateSelectionHighlights()
-	end)
-
-	local function HideButtonElements(self)
-		if self:IsMouseOver() then
-			self.texHL:Show()
-			if self.playButton then
-				self.playButton:Show()
-			end
-			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
-				self.removeButton:Show()
-			end
-		else
-			self.texHL:Hide()
-			if self.playButton then
-				self.playButton:Hide()
-			end
-			if self.removeButton and C_Housing.IsInsideOwnedHouse() then
-				self.removeButton:Hide()
-			end
-		end
-	end
-	
-	removeButton:SetScript("OnClick", function()
-		RemoveMusicEntry(musicInfo.file, musicInfo.name)
-		HM.RefreshButtonForMusic(musicInfo)
-		PlaySound(316562)
-	end)
-	
-	button:SetScript("OnEnter", function(self)
 		if IsEditingAllowed() then
-			self.removeButton:Show()
+			SharedRemoveButton:SetParent(self);
+			SharedRemoveButton:ClearAllPoints();
+			SharedRemoveButton:SetPoint("RIGHT", SharedPlayButton, "LEFT", -2, 0);
+			SharedRemoveButton:SetScript("OnClick", function()
+				RemoveMusicEntry(musicInfo.file, musicInfo.name);
+				HM.RefreshButtonForMusic(musicInfo);
+				PlaySound(316562);
+			end);
+			SharedRemoveButton:SetScript("OnEnter", function(removeSelf)
+				GameTooltip:SetOwner(removeSelf, "ANCHOR_RIGHT");
+				GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1);
+				GameTooltip:Show();
+			end);
+			SharedRemoveButton:SetScript("OnLeave", function()
+				GameTooltip:Hide();
+			end);
+			SharedRemoveButton:Show();
 		end
+	end
+
+	button:SetScript("OnEnter", function(self)
+		ClearRowButtons()
+		ShowRowControls(self)
 		
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(musicInfo.name, 1, 1, 1)
@@ -3028,35 +2994,24 @@ local function SavedInitializer(button, musicInfo)
 		end
 		
 		GameTooltip:Show()
-		HideButtonElements(self)
 	end)
 	
 	button:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(self)
-	end)
+		GameTooltip:Hide();
+		if not self:IsMouseOver() then
+			ClearRowButtons();
+		end
+	end);
 
-	removeButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(L["RemoveSongFromPlaylist"], 1, 1, 1)
-		GameTooltip:Show()
-		HideButtonElements(button)
-	end)
-	removeButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
+	if not button.hasRowControlsHideHook then
+		button:HookScript("OnHide", ClearRowButtons);
+		button.hasRowControlsHideHook = true;
+	end
 
-	playButton:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(L["PreviewSong"], 1, 1, 1)
-		GameTooltip:Show()
-		HideButtonElements(button)
-	end)
-	playButton:SetScript("OnLeave", function(self)
-		GameTooltip:Hide()
-		HideButtonElements(button)
-	end)
+	if button:IsMouseOver() then
+		ClearRowButtons();
+		ShowRowControls(button);
+	end
 end
 
 ScrollViewRight:SetElementInitializer("Button", SavedInitializer)
