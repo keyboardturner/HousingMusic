@@ -1,5 +1,12 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.6
+
+Regen ambience database
+ - Added 7 new entries: 4510144, 5735347, 4392107, 6726568, 6799012, 5660262, 7754262
+
+Fixed HousingMusic button being missing when visiting others' homes
+
 # 0.1.5
 
 Regen LibRPMedia database
