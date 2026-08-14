@@ -3,8 +3,6 @@ local _, HM = ...
 local PLACEHOLDER = 1
 
 local AmbienceData = {
-
-
     {
         name = "AhnQirajCthunStomach",
         path = 539135,
@@ -14,6 +12,16 @@ local AmbienceData = {
         name = "AhnQirajExteriorA",
         path = 539099,
         duration = 60.000,
+    },
+    {
+        name = "AhnQirajRuinsBareRoomTone",
+        path = 537321,
+        duration = 59.443,
+    },
+    {
+        name = "AhnQirajRuinsTriangleRoom",
+        path = 537322,
+        duration = 59.977,
     },
     {
         name = "AmaniPassDay",
@@ -35,38 +43,41 @@ local AmbienceData = {
         path = 594405,
         duration = 60.000,
     },
-    --[[
     {
-        name = "amb_12eversonglightbloomathran_7291387",
-        path = 7291387,
-        duration = 84.940,
+        name = "amb_110warbandcamp_4510144",
+        path = 4510144,
+        duration = 45.000,
     },
-    {
-        name = "amb_12eversonglightbloomathran_7291389",
-        path = 7291389,
-        duration = 90.562,
-    },
-    {
-        name = "amb_12eversonglightbloomathran_7291391",
-        path = 7291391,
-        duration = 90.249,
-    },
-    {
-        name = "amb_12eversonglightbloomathran_7291393",
-        path = 7291393,
-        duration = 90.562,
-    },
-    {
-        name = "amb_12eversonglightbloomathran_7291395",
-        path = 7291395,
-        duration = 96.495,
-    },
-    {
-        name = "amb_12eversonglightbloomathran_7295918",
-        path = 7295918,
-        duration = 109.732,
-    },
-    ]]
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7291387",
+        -- path = 7291387,
+        -- duration = 84.940,
+    -- },
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7291389",
+        -- path = 7291389,
+        -- duration = 90.562,
+    -- },
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7291391",
+        -- path = 7291391,
+        -- duration = 90.249,
+    -- },
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7291393",
+        -- path = 7291393,
+        -- duration = 90.562,
+    -- },
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7291395",
+        -- path = 7291395,
+        -- duration = 96.495,
+    -- },
+    -- {
+        -- name = "amb_12eversonglightbloomathran_7295918",
+        -- path = 7295918,
+        -- duration = 109.732,
+    -- },
     {
         name = "amb_80_zulnazman_underrot_01",
         path = 1890855,
@@ -81,11 +92,6 @@ local AmbienceData = {
         name = "amb_ardenweald_3500703",
         path = 3500703,
         duration = 77.049,
-    },
-    {
-        name = "AMB_ArgusRaid_ShivanTemple_Varimathras",
-        path = 1707631,
-        duration = 109.603,
     },
     {
         name = "AMB_Argus_Base",
@@ -111,6 +117,11 @@ local AmbienceData = {
         name = "AMB_Argus_Raid_Exterior",
         path = 1678284,
         duration = 114.045,
+    },
+    {
+        name = "AMB_ArgusRaid_ShivanTemple_Varimathras",
+        path = 1707631,
+        duration = 109.603,
     },
     {
         name = "AMB_ASHRAN_BASE_DAY",
@@ -173,24 +184,24 @@ local AmbienceData = {
         duration = 88.000,
     },
     {
-        name = "AMB_BlackrockCaverns",
-        path = 539129,
-        duration = 85.036,
-    },
-    {
         name = "AMB_Blackrock_TrainDepot_Base",
         path = 968465,
         duration = 90.000,
     },
     {
-        name = "AMB_BlackwingDescentLava_01",
-        path = 539043,
-        duration = 91.566,
+        name = "AMB_BlackrockCaverns",
+        path = 539129,
+        duration = 85.036,
     },
     {
         name = "AMB_BlackwingDescent_02",
         path = 539000,
         duration = 103.084,
+    },
+    {
+        name = "AMB_BlackwingDescentLava_01",
+        path = 539043,
+        duration = 91.566,
     },
     {
         name = "amb_boralus_city_day_02",
@@ -413,11 +424,6 @@ local AmbienceData = {
         duration = 90.000,
     },
     {
-        name = "AMB_DesertHighFlooded_NIGHT01",
-        path = 539087,
-        duration = 90.000,
-    },
-    {
         name = "AMB_DesertHigh_Day05",
         path = 539127,
         duration = 90.000,
@@ -428,9 +434,24 @@ local AmbienceData = {
         duration = 90.000,
     },
     {
+        name = "AMB_DesertHighFlooded_NIGHT01",
+        path = 539087,
+        duration = 90.000,
+    },
+    {
         name = "AMB_DH_Character_Selection_Wasteland",
         path = 1305294,
         duration = 118.860,
+    },
+    {
+        name = "amb_dharoztan_day_5735347",
+        path = 5735347,
+        duration = 47.922,
+    },
+    {
+        name = "amb_dominationsgrasp_4392107",
+        path = 4392107,
+        duration = 51.460,
     },
     {
         name = "AMB_Draenei_Interior_General_Loop",
@@ -503,6 +524,11 @@ local AmbienceData = {
         duration = 127.354,
     },
     {
+        name = "amb_ecodomedungeonsands_6726568",
+        path = 6726568,
+        duration = 48.333,
+    },
+    {
         name = "amb_ephemeralplains_4392101",
         path = 4392101,
         duration = 119.995,
@@ -563,6 +589,16 @@ local AmbienceData = {
         duration = 82.931,
     },
     {
+        name = "AMB_ForestDry_Day03",
+        path = 538991,
+        duration = 91.351,
+    },
+    {
+        name = "AMB_ForestDry_Night02",
+        path = 539093,
+        duration = 91.327,
+    },
+    {
         name = "AMB_ForestDryLakeMennar_DAY01",
         path = 539117,
         duration = 82.193,
@@ -593,16 +629,6 @@ local AmbienceData = {
         duration = 59.628,
     },
     {
-        name = "AMB_ForestDry_Day03",
-        path = 538991,
-        duration = 91.351,
-    },
-    {
-        name = "AMB_ForestDry_Night02",
-        path = 539093,
-        duration = 91.327,
-    },
-    {
         name = "AMB_ForestPlagued_Day03",
         path = 539042,
         duration = 90.000,
@@ -623,6 +649,16 @@ local AmbienceData = {
         duration = 99.763,
     },
     {
+        name = "AMB_ForestStormy_DAY03",
+        path = 539100,
+        duration = 90.000,
+    },
+    {
+        name = "AMB_ForestStormy_Night01",
+        path = 539134,
+        duration = 90.000,
+    },
+    {
         name = "AMB_ForestStormyEerie_Day01",
         path = 538992,
         duration = 90.000,
@@ -640,16 +676,6 @@ local AmbienceData = {
     {
         name = "AMB_ForestStormyHeavy_Night01",
         path = 539106,
-        duration = 90.000,
-    },
-    {
-        name = "AMB_ForestStormy_DAY03",
-        path = 539100,
-        duration = 90.000,
-    },
-    {
-        name = "AMB_ForestStormy_Night01",
-        path = 539134,
         duration = 90.000,
     },
     {
@@ -703,16 +729,6 @@ local AmbienceData = {
         duration = 70.000,
     },
     {
-        name = "AMB_GrasslandsDryBattlescar_DAY01",
-        path = 539137,
-        duration = 90.000,
-    },
-    {
-        name = "AMB_GrasslandsDryBattlescar_NIGHT01",
-        path = 538997,
-        duration = 90.000,
-    },
-    {
         name = "AMB_GrasslandsDry_Day01",
         path = 539059,
         duration = 90.000,
@@ -720,6 +736,16 @@ local AmbienceData = {
     {
         name = "AMB_GrasslandsDry_Night01",
         path = 539021,
+        duration = 90.000,
+    },
+    {
+        name = "AMB_GrasslandsDryBattlescar_DAY01",
+        path = 539137,
+        duration = 90.000,
+    },
+    {
+        name = "AMB_GrasslandsDryBattlescar_NIGHT01",
+        path = 538997,
         duration = 90.000,
     },
     {
@@ -848,14 +874,14 @@ local AmbienceData = {
         duration = 60.000,
     },
     {
-        name = "AMB_JadeTemple_EastTemple_Loop",
-        path = 608343,
-        duration = 105.000,
-    },
-    {
         name = "Amb_JadeTemple_East_MainHall_Loop",
         path = 609826,
         duration = 90.000,
+    },
+    {
+        name = "AMB_JadeTemple_EastTemple_Loop",
+        path = 608343,
+        duration = 105.000,
     },
     {
         name = "Amb_JadeTemple_Library_Loop",
@@ -883,6 +909,11 @@ local AmbienceData = {
         duration = 90.000,
     },
     {
+        name = "amb_kareshvoidglass2_6799012",
+        path = 6799012,
+        duration = 46.500,
+    },
+    {
         name = "AMB_KezanChaos_Day01",
         path = 539038,
         duration = 94.995,
@@ -903,14 +934,14 @@ local AmbienceData = {
         duration = 60.536,
     },
     {
-        name = "amb_korthiavault_4060187",
-        path = 4060187,
-        duration = 120.003,
-    },
-    {
         name = "amb_korthia_4060185",
         path = 4060185,
         duration = 120.001,
+    },
+    {
+        name = "amb_korthiavault_4060187",
+        path = 4060187,
+        duration = 120.003,
     },
     {
         name = "AMB_KrasarangWilds_Base_Day01",
@@ -1003,14 +1034,14 @@ local AmbienceData = {
         duration = 90.000,
     },
     {
-        name = "amb_maldraxxuslibrary_3493748",
-        path = 3493748,
-        duration = 90.000,
-    },
-    {
         name = "amb_maldraxxus_3489393",
         path = 3489393,
         duration = 88.000,
+    },
+    {
+        name = "amb_maldraxxuslibrary_3493748",
+        path = 3493748,
+        duration = 90.000,
     },
     {
         name = "amb_manaforgeomega_6726558",
@@ -1061,6 +1092,11 @@ local AmbienceData = {
         name = "Amb_MoguRaid_Interior_Loop",
         path = 614029,
         duration = 105.000,
+    },
+    {
+        name = "amb_nagalair_5660262",
+        path = 5660262,
+        duration = 72.000,
     },
     {
         name = "AMB_Nagrand_Canyon_Day_Loop",
@@ -1148,14 +1184,14 @@ local AmbienceData = {
         duration = 122.197,
     },
     {
-        name = "AMB_OGRaid_OrgrimmarOutside_Base",
-        path = 895783,
-        duration = 119.072,
-    },
-    {
         name = "AMB_OGRaid_Orgrimmar_City_Int_Loop",
         path = 895786,
         duration = 117.764,
+    },
+    {
+        name = "AMB_OGRaid_OrgrimmarOutside_Base",
+        path = 895783,
+        duration = 119.072,
     },
     {
         name = "amb_oribos_3571655",
@@ -1208,16 +1244,6 @@ local AmbienceData = {
         duration = 90.000,
     },
     {
-        name = "AMB_ShadowmoonDungeon_Base",
-        path = 972584,
-        duration = 105.140,
-    },
-    {
-        name = "AMB_ShadowmoonIronHordeBattle_Loop",
-        path = 930539,
-        duration = 113.285,
-    },
-    {
         name = "AMB_Shadowmoon_BlademoonBloom_Loop",
         path = 1014589,
         duration = 81.120,
@@ -1241,6 +1267,16 @@ local AmbienceData = {
         name = "AMB_ShadowMoon_ThickForestArea_Loop",
         path = 917987,
         duration = 76.063,
+    },
+    {
+        name = "AMB_ShadowmoonDungeon_Base",
+        path = 972584,
+        duration = 105.140,
+    },
+    {
+        name = "AMB_ShadowmoonIronHordeBattle_Loop",
+        path = 930539,
+        duration = 113.285,
     },
     {
         name = "AMB_SilithusWound_Base_Day_01",
@@ -1433,6 +1469,11 @@ local AmbienceData = {
         duration = 55.000,
     },
     {
+        name = "amb_thetombofulatek_7754262",
+        path = 7754262,
+        duration = 62.809,
+    },
+    {
         name = "AMB_ThroneoftheTides_Day04",
         path = 539002,
         duration = 90.000,
@@ -1598,6 +1639,16 @@ local AmbienceData = {
         duration = 115.466,
     },
     {
+        name = "AMB_Wasteland_Scorched_Day02",
+        path = 539070,
+        duration = 120.000,
+    },
+    {
+        name = "AMB_Wasteland_Scorched_Night03",
+        path = 539096,
+        duration = 119.997,
+    },
+    {
         name = "AMB_WastelandHauntedHeavy_Day04",
         path = 539078,
         duration = 79.319,
@@ -1616,16 +1667,6 @@ local AmbienceData = {
         name = "AMB_WastelandNormal_Night02",
         path = 539079,
         duration = 138.554,
-    },
-    {
-        name = "AMB_Wasteland_Scorched_Day02",
-        path = 539070,
-        duration = 120.000,
-    },
-    {
-        name = "AMB_Wasteland_Scorched_Night03",
-        path = 539096,
-        duration = 119.997,
     },
     {
         name = "amb_webwarrensnerubiancrypt_5706676",
@@ -1673,16 +1714,6 @@ local AmbienceData = {
         duration = 119.085,
     },
     {
-        name = "amb_zandalar_junglelite_day_01",
-        path = 1827837,
-        duration = 112.411,
-    },
-    {
-        name = "amb_zandalar_junglelite_night_01",
-        path = 1827838,
-        duration = 116.887,
-    },
-    {
         name = "amb_zandalar_jungle_base_day",
         path = 1724071,
         duration = 127.021,
@@ -1691,6 +1722,16 @@ local AmbienceData = {
         name = "amb_zandalar_jungle_base_night",
         path = 1724072,
         duration = 125.484,
+    },
+    {
+        name = "amb_zandalar_junglelite_day_01",
+        path = 1827837,
+        duration = 112.411,
+    },
+    {
+        name = "amb_zandalar_junglelite_night_01",
+        path = 1827838,
+        duration = 116.887,
     },
     {
         name = "AmmenValeCrashSiteDay",
@@ -1713,6 +1754,31 @@ local AmbienceData = {
         duration = 113.799,
     },
     {
+        name = "AuchindounDemonWing",
+        path = 537323,
+        duration = 90.000,
+    },
+    {
+        name = "AuchindounDraineiWing",
+        path = 537324,
+        duration = 87.000,
+    },
+    {
+        name = "AuchindounEtherialWing",
+        path = 537325,
+        duration = 74.000,
+    },
+    {
+        name = "AuchindounShadowWing",
+        path = 537326,
+        duration = 60.987,
+    },
+    {
+        name = "AzjulNerubUpperCity",
+        path = 537327,
+        duration = 150.000,
+    },
+    {
         name = "AzurebreezeCoastDay",
         path = 594546,
         duration = 60.000,
@@ -1733,9 +1799,59 @@ local AmbienceData = {
         duration = 56.935,
     },
     {
+        name = "Blackfathom",
+        path = 537328,
+        duration = 74.628,
+    },
+    {
         name = "BlackMorass",
         path = 594531,
         duration = 79.000,
+    },
+    {
+        name = "BlackRockJail",
+        path = 537329,
+        duration = 110.000,
+    },
+    {
+        name = "BlackrockSpire",
+        path = 537330,
+        duration = 75.000,
+    },
+    {
+        name = "BlackRockSpireDrakeCalls",
+        path = 537331,
+        duration = 109.227,
+    },
+    {
+        name = "BlackSmith",
+        path = 537332,
+        duration = 59.536,
+    },
+    {
+        name = "BlackTemple_Aqueduct",
+        path = 537337,
+        duration = 60.000,
+    },
+    {
+        name = "BlackTempleCenterRoom",
+        path = 537333,
+        duration = 69.000,
+    },
+    {
+        name = "BlackTempleCHUD",
+        path = 537334,
+        duration = 63.965,
+    },
+    {
+        name = "BlackTempleIllidanTower1",
+        path = 537335,
+        duration = 96.000,
+    },
+    {
+        name = "BlackTempleReliquaryofSouls",
+        path = 537336,
+        duration = 73.000,
     },
     {
         name = "BladesEdgeForest",
@@ -1788,6 +1904,36 @@ local AmbienceData = {
         duration = 56.471,
     },
     {
+        name = "CavernsOfTimeBasic",
+        path = 537338,
+        duration = 60.000,
+    },
+    {
+        name = "CavernsOfTimeCore",
+        path = 537339,
+        duration = 64.042,
+    },
+    {
+        name = "CaveVolcanic",
+        path = 537345,
+        duration = 63.731,
+    },
+    {
+        name = "CoilFangReservoir",
+        path = 537346,
+        duration = 92.000,
+    },
+    {
+        name = "CoilFangStandard",
+        path = 537347,
+        duration = 92.000,
+    },
+    {
+        name = "CoilFangSteamVault",
+        path = 537348,
+        duration = 92.000,
+    },
+    {
         name = "ColdaraNightDay",
         path = 594591,
         duration = 110.356,
@@ -1808,9 +1954,29 @@ local AmbienceData = {
         duration = 116.979,
     },
     {
+        name = "DalaranPrison",
+        path = 537349,
+        duration = 110.000,
+    },
+    {
+        name = "DalaranSewers",
+        path = 537350,
+        duration = 75.374,
+    },
+    {
         name = "DarkPortal",
         path = 539011,
         duration = 59.443,
+    },
+    {
+        name = "DarnassusDay",
+        path = 537351,
+        duration = 56.935,
+    },
+    {
+        name = "DarnassusNight",
+        path = 537352,
+        duration = 56.935,
     },
     {
         name = "DeadMines",
@@ -1826,6 +1992,11 @@ local AmbienceData = {
         name = "DeadWindPassNight",
         path = 539003,
         duration = 47.601,
+    },
+    {
+        name = "DireMaulChamber",
+        path = 537353,
+        duration = 59.536,
     },
     {
         name = "DragonblightEmeraldDragonshrine",
@@ -1851,6 +2022,26 @@ local AmbienceData = {
         name = "DragonblightRubyDragonshrine",
         path = 594333,
         duration = 105.000,
+    },
+    {
+        name = "DrakTharonKeep",
+        path = 537354,
+        duration = 60.000,
+    },
+    {
+        name = "DungeonCatheadral",
+        path = 537355,
+        duration = 59.443,
+    },
+    {
+        name = "DungeonCrypt",
+        path = 537356,
+        duration = 88.978,
+    },
+    {
+        name = "DwarvenDistrict",
+        path = 537357,
+        duration = 56.935,
     },
     {
         name = "EbonHoldStage1day",
@@ -1901,6 +2092,11 @@ local AmbienceData = {
         name = "EversongAmbienceNight",
         path = 594456,
         duration = 59.979,
+    },
+    {
+        name = "ExodarCity1",
+        path = 537358,
+        duration = 75.000,
     },
     {
         name = "ForestDarkEnchantedDay",
@@ -1973,6 +2169,11 @@ local AmbienceData = {
         duration = 60.000,
     },
     {
+        name = "Gnomeregan",
+        path = 537359,
+        duration = 58.495,
+    },
+    {
         name = "GrasslandsDay",
         path = 539056,
         duration = 60.000,
@@ -2008,9 +2209,34 @@ local AmbienceData = {
         duration = 81.366,
     },
     {
+        name = "GundrakGeneral",
+        path = 537360,
+        duration = 103.701,
+    },
+    {
+        name = "GundrakWaterSteam",
+        path = 537361,
+        duration = 103.701,
+    },
+    {
         name = "Hellfire",
         path = 539045,
         duration = 60.000,
+    },
+    {
+        name = "HellFireBloodFurnace",
+        path = 537362,
+        duration = 104.000,
+    },
+    {
+        name = "HellfireCitadelMilitary",
+        path = 537363,
+        duration = 60.000,
+    },
+    {
+        name = "HellfireMagtheradonsLair",
+        path = 537364,
+        duration = 78.000,
     },
     {
         name = "HowlingFjordColdNightDay",
@@ -2048,468 +2274,6 @@ local AmbienceData = {
         duration = 115.108,
     },
     {
-        name = "IsleOfConquest_DayNight",
-        path = 594549,
-        duration = 113.842,
-    },
-    {
-        name = "JungleDay",
-        path = 539097,
-        duration = 60.000,
-    },
-    {
-        name = "JungleNight",
-        path = 539092,
-        duration = 60.000,
-    },
-    {
-        name = "LakeWintergraspDay",
-        path = 594429,
-        duration = 132.631,
-    },
-    {
-        name = "LakeWintergraspNight",
-        path = 594363,
-        duration = 128.361,
-    },
-    {
-        name = "LostIslesPhase1_Day",
-        path = 594417,
-        duration = 108.450,
-    },
-    {
-        name = "LostIslesPhase1_Night",
-        path = 594474,
-        duration = 83.335,
-    },
-    {
-        name = "MarshDay",
-        path = 539084,
-        duration = 56.935,
-    },
-    {
-        name = "MarshNight",
-        path = 539103,
-        duration = 56.935,
-    },
-    {
-        name = "NagrandDay",
-        path = 539001,
-        duration = 61.000,
-    },
-    {
-        name = "NagrandNight",
-        path = 538999,
-        duration = 61.000,
-    },
-    {
-        name = "NetherStorm1",
-        path = 594423,
-        duration = 144.000,
-    },
-    {
-        name = "NewHearthglen",
-        path = 594444,
-        duration = 130.000,
-    },
-    {
-        name = "NortherndCoastGenericDayNight",
-        path = 594561,
-        duration = 82.299,
-    },
-    {
-        name = "NorthrendScourgeGeneral",
-        path = 594426,
-        duration = 96.174,
-    },
-    {
-        name = "PlagueLandsDay",
-        path = 539019,
-        duration = 60.000,
-    },
-    {
-        name = "PlagueLandsNight",
-        path = 539115,
-        duration = 60.000,
-    },
-    {
-        name = "PlainsDesertDay",
-        path = 539015,
-        duration = 56.935,
-    },
-    {
-        name = "PlainsDesertNight",
-        path = 539034,
-        duration = 56.842,
-    },
-    {
-        name = "RubySanctumNightDay",
-        path = 594462,
-        duration = 85.060,
-    },
-    {
-        name = "SaltFlatsDay",
-        path = 539009,
-        duration = 56.935,
-    },
-    {
-        name = "SaltFlatsNight",
-        path = 539074,
-        duration = 56.935,
-    },
-    {
-        name = "ScorchLineDay",
-        path = 594402,
-        duration = 60.000,
-    },
-    {
-        name = "ScorchLineNight",
-        path = 594555,
-        duration = 60.000,
-    },
-    {
-        name = "ShadowFang",
-        path = 539122,
-        duration = 59.629,
-    },
-    {
-        name = "ShadowMoonValley1",
-        path = 594360,
-        duration = 92.000,
-    },
-    {
-        name = "ShalandisIsle",
-        path = 594570,
-        duration = 60.000,
-    },
-    {
-        name = "Shattrath",
-        path = 594408,
-        duration = 113.721,
-    },
-    {
-        name = "SholazarBasinDay",
-        path = 594471,
-        duration = 70.000,
-    },
-    {
-        name = "SholazarBasinNight",
-        path = 594381,
-        duration = 70.000,
-    },
-    {
-        name = "SilvermoonRuinsDay",
-        path = 594336,
-        duration = 65.000,
-    },
-    {
-        name = "SilvermoonRuinsNight",
-        path = 594558,
-        duration = 60.000,
-    },
-    {
-        name = "StormPeaksDayNight",
-        path = 594465,
-        duration = 113.996,
-    },
-    {
-        name = "TerokkarDay",
-        path = 594450,
-        duration = 60.000,
-    },
-    {
-        name = "TerokkarNight",
-        path = 594480,
-        duration = 60.000,
-    },
-    {
-        name = "ThePitofSaron",
-        path = 594564,
-        duration = 143.587,
-    },
-    {
-        name = "TheVibrantGlade",
-        path = 594486,
-        duration = 60.000,
-    },
-    {
-        name = "UlduarRaid_FreyaZone",
-        path = 594552,
-        duration = 65.440,
-    },
-    {
-        name = "ValianceKeep",
-        path = 539118,
-        duration = 103.123,
-    },
-    {
-        name = "VolcanicDay",
-        path = 539073,
-        duration = 56.935,
-    },
-    {
-        name = "VolcanicNight",
-        path = 539077,
-        duration = 56.935,
-    },
-    {
-        name = "WailingCaverns",
-        path = 537442,
-        duration = 56.842,
-    },
-    {
-        name = "WestfallDay",
-        path = 539006,
-        duration = 60.000,
-    },
-    {
-        name = "WetlandsDay",
-        path = 539133,
-        duration = 60.000,
-    },
-    {
-        name = "WetlandsNight",
-        path = 538993,
-        duration = 60.000,
-    },
-    {
-        name = "WhisperGulchDayNight",
-        path = 594453,
-        duration = 58.664,
-    },
-    {
-        name = "ZangarMarsh1",
-        path = 594396,
-        duration = 104.000,
-    },
-    {
-        name = "ZangarMarsh2",
-        path = 594447,
-        duration = 104.000,
-    },
-    {
-        name = "ZangarMarsh3",
-        path = 594537,
-        duration = 98.000,
-    },
-    {
-        name = "ZulDrakGeneralDay",
-        path = 594516,
-        duration = 99.288,
-    },
-    {
-        name = "ZulDrakGeneralNight",
-        path = 594357,
-        duration = 117.496,
-    },
-
-    -- WMO data
-    {
-        name = "AhnQirajRuinsBareRoomTone",
-        path = 537321,
-        duration = 59.443,
-    },
-    {
-        name = "AhnQirajRuinsTriangleRoom",
-        path = 537322,
-        duration = 59.977,
-    },
-    {
-        name = "AuchindounDemonWing",
-        path = 537323,
-        duration = 90.000,
-    },
-    {
-        name = "AuchindounDraineiWing",
-        path = 537324,
-        duration = 87.000,
-    },
-    {
-        name = "AuchindounEtherialWing",
-        path = 537325,
-        duration = 74.000,
-    },
-    {
-        name = "AuchindounShadowWing",
-        path = 537326,
-        duration = 60.987,
-    },
-    {
-        name = "AzjulNerubUpperCity",
-        path = 537327,
-        duration = 150.000,
-    },
-    {
-        name = "Blackfathom",
-        path = 537328,
-        duration = 74.628,
-    },
-    {
-        name = "BlackRockJail",
-        path = 537329,
-        duration = 110.000,
-    },
-    {
-        name = "BlackrockSpire",
-        path = 537330,
-        duration = 75.000,
-    },
-    {
-        name = "BlackRockSpireDrakeCalls",
-        path = 537331,
-        duration = 109.227,
-    },
-    {
-        name = "BlackSmith",
-        path = 537332,
-        duration = 59.536,
-    },
-    {
-        name = "BlackTempleCenterRoom",
-        path = 537333,
-        duration = 69.000,
-    },
-    {
-        name = "BlackTempleCHUD",
-        path = 537334,
-        duration = 63.965,
-    },
-    {
-        name = "BlackTempleIllidanTower1",
-        path = 537335,
-        duration = 96.000,
-    },
-    {
-        name = "BlackTempleReliquaryofSouls",
-        path = 537336,
-        duration = 73.000,
-    },
-    {
-        name = "BlackTemple_Aqueduct",
-        path = 537337,
-        duration = 60.000,
-    },
-    {
-        name = "CavernsOfTimeBasic",
-        path = 537338,
-        duration = 60.000,
-    },
-    {
-        name = "CavernsOfTimeCore",
-        path = 537339,
-        duration = 64.042,
-    },
-    {
-        name = "CaveVolcanic",
-        path = 537345,
-        duration = 63.731,
-    },
-    {
-        name = "CoilFangReservoir",
-        path = 537346,
-        duration = 92.000,
-    },
-    {
-        name = "CoilFangStandard",
-        path = 537347,
-        duration = 92.000,
-    },
-    {
-        name = "CoilFangSteamVault",
-        path = 537348,
-        duration = 92.000,
-    },
-    {
-        name = "DalaranPrison",
-        path = 537349,
-        duration = 110.000,
-    },
-    {
-        name = "DalaranSewers",
-        path = 537350,
-        duration = 75.374,
-    },
-    {
-        name = "DarnassusDay",
-        path = 537351,
-        duration = 56.935,
-    },
-    {
-        name = "DarnassusNight",
-        path = 537352,
-        duration = 56.935,
-    },
-    {
-        name = "DireMaulChamber",
-        path = 537353,
-        duration = 59.536,
-    },
-    {
-        name = "DrakTharonKeep",
-        path = 537354,
-        duration = 60.000,
-    },
-    {
-        name = "DungeonCatheadral",
-        path = 537355,
-        duration = 59.443,
-    },
-    {
-        name = "DungeonCrypt",
-        path = 537356,
-        duration = 88.978,
-    },
-    {
-        name = "DwarvenDistrict",
-        path = 537357,
-        duration = 56.935,
-    },
-    {
-        name = "ExodarCity1",
-        path = 537358,
-        duration = 75.000,
-    },
-    {
-        name = "Gnomeregan",
-        path = 537359,
-        duration = 58.495,
-    },
-    {
-        name = "GundrakGeneral",
-        path = 537360,
-        duration = 103.701,
-    },
-    {
-        name = "GundrakWaterSteam",
-        path = 537361,
-        duration = 103.701,
-    },
-    {
-        name = "HellFireBloodFurnace",
-        path = 537362,
-        duration = 104.000,
-    },
-    {
-        name = "HellfireCitadelMilitary",
-        path = 537363,
-        duration = 60.000,
-    },
-    {
-        name = "HellfireMagtheradonsLair",
-        path = 537364,
-        duration = 78.000,
-    },
-    {
-        name = "IceCrownRaidGeneral",
-        path = 537365,
-        duration = 89.119,
-    },
-    {
-        name = "IceCrownRaidPlagueWorks",
-        path = 537366,
-        duration = 87.701,
-    },
-    {
         name = "IceCrownRaid_CrimsonHall",
         path = 537367,
         duration = 84.606,
@@ -2525,6 +2289,16 @@ local AmbienceData = {
         duration = 84.030,
     },
     {
+        name = "IceCrownRaidGeneral",
+        path = 537365,
+        duration = 89.119,
+    },
+    {
+        name = "IceCrownRaidPlagueWorks",
+        path = 537366,
+        duration = 87.701,
+    },
+    {
         name = "Ironforge",
         path = 537370,
         duration = 88.563,
@@ -2533,6 +2307,26 @@ local AmbienceData = {
         name = "IronforgeTheGreatForge",
         path = 537371,
         duration = 58.182,
+    },
+    {
+        name = "IsleOfConquest_DayNight",
+        path = 594549,
+        duration = 113.842,
+    },
+    {
+        name = "JungleDay",
+        path = 539097,
+        duration = 60.000,
+    },
+    {
+        name = "JungleNight",
+        path = 539092,
+        duration = 60.000,
+    },
+    {
+        name = "Karazhan_GeneralAmbience",
+        path = 537381,
+        duration = 55.026,
     },
     {
         name = "KarazhanBasementHorseStables",
@@ -2580,9 +2374,14 @@ local AmbienceData = {
         duration = 60.000,
     },
     {
-        name = "Karazhan_GeneralAmbience",
-        path = 537381,
-        duration = 55.026,
+        name = "LakeWintergraspDay",
+        path = 594429,
+        duration = 132.631,
+    },
+    {
+        name = "LakeWintergraspNight",
+        path = 594363,
+        duration = 128.361,
     },
     {
         name = "LargeRoomTone",
@@ -2593,6 +2392,26 @@ local AmbienceData = {
         name = "LargeRoomToneNew",
         path = 537383,
         duration = 59.536,
+    },
+    {
+        name = "LostIslesPhase1_Day",
+        path = 594417,
+        duration = 108.450,
+    },
+    {
+        name = "LostIslesPhase1_Night",
+        path = 594474,
+        duration = 83.335,
+    },
+    {
+        name = "MarshDay",
+        path = 539084,
+        duration = 56.935,
+    },
+    {
+        name = "MarshNight",
+        path = 539103,
+        duration = 56.935,
     },
     {
         name = "MineStandard02",
@@ -2618,6 +2437,16 @@ local AmbienceData = {
         name = "mini-hive",
         path = 537389,
         duration = 52.716,
+    },
+    {
+        name = "NagrandDay",
+        path = 539001,
+        duration = 61.000,
+    },
+    {
+        name = "NagrandNight",
+        path = 538999,
+        duration = 61.000,
     },
     {
         name = "NaxxramasAbominationWing",
@@ -2650,6 +2479,21 @@ local AmbienceData = {
         duration = 59.855,
     },
     {
+        name = "NetherStorm1",
+        path = 594423,
+        duration = 144.000,
+    },
+    {
+        name = "NewHearthglen",
+        path = 594444,
+        duration = 130.000,
+    },
+    {
+        name = "Nexus70_Library",
+        path = 537398,
+        duration = 93.918,
+    },
+    {
         name = "Nexus70EnergyRoom",
         path = 537396,
         duration = 86.137,
@@ -2660,9 +2504,14 @@ local AmbienceData = {
         duration = 60.000,
     },
     {
-        name = "Nexus70_Library",
-        path = 537398,
-        duration = 93.918,
+        name = "NortherndCoastGenericDayNight",
+        path = 594561,
+        duration = 82.299,
+    },
+    {
+        name = "NorthrendScourgeGeneral",
+        path = 594426,
+        duration = 96.174,
     },
     {
         name = "OldStrathHolme1",
@@ -2685,9 +2534,74 @@ local AmbienceData = {
         duration = 56.935,
     },
     {
+        name = "PlagueLandsDay",
+        path = 539019,
+        duration = 60.000,
+    },
+    {
+        name = "PlagueLandsNight",
+        path = 539115,
+        duration = 60.000,
+    },
+    {
+        name = "PlainsDesertDay",
+        path = 539015,
+        duration = 56.935,
+    },
+    {
+        name = "PlainsDesertNight",
+        path = 539034,
+        duration = 56.842,
+    },
+    {
         name = "RazorfenKraul",
         path = 537403,
         duration = 56.935,
+    },
+    {
+        name = "RubySanctumNightDay",
+        path = 594462,
+        duration = 85.060,
+    },
+    {
+        name = "SaltFlatsDay",
+        path = 539009,
+        duration = 56.935,
+    },
+    {
+        name = "SaltFlatsNight",
+        path = 539074,
+        duration = 56.935,
+    },
+    {
+        name = "ScorchLineDay",
+        path = 594402,
+        duration = 60.000,
+    },
+    {
+        name = "ScorchLineNight",
+        path = 594555,
+        duration = 60.000,
+    },
+    {
+        name = "ShadowFang",
+        path = 539122,
+        duration = 59.629,
+    },
+    {
+        name = "ShadowMoonValley1",
+        path = 594360,
+        duration = 92.000,
+    },
+    {
+        name = "ShalandisIsle",
+        path = 594570,
+        duration = 60.000,
+    },
+    {
+        name = "Shattrath",
+        path = 594408,
+        duration = 113.721,
     },
     {
         name = "ShipExterior",
@@ -2710,6 +2624,16 @@ local AmbienceData = {
         duration = 73.423,
     },
     {
+        name = "SholazarBasinDay",
+        path = 594471,
+        duration = 70.000,
+    },
+    {
+        name = "SholazarBasinNight",
+        path = 594381,
+        duration = 70.000,
+    },
+    {
         name = "SilverMoonGeneralDay1",
         path = 537408,
         duration = 59.971,
@@ -2718,6 +2642,21 @@ local AmbienceData = {
         name = "SilverMoonGeneralNight1",
         path = 537409,
         duration = 55.000,
+    },
+    {
+        name = "SilvermoonRuinsDay",
+        path = 594336,
+        duration = 65.000,
+    },
+    {
+        name = "SilvermoonRuinsNight",
+        path = 594558,
+        duration = 60.000,
+    },
+    {
+        name = "StormPeaksDayNight",
+        path = 594465,
+        duration = 113.996,
     },
     {
         name = "StormwindDay",
@@ -2745,16 +2684,6 @@ local AmbienceData = {
         duration = 59.629,
     },
     {
-        name = "SunwellProgressionLight1",
-        path = 537418,
-        duration = 105.589,
-    },
-    {
-        name = "SunwellProgressionLight2",
-        path = 537419,
-        duration = 105.000,
-    },
-    {
         name = "Sunwell_GrandMagistersAsylum",
         path = 537420,
         duration = 90.000,
@@ -2763,6 +2692,16 @@ local AmbienceData = {
         name = "Sunwell_INT_Generic1",
         path = 537421,
         duration = 94.052,
+    },
+    {
+        name = "SunwellProgressionLight1",
+        path = 537418,
+        duration = 105.589,
+    },
+    {
+        name = "SunwellProgressionLight2",
+        path = 537419,
+        duration = 105.000,
     },
     {
         name = "Tavern",
@@ -2785,6 +2724,26 @@ local AmbienceData = {
         duration = 74.000,
     },
     {
+        name = "TerokkarDay",
+        path = 594450,
+        duration = 60.000,
+    },
+    {
+        name = "TerokkarNight",
+        path = 594480,
+        duration = 60.000,
+    },
+    {
+        name = "ThePitofSaron",
+        path = 594564,
+        duration = 143.587,
+    },
+    {
+        name = "TheVibrantGlade",
+        path = 594486,
+        duration = 60.000,
+    },
+    {
         name = "ThunderBluffDay",
         path = 537426,
         duration = 60.000,
@@ -2803,6 +2762,11 @@ local AmbienceData = {
         name = "UlduarRaid_EngineRoom",
         path = 537429,
         duration = 102.602,
+    },
+    {
+        name = "UlduarRaid_FreyaZone",
+        path = 594552,
+        duration = 65.440,
     },
     {
         name = "UlduarRaid_General",
@@ -2855,6 +2819,21 @@ local AmbienceData = {
         duration = 60.000,
     },
     {
+        name = "ValianceKeep",
+        path = 539118,
+        duration = 103.123,
+    },
+    {
+        name = "VolcanicDay",
+        path = 539073,
+        duration = 56.935,
+    },
+    {
+        name = "VolcanicNight",
+        path = 539077,
+        duration = 56.935,
+    },
+    {
         name = "VordrassilsTears",
         path = 537441,
         duration = 70.000,
@@ -2865,9 +2844,59 @@ local AmbienceData = {
         duration = 75.000,
     },
     {
+        name = "WailingCaverns",
+        path = 537442,
+        duration = 56.842,
+    },
+    {
         name = "WarsongGulch",
         path = 537443,
         duration = 90.000,
+    },
+    {
+        name = "WestfallDay",
+        path = 539006,
+        duration = 60.000,
+    },
+    {
+        name = "WetlandsDay",
+        path = 539133,
+        duration = 60.000,
+    },
+    {
+        name = "WetlandsNight",
+        path = 538993,
+        duration = 60.000,
+    },
+    {
+        name = "WhisperGulchDayNight",
+        path = 594453,
+        duration = 58.664,
+    },
+    {
+        name = "ZangarMarsh1",
+        path = 594396,
+        duration = 104.000,
+    },
+    {
+        name = "ZangarMarsh2",
+        path = 594447,
+        duration = 104.000,
+    },
+    {
+        name = "ZangarMarsh3",
+        path = 594537,
+        duration = 98.000,
+    },
+    {
+        name = "ZulDrakGeneralDay",
+        path = 594516,
+        duration = 99.288,
+    },
+    {
+        name = "ZulDrakGeneralNight",
+        path = 594357,
+        duration = 117.496,
     },
 };
 
