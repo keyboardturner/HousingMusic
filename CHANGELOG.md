@@ -1,5 +1,11 @@
 [Full Changelog & Previous Releases](https://github.com/keyboardturner/HousingMusic/releases)
 
+# 0.1.6a
+
+Moved/updated some functions that will become deprecated
+
+reworked some of the behavior of the mouseover buttons on song/ambience entries to be less sticky
+
 # 0.1.6
 
 Regen ambience database
